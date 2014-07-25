@@ -96,7 +96,7 @@ int main(){
 	environment = new Environment(agents, goals, landmarks, m_radius);
 	map = new Map(-20.);
 	for(int run = 0; run < total_runs; run++){
-		for(int t = 0; t < total_time; t++){
+		for(int t = 0; t < total_time; t++){														//OUTBOUND RUN (SEARCHING)
 			//cout << run << " " << t <<endl;
 			command = (2.*map->update_map() - 1.);
 			outputs.col(t+total_time*run) = pin->update(environment->agent_list.at(0)->phi, 1.0);
@@ -105,7 +105,7 @@ int main(){
 			//		if(t%100==0)
 			//			cout << t << "\t" <<  PI_angle_error << "\t\t" << agent->theta << "\t\t" <<  bound_angle(pin->max_angle) << endl;
 		}
-		while(environment->agent_list.at(0)->distance > 0.5 && pin->t < total_time*(run+1) + 5000){
+		while(environment->agent_list.at(0)->distance > 0.5 && pin->t < total_time*(run+1) + 5000){ //INBOUND RUN (PI HOMING)
 			outputs = join_rows(outputs, pin->update(environment->agent_list.at(0)->phi, 1.0));
 			command = 0.95*(2.*map->update_map() - 1.) + 0.05*sin(bound_angle(pin->max_angle-environment->agent_list.at(0)->phi));
 			environment->update(command);
