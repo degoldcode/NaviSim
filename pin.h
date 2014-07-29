@@ -11,17 +11,20 @@
 #include <armadillo>
 #include "environment.h"
 #include "map.h"
+#include "goallearning.h"
 using namespace std;
 using namespace arma;
 
 class PIN {
 public:
-	PIN(int neurons, double leak, double noise);
+	PIN(int neurons, double leak, double sensnoise, double neurnoise);
 	~PIN();
 
 	vec update(double angle, double speed);
 	vec lin_rect(vec input);
 	double get_max_angle(vec input);
+	double gaussian_noise(double width);
+	double bound_PI_angle(double angle);
 
 	vec pref_angle;
 	vec act_head_direction;
@@ -34,7 +37,8 @@ public:
 
 	int N;
 	double leak_rate;
-	double noise;
+	double snoise;
+	double nnoise;
 	int t;
 };
 

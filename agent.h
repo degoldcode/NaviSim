@@ -20,6 +20,7 @@ public:
 	double bound_angle(double angle);
 	void update(double command);
 	double rand(double min, double max);
+	void reset();
 
 	double x;
 	double y;

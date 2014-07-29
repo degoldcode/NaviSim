@@ -76,7 +76,7 @@ Environment::~Environment(){
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		delete agent_list.at(i);
 	for(unsigned int i = 0; i < goal_list.size(); i++){
-		stream_g << goal_list.at(i)->x_position << "\t" << goal_list.at(i)->y_position << "\t" << goal_list.at(i)->hit << endl;
+		stream_g << goal_list.at(i)->x_position << "\t" << goal_list.at(i)->y_position << "\t" << goal_list.at(i)->thit << endl;
 		delete goal_list.at(i);
 	}
 	stream_g.close();
@@ -88,13 +88,19 @@ Environment::~Environment(){
 }
 
 void Environment::update(double command){
+	reward = 0.0;
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		agent_list.at(i)->update(command);
 		for(unsigned int j = 0; j < goal_list.size(); j++)
-			reward = goal_list.at(j)->get_reward(agent_list.at(i)->x, agent_list.at(i)->y);
+			reward += goal_list.at(j)->get_reward(agent_list.at(i)->x, agent_list.at(i)->y);
 		for(unsigned int j = 0; j < landmark_list.size(); j++)
 			lm_recogn.at(j) = landmark_list.at(j)->get_hit(agent_list.at(i)->x, agent_list.at(i)->y);
 	}
+}
+
+void Environment::add_goal(double x, double y){
+	Goal* goal = new Goal(x,y);
+	goal_list.push_back(goal);
 }
 
 int Environment::get_hits(){
@@ -104,6 +110,12 @@ int Environment::get_hits(){
 	return sum;
 }
 
+void Environment::reset(){
+	for(unsigned int i = 0; i < agent_list.size(); i++)
+		agent_list.at(i)->reset();
+	for(unsigned int j = 0; j < goal_list.size(); j++)
+		goal_list.at(j)->hit = 0;
+}
 
 double Environment::get_distance(Goal* goal1, Goal* goal2){
 	return sqrt(pow(goal1->x_position-goal2->x_position,2.) + pow(goal1->y_position-goal2->y_position,2.));

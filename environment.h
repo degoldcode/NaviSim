@@ -22,10 +22,12 @@ public:
 	~Environment();
 
 	void update(double command);
+	void add_goal(double x, double y);
 	int get_hits();
 	double get_distance(Goal* goal1, Goal* goal2);
 	double get_distance(Landmark* landmark1, Goal* goal2);
 	double get_distance(Landmark* landmark1, Landmark* landmark2);
+	void reset();
 	std::vector<Agent*> agent_list;
 	std::vector<Goal*> goal_list;
 	std::vector<Landmark*> landmark_list;

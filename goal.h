@@ -13,6 +13,7 @@ using namespace std;
 class Goal {
 public:
 	Goal(double max_radius);
+	Goal(double x, double y);
 	~Goal();
 
 	double x_position;
@@ -23,6 +24,7 @@ public:
 	double get_reward(double x, double y);
 	double rand(double min, double max);
 	int hit;
+	int thit;
 };
 
 

@@ -13,7 +13,7 @@ using namespace std;
 Agent::Agent(){
 	x = 0.;
 	y = 0.;
-	phi = rand(-M_PI, M_PI);
+	phi = M_PI/2.;//0.0;//rand(-M_PI, M_PI);
 	v = 0.1;
 	k_phi = 4.;
 	m_dphi = 0.0;
@@ -48,9 +48,15 @@ void Agent::update(double command){
 	x += v*cos(phi);
 	y += v*sin(phi);
 	distance = sqrt(x*x+y*y);
-	theta = atan2(y,x);
+	theta = bound_angle(atan2(y,x));
 	if(!no_write)
 		stream << x << "\t" << y << "\t" << phi << "\t" << dphi << endl;
+}
+
+void Agent::reset(){
+	x = 0.;
+	y = 0.;
+	phi = rand(-M_PI, M_PI);
 }
 
 double Agent::rand(double min, double max){
