@@ -26,6 +26,8 @@ public:
 	vec act_pi_array;
 	vec act_mu_array;
 	vec act_gv_array;
+	vec act_output;
+	mat w_cos;
 
 	mat w_mu_gv;
 	mat dw_mu_gv;

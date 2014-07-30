@@ -20,6 +20,8 @@ GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 	act_pi_array.zeros(N);
 	act_mu_array.zeros(M);
 	act_gv_array.zeros(N);
+	act_output.zeros(N);
+	w_cos.zeros(N,N);
 	w_mu_gv.zeros(N,M);
 	w_pi_gv.eye(N,N);
 
@@ -35,6 +37,9 @@ GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 
 	for(int i = 0; i < N; i++)
 		pref_angle(i) = (2.*M_PI*i)/N;
+	for(int i = 0; i < N; i++)
+		for(int j = 0; j < N; j++)
+			w_cos(i,j) = 0.01*cos(pref_angle(i) - pref_angle(j));
 }
 
 GoalLearning::~GoalLearning(){
@@ -46,12 +51,13 @@ vec GoalLearning::update(vec pi_input, double in_reward){
 	reward = in_reward;
 	update_activities();
 	update_weights();
-	max_angle = get_max_angle(act_gv_array);
-	return act_gv_array;
+	max_angle = get_max_angle(act_output);
+	return act_output;
 }
 
 void GoalLearning::update_activities(){
-	act_gv_array = w_mu_gv*act_mu_array /*+ w_pi_gv*act_pi_array*/;
+	act_gv_array = w_mu_gv*act_mu_array + w_pi_gv*act_pi_array;
+	act_output = w_cos*act_gv_array;
 }
 
 void GoalLearning::update_weights(){

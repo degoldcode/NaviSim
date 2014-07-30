@@ -6,6 +6,7 @@
  */
 
 #include "pin.h"
+#include "timer.h"
 
 
 PIN::PIN(int p_neurons, double p_leak, double p_sens_noise, double p_neur_noise){
@@ -94,11 +95,12 @@ Environment* environment;
 Map* map;
 const int num_neurons = 360;			//Number of array neurons
 const int num_motivs = 2;				//0=outbound,	1=inbound
-const int total_time = 1000;
-const int max_extra_time = 2000;
+const int total_time = 200;
+const int max_extra_time = 600;
 const int total_runs = 5;
 const double factor = 0.5;
 mat outputs;
+mat out_array;
 mat gv_array;
 mat pi_array;
 mat mu_array;
@@ -132,13 +134,13 @@ double inv_angle(double angle){
 }
 
 int main(){
+	Timer timer(true);
 	pin = new PIN(num_neurons, 0.0, 0.0, 0.0);
 	gln = new GoalLearning(num_neurons, num_motivs, 0.0);
 	environment = new Environment(agents, goals, landmarks, m_radius);
 	environment->add_goal(20.,0.);
 	map = new Map(-20.);
 	for(int run = 0; run < total_runs; run++){
-		environment->reset();
 		if(total_runs > 20){
 			outputs.reset();
 			pi_array.reset();
@@ -146,47 +148,50 @@ int main(){
 			gv_array.reset();
 			weight.reset();
 			dweight.reset();
+			out_array.reset();
 		}
 		for(int t = 0; t < total_time; t++){																	//OUTBOUND RUN (SEARCHING)
 			//cout << run << " " << t <<endl;
 			gln->set_mu(1.0, 0.0);
 			outputs = join_rows(outputs, pin->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v));
-			gv_array = join_rows(gv_array, gln->update(outputs.col(outputs.n_cols-1), environment->reward));
+			out_array = join_rows(gv_array, gln->update(outputs.col(outputs.n_cols-1), environment->reward));
+			gv_array = join_rows(gv_array, gln->act_gv_array);
 			pi_array = join_rows(pi_array, gln->act_pi_array);
 			mu_array = join_rows(mu_array, gln->act_mu_array);
 			weight = join_rows(weight, gln->w_mu_gv.col(0));
 			dweight = join_rows(dweight, gln->dw_mu_gv.col(0));
-			if(environment->reward > 0.0)
-				cout << pin->t << " " << environment->reward << endl;
 			PI_angle_error = bound_angle(pin->max_angle - environment->agent_list.at(0)->theta);
 			environment->update(command);
-			feedback_error = bound_angle(gln->max_angle-environment->agent_list.at(0)->phi);
+			feedback_error = 0.1*bound_angle(gln->max_angle-environment->agent_list.at(0)->phi);
 			goal_factor = (tanh(max(max(gln->w_mu_gv))/num_neurons));
 			command = /*(1.0-goal_factor)*(2.*map->update_map() - 1.) +*/ goal_factor*sin(feedback_error);
-			if(pin->t%1000==0)
+			if(pin->t%total_time==0)
 				printf("t = %4u\tPI_error = %1.3f\tHV = %1.3f\tTheta = %1.3f\tinv HV = %1.3f\tPhi = %1.3f\tGV angle = %1.3f (%1.3f)\n", pin->t, PI_angle_error, environment->agent_list.at(0)->theta, pin->max_angle, bound_angle(pin->max_angle-M_PI), environment->agent_list.at(0)->phi, gln->max_angle, goal_factor);
 		}
 		double in_time = pin->t;
 		while(environment->agent_list.at(0)->distance > 0.5 && pin->t < in_time + max_extra_time){ 	//INBOUND RUN (PI HOMING)
 			gln->set_mu(0.0, 1.0);
 			outputs = join_rows(outputs, pin->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v));
-			gv_array = join_rows(gv_array, gln->update(outputs.col(outputs.n_cols-1), environment->reward));
+			out_array = join_rows(gv_array, gln->update(outputs.col(outputs.n_cols-1), environment->reward));
+			gv_array = join_rows(gv_array, gln->act_gv_array);
 			pi_array = join_rows(pi_array, gln->act_pi_array);
 			mu_array = join_rows(mu_array, gln->act_mu_array);
 			weight = join_rows(weight, gln->w_mu_gv.col(0));
 			dweight = join_rows(dweight, gln->dw_mu_gv.col(0));
 			feedback_error = 0.1*bound_angle(inv_angle(pin->max_angle)-environment->agent_list.at(0)->phi);
-			if(pin->t%1000==0)
+			if(pin->t%total_time==0)
 				printf("t = %4u\tFB_error = %1.3f\tHV = %1.3f\tTheta = %1.3f\tinv HV = %1.3f\tPhi = %1.3f\n", pin->t, feedback_error, environment->agent_list.at(0)->theta, pin->max_angle, bound_angle(pin->max_angle-M_PI), environment->agent_list.at(0)->phi);
 			command = /*0.95*/0.75*(2.*map->update_map() - 1.) + 0.25/*0.05*/*sin(feedback_error);
 			environment->update(command);
 		}
 		printf("Run = %u, time@nest = %u\n", run+1, pin->t);
+		environment->reset();
 	}
 	outputs.save("./data/out.mat", raw_ascii);
 	pi_array.save("./data/pi.mat", raw_ascii);
 	mu_array.save("./data/mu.mat", raw_ascii);
 	gv_array.save("./data/gv.mat", raw_ascii);
+	out_array.save("./data/gv_out.mat", raw_ascii);
 	weight.save("./data/w.mat", raw_ascii);
 	dweight.save("./data/dw.mat", raw_ascii);
 //	mat outputs_t = outputs.t();
@@ -195,4 +200,6 @@ int main(){
 	delete gln;
 	delete environment;
 	delete map;
+	auto elapsed_secs_cl = timer.Elapsed();
+	printf("%4.3f s. Done.\n", elapsed_secs_cl.count()/1000.);
 }

@@ -43,7 +43,7 @@ double Goal::get_reward(double x, double y){
 	if(rdist < 0.2){ //20 cm radius
 		hit = 1;
 		thit++;
-		cout << "Hit\n";
+		//cout << "Hit\n";
 		return 1.0;
 	}
 	else

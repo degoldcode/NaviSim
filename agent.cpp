@@ -13,7 +13,7 @@ using namespace std;
 Agent::Agent(){
 	x = 0.;
 	y = 0.;
-	phi = M_PI/2.;//0.0;//rand(-M_PI, M_PI);
+	phi = 0.0;//rand(-M_PI, M_PI);
 	v = 0.1;
 	k_phi = 4.;
 	m_dphi = 0.0;
