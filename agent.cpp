@@ -13,15 +13,16 @@ using namespace std;
 Agent::Agent(){
 	x = 0.;
 	y = 0.;
-	phi = 0.0;//rand(-M_PI, M_PI);
+	phi = M_PI/2.;//rand(-M_PI, M_PI);
 	v = 0.1;
 	k_phi = 4.;
-	m_dphi = 0.0;
+	//m_dphi = 0.0;
 	dphi = 0.0;
 	abs_dphi = 0.0;
 	distance = 0.0;
 	theta = 0.0;
 	no_write = false;
+	in_pipe = false;
 	stream.open("./data/agent.dat", ios_base::out /*| ios_base::app*/);
 }
 
@@ -40,23 +41,24 @@ double Agent::bound_angle(double phi){
 }
 
 void Agent::update(double command){
-	dphi = k_phi * command + m_dphi;
+	if(!no_write)
+			stream << x << "\t" << y << "\t" << phi << "\t" << dphi << endl;
+	if(!in_pipe)
+		dphi = k_phi * command /*+ m_dphi*/;
 	phi += dphi;
-	m_dphi = 0.0;
 	phi = bound_angle(phi);
 	abs_dphi = std::abs(dphi);
 	x += v*cos(phi);
 	y += v*sin(phi);
 	distance = sqrt(x*x+y*y);
 	theta = bound_angle(atan2(y,x));
-	if(!no_write)
-		stream << x << "\t" << y << "\t" << phi << "\t" << dphi << endl;
+
 }
 
 void Agent::reset(){
 	x = 0.;
 	y = 0.;
-	phi = rand(-M_PI, M_PI);
+	phi = M_PI/2.;//rand(-M_PI, M_PI);
 }
 
 double Agent::rand(double min, double max){

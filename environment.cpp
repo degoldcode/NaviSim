@@ -9,13 +9,37 @@
 #include "environment.h"
 using namespace std;
 
-Environment::Environment(double num_agents, double num_goals, double num_landmarks, double max_radius){
+Environment::Environment(double num_agents){
 	stream_g.open("./data/goals.dat");
 	stream_lm.open("./data/landmarks.dat");
+	stream_p.open("./data/pipes.dat");
+
+	/*** SET UP AGENTS ***/
 	for(unsigned int i = 0; i < num_agents; i++){
 		Agent * const agent = new Agent();
 		agent_list.push_back(agent);
 	}
+
+	/*** SET UP CLASS VARIABLES ***/
+	reward = 0.0;
+	sum_reward = 0.0;
+	lm_recogn.resize(0);
+	count = 0;
+	flag = 0;
+}
+
+Environment::Environment(double num_agents, double num_goals, double num_landmarks, double max_radius){
+	stream_g.open("./data/goals.dat");
+	stream_lm.open("./data/landmarks.dat");
+	stream_p.open("./data/pipes.dat");
+
+	/*** SET UP AGENTS ***/
+	for(unsigned int i = 0; i < num_agents; i++){
+		Agent * const agent = new Agent();
+		agent_list.push_back(agent);
+	}
+
+	/*** SET UP GOALS AND LANDMARKS ***/
 	for(unsigned int i = 0; i < num_goals; i++){
 		flag = false;
 		Goal* goal;
@@ -68,7 +92,14 @@ Environment::Environment(double num_agents, double num_goals, double num_landmar
 		}
 		landmark_list.push_back(landmark);
 	}
+
+	/*** SET UP PIPES ***/
+	//// HERE
+
+
+	/*** SET UP CLASS VARIABLES ***/
 	reward = 0.0;
+	sum_reward = 0.0;
 	lm_recogn.resize(num_landmarks);
 }
 
@@ -85,22 +116,38 @@ Environment::~Environment(){
 		delete landmark_list.at(i);
 	}
 	stream_lm.close();
+	for(unsigned int i = 0; i < pipe_list.size(); i++){
+		stream_p << pipe_list.at(i)->x_pos_0 << "\t" << pipe_list.at(i)->y_pos_0 << "\n" << pipe_list.at(i)->x_pos_1 << "\t" << pipe_list.at(i)->y_pos_1 << endl;
+		delete pipe_list.at(i);
+	}
+	stream_p.close();
 }
 
 void Environment::update(double command){
 	reward = 0.0;
 	for(unsigned int i = 0; i < agent_list.size(); i++){
+		for(unsigned int j = 0; j < pipe_list.size(); j++)
+			agent_list.at(i) = pipe_list.at(j)->set_agent_pipe(agent_list.at(i));
+		for(unsigned int j = 0; j < pipe_list.size(); j++)
+			if(pipe_list.at(j)->in_this_pipe)
+				agent_list.at(i)->in_pipe = true;
 		agent_list.at(i)->update(command);
 		for(unsigned int j = 0; j < goal_list.size(); j++)
 			reward += goal_list.at(j)->get_reward(agent_list.at(i)->x, agent_list.at(i)->y);
 		for(unsigned int j = 0; j < landmark_list.size(); j++)
 			lm_recogn.at(j) = landmark_list.at(j)->get_hit(agent_list.at(i)->x, agent_list.at(i)->y);
 	}
+	sum_reward += reward;
 }
 
 void Environment::add_goal(double x, double y){
 	Goal* goal = new Goal(x,y);
 	goal_list.push_back(goal);
+}
+
+void Environment::add_pipe(double x0, double x1, double y0, double y1, double width){
+	Pipe* pipe = new Pipe(x0,x1,y0,y1,width);
+	pipe_list.push_back(pipe);
 }
 
 int Environment::get_hits(){
@@ -111,6 +158,7 @@ int Environment::get_hits(){
 }
 
 void Environment::reset(){
+	sum_reward = 0.0;
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		agent_list.at(i)->reset();
 	for(unsigned int j = 0; j < goal_list.size(); j++)

@@ -9,9 +9,6 @@
 #define PIN_H_
 
 #include <armadillo>
-#include "environment.h"
-#include "map.h"
-#include "goallearning.h"
 using namespace std;
 using namespace arma;
 
@@ -20,8 +17,10 @@ public:
 	PIN(int neurons, double leak, double sensnoise, double neurnoise);
 	~PIN();
 
+	void reset();
 	vec update(double angle, double speed);
 	vec lin_rect(vec input);
+	double get_avg_angle(vec input);
 	double get_max_angle(vec input);
 	double gaussian_noise(double width);
 	double bound_PI_angle(double angle);
@@ -34,6 +33,7 @@ public:
 	mat w_cos;
 
 	double max_angle;
+	double avg_angle;
 
 	int N;
 	double leak_rate;

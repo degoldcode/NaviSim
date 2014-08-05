@@ -12,7 +12,7 @@ using namespace std;
 GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 	N = neurons;
 	M = motiv_states;
-	learn_rate = 0.5;
+	learn_rate = 0.1;
 	reward = 0.0;
 	max_angle = 0.0;
 
@@ -23,6 +23,7 @@ GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 	act_output.zeros(N);
 	w_cos.zeros(N,N);
 	w_mu_gv.zeros(N,M);
+	w_mu_gv.load("./save/weights.mat", raw_ascii);
 	w_pi_gv.eye(N,N);
 
 	mat One = eye<mat>(N/2,N/2);
@@ -43,7 +44,7 @@ GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 }
 
 GoalLearning::~GoalLearning(){
-
+	w_mu_gv.save("./save/weights.mat", raw_ascii);
 }
 
 vec GoalLearning::update(vec pi_input, double in_reward){
@@ -56,13 +57,19 @@ vec GoalLearning::update(vec pi_input, double in_reward){
 }
 
 void GoalLearning::update_activities(){
-	act_gv_array = w_mu_gv*act_mu_array + w_pi_gv*act_pi_array;
-	act_output = w_cos*act_gv_array;
+	act_gv_array = w_mu_gv*act_mu_array /*+ w_pi_gv*act_pi_array*/;
+	act_output = eye<mat>(act_gv_array.size(),act_gv_array.size())*act_gv_array /*+ w_cos*act_output*/;
 }
 
 void GoalLearning::update_weights(){
 	dw_mu_gv = learn_rate * reward * (act_pi_array-act_gv_array) * act_mu_array.t();
+	if(abs(dw_mu_gv(45,0)>0.0))
+		cout << reward << " " << act_mu_array(0) << " " << (act_pi_array(45)-act_gv_array(45)) << " " << dw_mu_gv(45,0) << endl;
 	w_mu_gv += dw_mu_gv;
+//	for(int i = 0; i < w_mu_gv.n_rows; i++)
+//		for(int j = 0; j < w_mu_gv.n_cols; j++)
+//			if(w_mu_gv(i,j) < 0.0)
+//				w_mu_gv(i,j) = 0.0;
 }
 
 void GoalLearning::set_mu(double out, double in){

@@ -28,13 +28,14 @@ public:
 	double v;
 	double k_phi;
 	double dphi;
-	double m_dphi;
+	//double m_dphi;
 	double abs_dphi;
 	double theta;
 	double distance;
 
 	ofstream stream;
 	bool no_write;
+	bool in_pipe;
 };
 
 
