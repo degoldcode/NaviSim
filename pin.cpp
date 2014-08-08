@@ -7,6 +7,7 @@
 
 #include "pin.h"
 
+
 PIN::PIN(int p_neurons, double p_leak, double p_sens_noise, double p_neur_noise){
 	N = p_neurons;
 	leak_rate = p_leak;
@@ -27,6 +28,7 @@ PIN::PIN(int p_neurons, double p_leak, double p_sens_noise, double p_neur_noise)
 			w_cos(i,j) = cos(pref_angle(i) - pref_angle(j));
 	max_angle = 0.0;
 	avg_angle = 0.0;
+	length = 0.0;
 	t = 0;
 }
 
@@ -39,6 +41,7 @@ void PIN::reset(){
 	act_gater.zeros(N);
 	act_integrator.zeros(N);
 	act_output.zeros(N);
+	t = 0;
 }
 
 vec PIN::update(double angle, double speed){
@@ -56,7 +59,9 @@ vec PIN::update(double angle, double speed){
 
 	avg_angle = bound_PI_angle(get_avg_angle(act_output));
 	max_angle = bound_PI_angle(get_max_angle(act_output));
-	printf("max = %3.3f\tavg = %3.3f\n", 180.*max_angle/M_PI, 180.*avg_angle/M_PI);
+	length = 7.68616889*get_max_value(act_output)/N;// - 0.00408306293795454578;//*(t+1); // correcting term
+	//if(abs(180.*max_angle/M_PI - 180.*avg_angle/M_PI) > 1.)
+		//printf("max = %3.3f\tavg = %3.3f\n", 180.*max_angle/M_PI, 180.*avg_angle/M_PI);
 	//---Next timestep
 	t++;
 	return act_output;
@@ -72,8 +77,14 @@ vec PIN::lin_rect(vec input){
 
 double PIN::get_max_angle(vec input){
 	uword  index;
-	double min_val = input.max(index);
+	double max_val = input.max(index);
 	return pref_angle(index);
+}
+
+double PIN::get_max_value(vec input){
+	uword  index;
+	double max_val = input.max(index);
+	return max_val;
 }
 
 double PIN::gaussian_noise(double width){
@@ -88,13 +99,40 @@ double PIN::gaussian_noise(double width){
 
 double PIN::bound_PI_angle(double phi){
 	double rphi;
+	int counter = 0;
 	rphi = phi;
-	while(rphi > M_PI)
+	while(rphi > M_PI){
 		rphi -= 2 * M_PI;
-	while(rphi < - M_PI)
+		counter++;
+		if(counter > 5){
+			//cout << "Weird input angle: " << phi << ". Set to zero.\n";
+			rphi= 0.0;
+		}
+	}
+	while(rphi < - M_PI){
 		rphi += 2 * M_PI;
+		counter++;
+		if(counter > 5){
+			//cout << "Weird angle. Set to zero.\n";
+			rphi= 0.0;
+		}
+	}
 	return rphi;
 }
+
+double PIN::maxeigenvalue(mat & A){
+	cx_vec eigval;
+	cx_mat eigvec;
+	// calculate eigenvalues for a non-hermitian matrix
+	eig_gen(eigval, eigvec, A);
+	// output of max() is cx_mat (complex) and must first be converted to mat (double)
+	mat maxVal = max(abs(eigval));
+	return maxVal(0);
+}
+
+//double PIN::get_activity_width(vec input){
+//
+//}
 
 double PIN::get_avg_angle(vec input){
 	double sum_act = 0.0;

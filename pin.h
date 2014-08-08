@@ -22,8 +22,10 @@ public:
 	vec lin_rect(vec input);
 	double get_avg_angle(vec input);
 	double get_max_angle(vec input);
+	double get_max_value(vec input);
 	double gaussian_noise(double width);
 	double bound_PI_angle(double angle);
+	double maxeigenvalue(mat & A);
 
 	vec pref_angle;
 	vec act_head_direction;
@@ -34,6 +36,7 @@ public:
 
 	double max_angle;
 	double avg_angle;
+	double length;
 
 	int N;
 	double leak_rate;

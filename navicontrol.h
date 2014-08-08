@@ -27,6 +27,7 @@ public:
 	void update_matrices(vec PI, vec GL);
 	double bound_angle(double phi);
 	double inv_angle(double angle);
+	double in_degr(double angle);
 	void reset();
 	void reset_matrices();
 	void save_matrices();
@@ -52,14 +53,22 @@ public:
 	double goal_fb_error;
 	double goal_factor;
 
-	double PI_angle;
+	double PI_max_angle;
+	double PI_avg_angle;
+	double PI_x;
+	double PI_y;
 	double GV_angle;
+	double GV_x;
+	double GV_y;
+	double cGV_angle;
 	double CM_angle;		//CM = chaotic map
 
 	int N;
 	int t;
+	int inv_sampling_rate;		//for activations stored in matrix ([s])
 
 	ofstream stream;
+	ofstream r_stream;
 };
 
 

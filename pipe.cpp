@@ -37,6 +37,7 @@ Agent* Pipe::set_agent_pipe(Agent* agent){
 		//cout << x_m << " " << y_m << " " << agent->phi << endl;
 	}
 	if(in_this_pipe && (x_m > len || abs(y_m) > .5*p_width)){
+		cout << "out" << endl;
 		in_this_pipe = false;
 		agent->in_pipe = false;
 	}

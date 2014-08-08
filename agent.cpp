@@ -13,9 +13,9 @@ using namespace std;
 Agent::Agent(){
 	x = 0.;
 	y = 0.;
-	phi = M_PI/2.;//rand(-M_PI, M_PI);
+	phi = rand(-M_PI, M_PI);
 	v = 0.1;
-	k_phi = 4.;
+	k_phi = M_PI;
 	//m_dphi = 0.0;
 	dphi = 0.0;
 	abs_dphi = 0.0;
@@ -42,23 +42,22 @@ double Agent::bound_angle(double phi){
 
 void Agent::update(double command){
 	if(!no_write)
-			stream << x << "\t" << y << "\t" << phi << "\t" << dphi << endl;
+			stream << x << "\t" << y << "\t" << phi << "\t" << dphi << "\t" << theta << "\t" << distance  << endl;
 	if(!in_pipe)
 		dphi = k_phi * command /*+ m_dphi*/;
 	phi += dphi;
 	phi = bound_angle(phi);
-	abs_dphi = std::abs(dphi);
+	abs_dphi = abs(dphi);
 	x += v*cos(phi);
 	y += v*sin(phi);
 	distance = sqrt(x*x+y*y);
 	theta = bound_angle(atan2(y,x));
-
 }
 
 void Agent::reset(){
 	x = 0.;
 	y = 0.;
-	phi = M_PI/2.;//rand(-M_PI, M_PI);
+	phi = rand(-M_PI, M_PI);
 }
 
 double Agent::rand(double min, double max){

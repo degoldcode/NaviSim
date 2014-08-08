@@ -21,11 +21,14 @@ public:
 	void update_weights();
 	void set_mu(double out, double in);
 	double get_max_angle(vec input);
+	double get_max_value(vec input);
+	vec lin_rect(vec input);
 
 	vec pref_angle;
 	vec act_pi_array;
 	vec act_mu_array;
 	vec act_gv_array;
+	vec act_;
 	vec act_output;
 	mat w_cos;
 
@@ -38,6 +41,10 @@ public:
 	double learn_rate;
 	double reward;
 	double max_angle;
+	double sum_length;
+	double length;
+	double var;
+	int t;
 };
 
 
