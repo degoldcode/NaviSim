@@ -37,6 +37,7 @@ public:
 	double max_angle;
 	double avg_angle;
 	double length;
+	double memory_length;
 
 	int N;
 	double leak_rate;

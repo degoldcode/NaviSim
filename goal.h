@@ -21,10 +21,12 @@ public:
 	double distance_to_origin;
 	double angle_to_x_axis;
 
-	double get_reward(double x, double y);
+	double get_reward(double x, double y, int mode);
 	double rand(double min, double max);
 	int hit;
 	int thit;
+
+	double amount;
 };
 
 

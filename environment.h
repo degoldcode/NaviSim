@@ -41,10 +41,13 @@ public:
 	vector<double> lm_recogn;
 	bool flag;
 	int count;
+	int mode; // 0 = outb, 1 = inb
 
-	ofstream stream_g;
-	ofstream stream_lm;
-	ofstream stream_p;
+	ofstream stream_g;		//goal positions
+	ofstream stream_lm;		//landmark positions
+	ofstream stream_p;		//pipe positions
+	ofstream stream_h;		//home positions
+	ofstream stream_food;		//amount of food at goals over time
 };
 
 #endif /* ENVIRONMENT_H_ */

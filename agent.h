@@ -14,13 +14,14 @@ using namespace std;
 
 class Agent {
 public:
-	Agent();
+	Agent(int mySampling);
 	~Agent();
 
 	double bound_angle(double angle);
-	void update(double command);
+	void displace_to(double x_new, double y_new);
 	double rand(double min, double max);
 	void reset();
+	void update(double command);
 
 	double x;
 	double y;
@@ -28,13 +29,19 @@ public:
 	double v;
 	double k_phi;
 	double dphi;
-	//double m_dphi;
 	double abs_dphi;
 	double theta;
 	double distance;
 
+	//timing
+	double t;
+	const double dt = 0.1;
+	int ts;
+	int trial;
+
 	ofstream stream;
-	bool no_write;
+	int sampling_interval;
+
 	bool in_pipe;
 };
 

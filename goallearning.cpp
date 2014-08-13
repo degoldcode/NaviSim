@@ -12,7 +12,7 @@ using namespace std;
 GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 	N = neurons;
 	M = motiv_states;
-	learn_rate = 0.01;
+	learn_rate = 1.0;
 	reward = 0.0;
 	max_angle = 0.0;
 
@@ -23,7 +23,7 @@ GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 	act_output.zeros(N);
 	w_cos.zeros(N,N);
 	w_mu_gv.zeros(N,M);
-	w_mu_gv.load("./save/weights.mat", raw_ascii);
+	//w_mu_gv.load("./save/weights.mat", raw_ascii);
 	w_pi_gv.eye(N,N);
 
 	mat One = eye<mat>(N/2,N/2);
@@ -46,7 +46,7 @@ GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 }
 
 GoalLearning::~GoalLearning(){
-	//w_mu_gv.save("./save/weights.mat", raw_ascii);
+	w_mu_gv.save("./save/weights.mat", raw_ascii);
 }
 
 vec GoalLearning::update(vec pi_input, double in_reward){
@@ -56,14 +56,14 @@ vec GoalLearning::update(vec pi_input, double in_reward){
 	update_weights();
 	var = mean(act_output);///mean(act_output);
 	max_angle = get_max_angle(act_output);
-	length =  8.*get_max_value(act_output)/N;// + 0.00002*(t+1);
+	length =  7.686168886*get_max_value(act_output)/N;// + 0.00002*(t+1);
 	t++;
 	return act_output;
 }
 
 void GoalLearning::update_activities(){
 	act_gv_array = w_mu_gv*act_mu_array;// + w_pi_gv*act_pi_array);
-	act_output = 1.9119355*act_gv_array;//lin_rect(w_cos*act_gv_array) /*+ w_cos*act_output*/;//eye<mat>(act_gv_array.size(),act_gv_array.size())
+	act_output = act_gv_array; // 1.9119355*   //lin_rect(w_cos*act_gv_array) /*+ w_cos*act_output*/;//eye<mat>(act_gv_array.size(),act_gv_array.size())
 }
 
 void GoalLearning::update_weights(){

@@ -29,6 +29,7 @@ PIN::PIN(int p_neurons, double p_leak, double p_sens_noise, double p_neur_noise)
 	max_angle = 0.0;
 	avg_angle = 0.0;
 	length = 0.0;
+	memory_length = 0.0;
 	t = 0;
 }
 
@@ -59,7 +60,8 @@ vec PIN::update(double angle, double speed){
 
 	avg_angle = bound_PI_angle(get_avg_angle(act_output));
 	max_angle = bound_PI_angle(get_max_angle(act_output));
-	length = 7.68616889*get_max_value(act_output)/N;// - 0.00408306293795454578;//*(t+1); // correcting term
+	memory_length = sum(act_integrator)/N;
+	length = 7.686168886*get_max_value(act_output)/N;// - 0.00408306293795454578;//*(t+1); // correcting term
 	//if(abs(180.*max_angle/M_PI - 180.*avg_angle/M_PI) > 1.)
 		//printf("max = %3.3f\tavg = %3.3f\n", 180.*max_angle/M_PI, 180.*avg_angle/M_PI);
 	//---Next timestep

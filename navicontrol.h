@@ -62,6 +62,9 @@ public:
 	double GV_y;
 	double cGV_angle;
 	double CM_angle;		//CM = chaotic map
+	double accu_reward;
+	double disc_factor;
+	double expl_factor;
 
 	int N;
 	int t;

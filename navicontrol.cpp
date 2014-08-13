@@ -10,7 +10,7 @@
 
 NaviControl::NaviControl(int num_neurons){
 	N = num_neurons;
-	pin = new PIN(N, 0.0000, 0.05, 0.00);
+	pin = new PIN(N, 0.0000, 0.02, 0.00);
 	gln = new GoalLearning(N, 2, 0.0);
 	map = new Map(-20.);
 
@@ -30,9 +30,13 @@ NaviControl::NaviControl(int num_neurons){
 	cGV_angle = 0.0;
 	CM_angle = 0.0;
 
+	accu_reward = 0.0;
+	disc_factor = 0.999;
+	expl_factor = 1.0;
+
 	stream.open("./data/control.dat");
 	r_stream.open("./data/reward.dat");
-	inv_sampling_rate = 1;
+	inv_sampling_rate = 500;
 	t = 0;
 }
 
@@ -72,7 +76,9 @@ double NaviControl::update(double angle, double speed, double reward){
 					<< GV_x << "\t"
 					<< GV_y << endl;
 
-	stream	<< map_output << "\t"
+	if(t%inv_sampling_rate == 0)
+		stream	<< t << "\t"
+				<< map_output << "\t"
 				<< PI_max_angle << "\t"
 				<< PI_avg_angle << "\t"
 				<< in_degr(PI_max_angle) << "\t"
@@ -85,7 +91,8 @@ double NaviControl::update(double angle, double speed, double reward){
 				<< feedback_error << "\t"
 				<< goal_factor << "\t"
 				<< gln->act_mu_array(0) << "\t"
-				<< inv_angle(PI_avg_angle) << endl;
+				<< inv_angle(PI_avg_angle) << "\t"
+				<< expl_factor << endl;
 
 //	if(reward > 0.0){
 //		gln->sum_length += pin->length;
@@ -115,14 +122,17 @@ double NaviControl::update(double angle, double speed, double reward){
 	CM_angle = 0.0;
 
 	feedback_error = inv_angle(PI_avg_angle)-angle;
-	goal_factor = (tanh(max(max(gln->w_mu_gv))/N));
+	goal_factor = 4.0*(tanh(max(max(gln->w_mu_gv.col(0)))/N));
+
+	accu_reward = reward + disc_factor*accu_reward;
+	expl_factor = exp(-accu_reward);
 
 	t++;
 
 	if(gln->act_mu_array(0) == 1.0)
-		return /*0.05*/ 0.1*sin(cGV_angle - angle) + rand(0., 0.05);//+ 1.5*map_output; //rand(0., 0.08); //
+		return /*0.05*/ (1.-expl_factor)*goal_factor*sin(cGV_angle - angle) + expl_factor*10.*rand(0., 0.15);//+ 1.5*map_output; //rand(0., 0.08); //
 	else
-		return 0.8*map_output + 0.05*sin(feedback_error);
+		return 0.5*rand(0., 0.15) + 4.*sin(feedback_error);
 }
 
 void NaviControl::update_matrices(vec PI, vec GL){
