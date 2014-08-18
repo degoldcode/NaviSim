@@ -20,7 +20,7 @@ Goal::Goal(double max_radius){
 	x_position = distance_to_origin * cos(angle_to_x_axis);
 	y_position = distance_to_origin * sin(angle_to_x_axis);
 	hit = 0;
-	thit = 0;
+	total_hits = 0;
 }
 
 Goal::Goal(double x, double y){
@@ -30,7 +30,7 @@ Goal::Goal(double x, double y){
 	x_position = x;
 	y_position = y;
 	hit = 0;
-	thit = 0;
+	total_hits = 0;
 }
 
 Goal::~Goal(){
@@ -43,12 +43,10 @@ double Goal::get_reward(double x, double y, int mode){
 	double rdist = sqrt(rxsqr+rysqr);
 	if(rdist < 0.2 && mode == 0){ //20 cm radius
 		hit = 1;
-		thit++;
 		amount -= 0.001;
 		if(amount < 0.0){
 			amount = 0.0;
 			hit = 0;
-			thit--;
 		}
 		//printf("Reward @ (%f, %f)\n", x, y);
 		return 5.*(0.2-rdist)*amount;

@@ -24,7 +24,7 @@ public:
 	double get_reward(double x, double y, int mode);
 	double rand(double min, double max);
 	int hit;
-	int thit;
+	int total_hits;
 
 	double amount;
 };
