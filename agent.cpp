@@ -63,7 +63,7 @@ void Agent::reset(){
 }
 
 void Agent::update(double command){
-	if(ts%sampling_interval==0)
+	//if(ts%sampling_interval==0)
 		stream  << t << "\t"
 				<< x << "\t"
 				<< y << "\t"

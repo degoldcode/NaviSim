@@ -14,17 +14,18 @@ Environment::Environment(double num_agents){
 	stream_lm.open("./data/landmarks.dat");
 	stream_p.open("./data/pipes.dat");
 	stream_h.open("./data/home.dat");
+	inv_sampling_rate = 1;
 
 	/*** SET UP AGENTS ***/
 	for(unsigned int i = 0; i < num_agents; i++){
-		Agent * const agent = new Agent();
+		Agent * const agent = new Agent(inv_sampling_rate);
 		agent_list.push_back(agent);
 	}
 
 	/*** SET UP CLASS VARIABLES ***/
 	reward = 0.0;
 	sum_reward = 0.0;
-	lm_recogn.resize(0);
+	lm_recogn = 0.0;
 	count = 0;
 	flag = 0;
 	mode = 0;
@@ -39,7 +40,7 @@ Environment::Environment(double num_agents, double num_goals, double num_landmar
 
 	/*** SET UP AGENTS ***/
 	for(unsigned int i = 0; i < num_agents; i++){
-		Agent * const agent = new Agent();
+		Agent * const agent = new Agent(inv_sampling_rate);
 		agent_list.push_back(agent);
 	}
 
@@ -77,7 +78,7 @@ Environment::Environment(double num_agents, double num_goals, double num_landmar
 			count = 0;
 			for(unsigned int j = 0; j < goal_list.size(); j++){
 				//cout << j << " " << get_distance(goal_list.at(j), landmark) << endl;
-				if(get_distance(landmark, goal_list.at(j)) > 2.){
+				if(get_distance(landmark, goal_list.at(j)) > .5){
 					count++;
 				}
 			}
@@ -107,7 +108,7 @@ Environment::Environment(double num_agents, double num_goals, double num_landmar
 	mode = 0;
 	count = 0;
 	flag = 0;
-	lm_recogn.resize(num_landmarks);
+	lm_recogn = 0.0;
 }
 
 Environment::~Environment(){
@@ -116,12 +117,12 @@ Environment::~Environment(){
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		delete agent_list.at(i);
 	for(unsigned int i = 0; i < goal_list.size(); i++){
-		stream_g << goal_list.at(i)->x_position << "\t" << goal_list.at(i)->y_position << "\t" << goal_list.at(i)->thit << endl;
+		stream_g << goal_list.at(i)->x_position << "\t" << goal_list.at(i)->y_position << "\t" << goal_list.at(i)->total_hits << endl;
 		delete goal_list.at(i);
 	}
 	stream_g.close();
 	for(unsigned int i = 0; i < landmark_list.size(); i++){
-		stream_lm << landmark_list.at(i)->x_position << "\t" << landmark_list.at(i)->y_position << "\t" << landmark_list.at(i)->hit << endl;
+		stream_lm << landmark_list.at(i)->x_position << "\t" << landmark_list.at(i)->y_position << "\t" << landmark_list.at(i)->total_hits << endl;
 		delete landmark_list.at(i);
 	}
 	stream_lm.close();
@@ -135,6 +136,7 @@ Environment::~Environment(){
 
 void Environment::update(double command){
 	reward = 0.0;
+	lm_recogn = 0.0;
 	stream_food << agent_list.at(0)->t << " " ;
 	for(unsigned int j = 0; j < goal_list.size(); j++)
 			stream_food <<  goal_list.at(j)->amount << " ";
@@ -149,7 +151,7 @@ void Environment::update(double command){
 		for(unsigned int j = 0; j < goal_list.size(); j++)
 			reward += goal_list.at(j)->get_reward(agent_list.at(i)->x, agent_list.at(i)->y, mode);
 		for(unsigned int j = 0; j < landmark_list.size(); j++)
-			lm_recogn.at(j) = landmark_list.at(j)->get_hit(agent_list.at(i)->x, agent_list.at(i)->y);
+			lm_recogn += landmark_list.at(j)->get_hit(agent_list.at(i)->x, agent_list.at(i)->y);
 	}
 	sum_reward += reward;
 }
@@ -157,6 +159,11 @@ void Environment::update(double command){
 void Environment::add_goal(double x, double y){
 	Goal* goal = new Goal(x,y);
 	goal_list.push_back(goal);
+}
+
+void Environment::add_landmark(double x, double y){
+	Landmark* lm = new Landmark(x,y);
+	landmark_list.push_back(lm);
 }
 
 void Environment::add_pipe(double x0, double x1, double y0, double y1, double width){
@@ -189,4 +196,11 @@ double Environment::get_distance(Landmark* landmark1, Landmark* landmark2){
 	return sqrt(pow(landmark1->x_position-landmark2->x_position,2.) + pow(landmark1->y_position-landmark2->y_position,2.));
 }
 
+double Environment::getx(){
+	return agent_list.at(0)->x;
+}
+
+double Environment::gety(){
+	return agent_list.at(0)->y;
+}
 

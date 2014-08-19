@@ -22,16 +22,16 @@ ofstream lvlearn;
 
 const int num_neurons = 360;			//Number of array neurons
 const int num_motivs = 2;				//0=outbound,	1=inbound
-const int max_outbound_time = 1000;
-const int max_inbound_time = 1000;//600;
-const int total_runs = 500;
+const int max_outbound_time = 300;
+const int max_inbound_time = 300;//600;
+const int total_runs = 10;
 const double factor = 0.5;
 
 const int agents = 1;
 const double m_radius = 25.;
 const double g_density = 0.02;//0.005;//0.0001;
 const int goals = int(g_density * (M_PI * m_radius * m_radius));
-const double lm_density = 0.0;//0.02;//0.001;// 0.0001;
+const double lm_density = 0.2;//0.02;//0.001;// 0.0001;
 const int landmarks = int(lm_density * (M_PI * m_radius * m_radius));
 double command = 0.0;
 double dreward = 0.0;
@@ -65,7 +65,7 @@ int main(){
 	distor.open("./data/distor.dat");
 	Timer timer(true);
 	controller = new NaviControl(num_neurons);											/////	+
-	environment = new Environment(agents, goals, landmarks, m_radius);
+	environment = new Environment(agents/*, goals, landmarks, m_radius*/);
 
 	//environment->add_pipe(0.,0.,-0.0,10.,.2);			//Goal Learning Exp A (Pipe 1)
 	//environment->add_pipe(0.,0.,-0.0,3.,.2);			//Goal Learning Exp A (Pipe 2)
@@ -78,7 +78,8 @@ int main(){
 	//environment->add_pipe(0.,25.,25.,25.,.2);
 	//environment->add_pipe(0.2,-25.,25.,25.,.4);
 	//environment->add_pipe(0.,0.,25.,50.,.4);
-	environment->add_goal(0.,10.);
+	environment->add_landmark(0.5, 1.);
+	environment->add_goal(0., 3.);
 	//environment->add_goal(-25.,25.);
 	//environment->add_goal(0.,50.);
 
@@ -93,19 +94,20 @@ int main(){
 			environment->mode = 0;
 			dreward = -environment->reward;
 			environment->update(command);
+			controller->get_pos(environment->getx(), environment->gety());
 			dreward += environment->reward;
-			command = controller->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v, environment->reward);
+			command = controller->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v, environment->reward, environment->lm_recogn);
 			distor << environment->agent_list.at(0)->distance << " " << controller->pin->length << " " << controller->gln->length << endl;
 			PI_angle_error = bound_angle(controller->PI_avg_angle - environment->agent_list.at(0)->theta);
 			PI_dist_error = controller->pin->length - environment->agent_list.at(0)->distance;
 			if(controller->t%500==0)
-				printf("t = %4u\tPI_error_ang = %1.3f\tSumR = %2.3f\tAccR = %2.3f\tPhi = %3.2f\tGV angle = %3.2f (%2.3f)\n", controller->t, PI_angle_error, environment->sum_reward, controller->accu_reward, in_degr(environment->agent_list.at(0)->phi), in_degr(controller->GV_angle), controller->gln->length);
+				printf("t = %4u\tPI_error_ang = %1.3f\tSumR = %2.3f\tAccR = %2.3f\tPhi = %3.2f\tGV angle = %3.2f (%2.3f)\tLV angle = %3.2f (%2.3f)\n", controller->t, PI_angle_error, environment->sum_reward, controller->accu_reward, in_degr(environment->agent_list.at(0)->phi), in_degr(controller->GV_angle), controller->gln->length, in_degr(controller->LV_angle), controller->rln->length);
 		}
 		double in_time = controller->t;
 		while(inbound_on && environment->agent_list.at(0)->distance > 0.2 && controller->t < in_time + max_inbound_time){ 	//INBOUND RUN (PI HOMING)
 			controller->set_inbound();
 			environment->mode = 1;
-			command = controller->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v, environment->reward);;
+			command = controller->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v, environment->reward, environment->lm_recogn);;
 			environment->update(command);
 			if(environment->agent_list.at(0)->in_pipe)
 				cout << "No. I'm in a pipe.\n";

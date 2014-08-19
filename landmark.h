@@ -13,6 +13,7 @@ using namespace std;
 class Landmark {
 public:
 	Landmark(double max_radius);
+	Landmark(double x, double y);
 	~Landmark();
 
 	double x_position;
@@ -22,7 +23,7 @@ public:
 
 	double get_hit(double x, double y);
 	double rand(double min, double max);
-	int hit;
+	int total_hits;
 };
 
 

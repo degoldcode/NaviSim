@@ -4,10 +4,10 @@ set output "../agent.eps"
 
 set xlabel "x"
 set ylabel "y"
-set cblabel "Time t [ts]" offset 2
+set cblabel "Time t [ts]" offset 1
 
 set size square
-SCALE = 40.
+SCALE = 16.
 OFFSETX = 0.0
 OFFSETY = 0.0
 set xtics SCALE/8.
@@ -17,7 +17,7 @@ set yrange [-SCALE/2+OFFSETY:SCALE/2+OFFSETY]
 #set xrange [15:35]
 #set yrange [15:35]
 set key opaque
-set key right bottom
+set key left outside
 set key spacing 2
 #set nokey
 #set grid
@@ -28,11 +28,13 @@ ERASELAST = 10000
 plot	 "../goals.dat" u 1:2 w p pt 6 ps (29./SCALE) lc rgb "black" t "Goal", 					\
 	 "../pipes.dat" u 1:2 w l lw (182./SCALE) lt 1 lc rgb "black" t "", 					\
          "../pipes.dat" u 1:2 w l lw (172./SCALE) lt 1 lc rgb "#aaaaaa" t "Pipe", 				\
-	 "../landmarks.dat" u 1:2 w p pt 12 ps (20./SCALE) lc rgb "blue" t "Landmark",				\
-	 "../landmarks.dat" u 1:(($3 > 0)?$2:1/0) w p pt 12 ps (SCALE/20)*0.2 lc rgb "red" t "Hit LM", 		\
+	 "../landmarks.dat" u 1:2 w p pt 12 ps (5./SCALE) lc rgb "black" t "Landmark",				\
 	 "../agent.dat" u 2:($1>ERASEFIRST?$3:1/0):1 w p pt 7 ps (10/SCALE)*0.3 lc palette t "" ,		\
-	 "../home.dat" u 1:2 w p pt 6 ps (29./SCALE) lc rgb "#bbbbbb" t "Home", 				\
-	 "../goals.dat" u 1:(($3 > 0)?$2:1/0) w p pt 7 lw (4./SCALE) ps (29./SCALE) lc rgb "green" t "Hit G" #, \
+	 "../lm_rec.dat" u 2:3:((1./SCALE)*$5) w p pt 1 ps var lc rgb "blue" t "Recognized landmark" , \
+	 "../landmarks.dat" u 1:(($3 > 0)?$2:1/0) w p pt 12 ps (5./SCALE) lc rgb "red" t "Visited landmark", 	\
+	 "../home.dat" u 1:2 w p pt 4 ps (29./SCALE) lc rgb "#bbbbbb" t "Home", 				\
+	 "../goals.dat" u 1:(($3 > 0)?$2:1/0) w p pt 6 lw (4./SCALE) ps (29./SCALE) lc rgb "green" t "Visited goal" 
+	 
 	 #"../control.dat" u 7:($0>ERASEFIRST && $0<ERASELAST?$8:1/0) w p pt 7 ps (10/SCALE)*0.3 lc rgb "red" t ""	
 
 
@@ -44,11 +46,24 @@ set output
 
 set output "../goal_learning.eps"
 plot	"../goals.dat" u 1:2 w p pt 6 ps (29./SCALE) lc rgb "black" t "Goal", 					\
-	"../landmarks.dat" u 1:2 w p pt 12 ps 0.2 lc rgb "blue" t "Landmark", 					\
+	"../lm_rec.dat" u 2:3:((5./SCALE)*$5) w p pt 1 lw (4./SCALE) ps var lc rgb "blue" t "Recognized landmark" , \
+	"../landmarks.dat" u 1:2 w p pt 12 ps (5./SCALE) lc rgb "black" t "Landmark", 					\
 	"../pipes.dat" u 1:2 w l lw (182./SCALE) lt 1 lc rgb "black" t "", 					\
 	"../pipes.dat" u 1:2 w l lw (182./SCALE) lt 1 lc rgb "#aaaaaa" t "Pipe", 				\
-	"../home.dat" u 1:2 w p pt 6 ps (29./SCALE) lc rgb "black" t "Home", 					\
-	"../landmarks.dat" u 1:(($3 > 0)?$2:1/0) w p pt 12 ps 0.2 lc rgb "red" t "Hit LM", 			\
+	"../landmarks.dat" u 1:(($3 > 0)?$2:1/0) w p pt 12 ps (5./SCALE) lc rgb "red" t "Visited landmark", 			\
 	"../reward.dat" u 3:4:0 w p pt 7 ps 0.6 lc palette t "",					\
-	"../goals.dat" u 1:(($3 > 0)?$2:1/0) w p pt 6 lw (4./SCALE) ps (29./SCALE) lc rgb "green" t "Hit G" 	
+	"../home.dat" u 1:2 w p pt 4 ps (29./SCALE) lc rgb "#bbbbbb" t "Home", 					\
+	"../goals.dat" u 1:(($3 > 0)?$2:1/0) w p pt 6 lw (4./SCALE) ps (29./SCALE) lc rgb "green" t "Visited goal" 	
+set output
+
+set output "../route_learning.eps"
+plot	"../goals.dat" u 1:2 w p pt 6 ps (29./SCALE) lc rgb "black" t "Goal", 					\
+	"../lm_rec.dat" u 2:3:((5./SCALE)*$5) w p pt 1 lw (4./SCALE) ps var lc rgb "blue" t "Recognized landmark" , \
+	"../landmarks.dat" u 1:2 w p pt 12 ps (5./SCALE) lc rgb "black" t "Landmark", 					\
+	"../pipes.dat" u 1:2 w l lw (182./SCALE) lt 1 lc rgb "black" t "", 					\
+	"../pipes.dat" u 1:2 w l lw (182./SCALE) lt 1 lc rgb "#aaaaaa" t "Pipe", 				\
+	"../landmarks.dat" u 1:(($3 > 0)?$2:1/0) w p pt 12 ps (5./SCALE) lc rgb "red" t "Visited landmark", 			\
+	"../reward.dat" u ($5+0.25):($6+1.):0 w p pt 7 ps 0.6 lc palette t "",					\
+	"../home.dat" u 1:2 w p pt 4 ps (29./SCALE) lc rgb "#bbbbbb" t "Home", 					\
+	"../goals.dat" u 1:(($3 > 0)?$2:1/0) w p pt 6 lw (4./SCALE) ps (29./SCALE) lc rgb "green" t "Visited goal" 	
 set output

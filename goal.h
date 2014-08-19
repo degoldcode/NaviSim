@@ -27,6 +27,7 @@ public:
 	int total_hits;
 
 	double amount;
+	double amount_rate;
 };
 
 

@@ -25,11 +25,14 @@ public:
 
 	void update(double command);
 	void add_goal(double x, double y);
+	void add_landmark(double x, double y);
 	void add_pipe(double x0, double x1, double y0, double y1, double width);
 	int get_hits();
 	double get_distance(Goal* goal1, Goal* goal2);
 	double get_distance(Landmark* landmark1, Goal* goal2);
 	double get_distance(Landmark* landmark1, Landmark* landmark2);
+	double getx();
+	double gety();
 	void reset();
 	vector<Agent*> agent_list;
 	vector<Goal*> goal_list;
@@ -38,10 +41,11 @@ public:
 
 	double reward;
 	double sum_reward;
-	vector<double> lm_recogn;
+	double lm_recogn;
 	bool flag;
 	int count;
 	int mode; // 0 = outb, 1 = inb
+	int inv_sampling_rate;
 
 	ofstream stream_g;		//goal positions
 	ofstream stream_lm;		//landmark positions

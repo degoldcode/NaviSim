@@ -14,6 +14,7 @@
 #include "pin.h"
 #include "map.h"
 #include "goallearning.h"
+#include "routelearning.h"
 using namespace std;
 using namespace arma;
 
@@ -23,7 +24,8 @@ public:
 	NaviControl(int num_neurons);
 	~NaviControl();
 
-	double update(double angle, double speed, double reward);
+	void get_pos(double x, double y);
+	double update(double angle, double speed, double reward, double lm_recogn);
 	void update_matrices(vec PI, vec GL);
 	double bound_angle(double phi);
 	double inv_angle(double angle);
@@ -37,12 +39,15 @@ public:
 
 	PIN* pin;
 	GoalLearning* gln;
+	RouteLearning* rln;
 	Map* map;
 
 	mat outputs;
 	mat out_array;
 	mat gv_array;
 	mat pi_array;
+	mat lv_array;
+	mat ref_array;
 	mat mu_array;
 	mat weight;
 	mat dweight;
@@ -61,10 +66,16 @@ public:
 	double GV_x;
 	double GV_y;
 	double cGV_angle;
+	double LV_angle;
+	double LV_x;
+	double LV_y;
 	double CM_angle;		//CM = chaotic map
+	double lm_lowpass;
 	double accu_reward;
 	double disc_factor;
 	double expl_factor;
+	double rx;
+	double ry;
 
 	int N;
 	int t;
@@ -72,6 +83,7 @@ public:
 
 	ofstream stream;
 	ofstream r_stream;
+	ofstream lm_stream;
 };
 
 

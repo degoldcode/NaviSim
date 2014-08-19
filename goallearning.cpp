@@ -23,7 +23,7 @@ GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 	act_output.zeros(N);
 	w_cos.zeros(N,N);
 	w_mu_gv.zeros(N,M);
-	//w_mu_gv.load("./save/weights.mat", raw_ascii);
+	//w_mu_gv.load("./save/goalweights.mat", raw_ascii);
 	w_pi_gv.eye(N,N);
 
 	mat One = eye<mat>(N/2,N/2);
@@ -46,7 +46,7 @@ GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 }
 
 GoalLearning::~GoalLearning(){
-	w_mu_gv.save("./save/weights.mat", raw_ascii);
+	w_mu_gv.save("./save/goalweights.mat", raw_ascii);
 }
 
 vec GoalLearning::update(vec pi_input, double in_reward){

@@ -15,3 +15,4 @@ plot "../gvlearn.dat" u (0.1*$2):3 w l lc rgb "#0022FF" t "Average goal success 
 #, "" u 0:3 w l lt 1 lc rgb "blue" t "GV length" 
 #, "" u 0:2 w l lt 1 lc rgb "green" t "PI length", "" u 0:3 w l lt 1 lc rgb "blue" t "GV length" 
 set output
+
