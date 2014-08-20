@@ -22,9 +22,9 @@ ofstream lvlearn;
 
 const int num_neurons = 360;			//Number of array neurons
 const int num_motivs = 2;				//0=outbound,	1=inbound
-const int max_outbound_time = 300;
-const int max_inbound_time = 300;//600;
-const int total_runs = 10;
+const int max_outbound_time = 200;
+const int max_inbound_time = 200;//600;
+const int total_runs = 200;
 const double factor = 0.5;
 
 const int agents = 1;

@@ -42,7 +42,7 @@ NaviControl::NaviControl(int num_neurons){
 	stream.open("./data/control.dat");
 	r_stream.open("./data/reward.dat");
 	lm_stream.open("./data/lm_rec.dat");
-	inv_sampling_rate = 1;
+	inv_sampling_rate = 100;
 	t = 0;
 }
 
@@ -64,7 +64,10 @@ void NaviControl::reset_matrices(){
 	outputs.reset();
 	mu_array.reset();
 	gv_array.reset();
-	weight.reset();
+	ref_array.reset();
+	lv_array.reset();
+	gv_weight.reset();
+	lv_weight.reset();
 	out_array.reset();
 }
 
@@ -75,7 +78,8 @@ void NaviControl::save_matrices(){
 	ref_array.save("./data/ref.mat", raw_ascii);
 	lv_array.save("./data/lv.mat", raw_ascii);
 	out_array.save("./data/gv_out.mat", raw_ascii);
-	weight.save("./data/w.mat", raw_ascii);
+	gv_weight.save("./data/gv_w.mat", raw_ascii);
+	lv_weight.save("./data/lv_w.mat", raw_ascii);
 }
 
 double NaviControl::update(double angle, double speed, double reward, double lm_recogn){
@@ -161,7 +165,7 @@ double NaviControl::update(double angle, double speed, double reward, double lm_
 	if(sqrt(rx*rx + ry*ry) < 1.11)
 		return 4.*sin(atan2(1., 0.5) - angle);
 	if(gln->act_mu_array(0) == 1.0)
-		return /*0.05*/ /*(1.-expl_factor)*/4.*lm_recogn*sin(LV_angle - angle) + expl_factor*10.*rand(0., 0.15);//+ 1.5*map_output; //rand(0., 0.08); //
+		return /*0.05*/ (1.-expl_factor)*4.*lm_recogn*sin(LV_angle - angle) + expl_factor*10.*rand(0., 0.15);//+ 1.5*map_output; //rand(0., 0.08); //
 	else
 		return 0.5*rand(0., 0.15) + 4.*sin(feedback_error);
 }
@@ -173,7 +177,8 @@ void NaviControl::update_matrices(vec PI, vec GL, vec RL){
 	ref_array = join_rows(ref_array, rln->act_ref_array);
 	gv_array = join_rows(gv_array, gln->act_gv_array);
 	mu_array = join_rows(mu_array, gln->act_mu_array);
-	weight = join_rows(weight, gln->w_mu_gv.col(0));
+	gv_weight = join_rows(gv_weight, gln->w_mu_gv.col(0));
+	lv_weight = join_rows(lv_weight, rln->w_lmr_lv.col(0));
 }
 
 void NaviControl::set_inbound(){

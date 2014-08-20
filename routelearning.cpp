@@ -50,36 +50,42 @@ RouteLearning::RouteLearning(int neurons, int landmark_recog, double nnoise){
 }
 
 RouteLearning::~RouteLearning(){
+	delete ref_pin;
 	w_lmr_lv.save("./save/routeweights.mat", raw_ascii);
 }
 
 vec RouteLearning::update(vec pi_input, double in_reward, double in_lmr, double angle, double speed){
-	act_pi_array = pi_input;
+	//act_pi_array = pi_input;
 	reward = in_reward;
 	d_lm = -lm_recogn;
 	lm_recogn = in_lmr;
 	d_lm += lm_recogn;
-	lm_eligibility = 0.05*lm_recogn + 0.95*lm_eligibility;
-	if(d_lm > 0.0)
+	lm_eligibility = 1.0*lm_recogn + 0.95*lm_eligibility;
+	act_ref_array.fill(0.0);
+	if(lm_eligibility > 0.001)
+		act_ref_array = ref_pin->update(angle, speed);
+	else
 		ref_pin->reset();
-	act_ref_array = ref_pin->update(angle, speed);
+
 	update_activities();
 	update_weights();
 	var = mean(act_output);///mean(act_output);
-	max_angle = get_max_angle(act_output);
-	length = 1.;//  7.686168886*get_max_value(act_output)/N;// + 0.00002*(t+1);
+	max_angle = get_max_angle(w_lmr_lv.col(0));
+	length = 7.686168886*get_max_value(w_lmr_lv.col(0))/N;// + 0.00002*(t+1);
 	t++;
 	return act_output;
 }
 
 void RouteLearning::update_activities(){
-	act_lmr_array(0) = lm_recogn;
+	act_lmr_array(0) = lm_eligibility;
 	act_lv_array = w_lmr_lv*act_lmr_array;// + w_pi_gv*act_pi_array);
 	act_output = act_lv_array; // 1.9119355*   //lin_rect(w_cos*act_gv_array) /*+ w_cos*act_output*/;//eye<mat>(act_gv_array.size(),act_gv_array.size())
 }
 
 void RouteLearning::update_weights(){
 	dw_lmr_lv = learn_rate * reward * lm_eligibility * (act_ref_array-act_lv_array);
+	if(reward > 0.0)
+		cout << "******* " << learn_rate << " " << reward << " " << lm_eligibility << endl;
 	w_lmr_lv += dw_lmr_lv;
 //	for(int i = 0; i < w_mu_gv.n_rows; i++)
 //		for(int j = 0; j < w_mu_gv.n_cols; j++)

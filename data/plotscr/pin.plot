@@ -16,13 +16,17 @@ plot "../out.mat" matrix with image, "../control.dat" u 0:6 w l lw 3 lc rgb "gre
 
 f(x) = (x<0) ? x+180 : x
 
-#set output "../pi.eps"
-#set view map
-#plot "../pi.mat" matrix with image
+set output "../ref.eps"
+set view map
+plot "../ref.mat" matrix with image
 
 set output "../mu.eps"
 set view map
 plot "../mu.mat" matrix with image
+
+set output "../lv.eps"
+set view map
+plot "../lv.mat" matrix with image
 
 set output "../gv.eps"
 set view map
@@ -32,7 +36,11 @@ set output "../gv_out.eps"
 set view map
 plot "../gv_out.mat" matrix with image, "../control.dat" u 0:(($11<0)?($11+180):$11) w l lw 3 lc rgb "green" t "Maximum activity" 
 
-set output "../w.eps"
+set output "../gv_w.eps"
 set view map
-plot "../w.mat" matrix with image
+plot "../gv_w.mat" matrix with image
+
+set output "../lv_w.eps"
+set view map
+plot "../lv_w.mat" matrix with image
 

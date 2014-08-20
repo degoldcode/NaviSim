@@ -26,7 +26,7 @@ public:
 
 	void get_pos(double x, double y);
 	double update(double angle, double speed, double reward, double lm_recogn);
-	void update_matrices(vec PI, vec GL);
+	void update_matrices(vec PI, vec GL, vec RL);
 	double bound_angle(double phi);
 	double inv_angle(double angle);
 	double in_degr(double angle);
@@ -49,8 +49,8 @@ public:
 	mat lv_array;
 	mat ref_array;
 	mat mu_array;
-	mat weight;
-	mat dweight;
+	mat gv_weight;
+	mat lv_weight;
 	double PI_angle_error;
 
 	double map_output;
