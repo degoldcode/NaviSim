@@ -49,6 +49,14 @@ void Agent::displace_to(double x_new, double y_new){
 	y = y_new;
 }
 
+double Agent::get_x(){
+	return x;
+}
+
+double Agent::get_y(){
+	return y;
+}
+
 double Agent::rand(double min, double max){
 	static random_device e{};
 	static uniform_real_distribution<double> d(min, max);

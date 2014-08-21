@@ -19,12 +19,12 @@ public:
 
 	double bound_angle(double angle);
 	void displace_to(double x_new, double y_new);
+	double get_x();
+	double get_y();
 	double rand(double min, double max);
 	void reset();
 	void update(double command);
 
-	double x;
-	double y;
 	double phi;
 	double v;
 	double k_phi;
@@ -43,6 +43,10 @@ public:
 	int sampling_interval;
 
 	bool in_pipe;
+
+private:
+	double x;
+	double y;
 };
 
 
