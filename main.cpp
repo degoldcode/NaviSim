@@ -22,8 +22,8 @@ ofstream lvlearn;
 
 const int num_neurons = 360;			//Number of array neurons
 const int num_motivs = 2;				//0=outbound,	1=inbound
-const int max_outbound_time = 200;
-const int max_inbound_time = 200;//600;
+const int max_outbound_time = 60;
+const int max_inbound_time = 40;//600;
 const int total_runs = 200;
 const double factor = 0.5;
 
@@ -40,7 +40,7 @@ double PI_dist_error;
 int total_hits = 0;
 int total_homes = 0;
 
-bool inbound_on = true;
+bool inbound_on = false;
 
 double bound_angle(double phi){
 	double rphi;
@@ -78,8 +78,11 @@ int main(){
 	//environment->add_pipe(0.,25.,25.,25.,.2);
 	//environment->add_pipe(0.2,-25.,25.,25.,.4);
 	//environment->add_pipe(0.,0.,25.,50.,.4);
+	environment->add_pipe(0.0,0.5,0.,0.0,.15);
+	environment->add_pipe(0.5,0.5,0.,0.75,.15);
+	//environment->add_pipe(0.5,0.,1.,3.,.4);
 	environment->add_landmark(0.5, 1.);
-	environment->add_goal(0., 3.);
+	environment->add_goal(-0.5, 3.0);
 	//environment->add_goal(-25.,25.);
 	//environment->add_goal(0.,50.);
 
@@ -88,7 +91,6 @@ int main(){
 			//controller->reset_matrices();
 		double start_time = controller->t;
 		double old_gvl = controller->gln->length;		//Old GV len
-
 		while(controller->t < start_time + max_outbound_time && environment->sum_reward < 1.){																	//OUTBOUND RUN (SEARCHING)
 			controller->set_outbound();
 			environment->mode = 0;
@@ -101,7 +103,7 @@ int main(){
 			PI_angle_error = bound_angle(controller->PI_avg_angle - environment->agent_list.at(0)->theta);
 			PI_dist_error = controller->pin->length - environment->agent_list.at(0)->distance;
 			if(controller->t%500==0)
-				printf("t = %4u\tPI_error_ang = %1.3f\tSumR = %2.3f\tAccR = %2.3f\tPhi = %3.2f\tGV angle = %3.2f (%2.3f)\tLV angle = %3.2f (%2.3f)\n", controller->t, PI_angle_error, environment->sum_reward, controller->accu_reward, in_degr(environment->agent_list.at(0)->phi), in_degr(controller->GV_angle), controller->gln->length, in_degr(controller->LV_angle), controller->rln->length);
+				printf("t = %4u\tPI_error_ang = %1.3f\tSumR = %2.3f\tAccR = %2.3f\tPhi = %3.2f\tGV angle = %3.2f (%2.3f)\tLV angle = %3.2f (%2.3f)\taccu_reward = %3.3f\n", controller->t, PI_angle_error, environment->sum_reward, controller->accu_reward, in_degr(environment->agent_list.at(0)->phi), in_degr(controller->GV_angle), controller->gln->length, in_degr(controller->LV_angle), controller->rln->length, controller->accu_reward);
 		}
 		double in_time = controller->t;
 		while(inbound_on && environment->agent_list.at(0)->distance > 0.2 && controller->t < in_time + max_inbound_time){ 	//INBOUND RUN (PI HOMING)

@@ -127,7 +127,7 @@ Environment::~Environment(){
 	}
 	stream_lm.close();
 	for(unsigned int i = 0; i < pipe_list.size(); i++){
-		stream_p << pipe_list.at(i)->x_pos_0 << "\t" << pipe_list.at(i)->y_pos_0 << "\n" << pipe_list.at(i)->x_pos_1 << "\t" << pipe_list.at(i)->y_pos_1 << endl;
+		stream_p << pipe_list.at(i)->x_pos_0 << "\t" << pipe_list.at(i)->y_pos_0 << "\t" << pipe_list.at(i)->p_width << "\n" << pipe_list.at(i)->x_pos_1 << "\t" << pipe_list.at(i)->y_pos_1 << endl;
 		delete pipe_list.at(i);
 	}
 	stream_p.close();
@@ -149,9 +149,9 @@ void Environment::update(double command){
 				agent_list.at(i)->in_pipe = true;
 		agent_list.at(i)->update(command);
 		for(unsigned int j = 0; j < goal_list.size(); j++)
-			reward += goal_list.at(j)->get_reward(agent_list.at(i)->x, agent_list.at(i)->y, mode);
+			reward += goal_list.at(j)->get_reward(agent_list.at(i)->get_x(), agent_list.at(i)->get_y(), mode);
 		for(unsigned int j = 0; j < landmark_list.size(); j++)
-			lm_recogn += landmark_list.at(j)->get_hit(agent_list.at(i)->x, agent_list.at(i)->y);
+			lm_recogn += landmark_list.at(j)->get_hit(agent_list.at(i)->get_x(), agent_list.at(i)->get_y());
 	}
 	sum_reward += reward;
 }
@@ -197,10 +197,10 @@ double Environment::get_distance(Landmark* landmark1, Landmark* landmark2){
 }
 
 double Environment::getx(){
-	return agent_list.at(0)->x;
+	return agent_list.at(0)->get_x();
 }
 
 double Environment::gety(){
-	return agent_list.at(0)->y;
+	return agent_list.at(0)->get_y();
 }
 

@@ -29,15 +29,15 @@ Pipe::~Pipe(){
 }
 
 Agent* Pipe::set_agent_pipe(Agent* agent){
-	double x_m = get_x_pipe(agent->x, agent->y);
-	double y_m = get_y_pipe(agent->x, agent->y);
+	double x_m = get_x_pipe(agent->get_x(), agent->get_y());
+	double y_m = get_y_pipe(agent->get_x(), agent->get_y());
 	if((x_m > -p_width && x_m < p_width && abs(y_m) < .5*p_width) || in_this_pipe){
 		agent->dphi = alpha - agent->phi;
 		in_this_pipe = true;
 		//cout << x_m << " " << y_m << " " << agent->phi << endl;
 	}
 	if(in_this_pipe && (x_m > len || abs(y_m) > .5*p_width)){
-		cout << "out" << endl;
+		//cout << "out" << endl;
 		in_this_pipe = false;
 		agent->in_pipe = false;
 	}

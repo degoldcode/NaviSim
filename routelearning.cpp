@@ -10,7 +10,7 @@
 RouteLearning::RouteLearning(int neurons, int landmark_recog, double nnoise){
 	N = neurons;
 	M = landmark_recog;
-	learn_rate = 1.0;
+	learn_rate = 10.0;
 	reward = 0.0;
 	lm_recogn = 0.0;
 	lm_eligibility = 0.0;
@@ -27,7 +27,7 @@ RouteLearning::RouteLearning(int neurons, int landmark_recog, double nnoise){
 	act_output.zeros(N);
 	w_cos.zeros(N,N);
 	w_lmr_lv.zeros(N,M);
-	//w_lmr_gv.load("./save/routeweights.mat", raw_ascii);
+	//w_lmr_lv.load("./save/routeweights.mat", raw_ascii);
 	w_pi_lv.eye(N,N);
 
 	mat One = eye<mat>(N/2,N/2);
@@ -66,7 +66,8 @@ vec RouteLearning::update(vec pi_input, double in_reward, double in_lmr, double 
 		act_ref_array = ref_pin->update(angle, speed);
 	else
 		ref_pin->reset();
-
+	if(lm_eligibility > 0.001)
+		act_ref_array = ref_pin->update(angle, speed);
 	update_activities();
 	update_weights();
 	var = mean(act_output);///mean(act_output);
@@ -83,9 +84,7 @@ void RouteLearning::update_activities(){
 }
 
 void RouteLearning::update_weights(){
-	dw_lmr_lv = learn_rate * reward * lm_eligibility * (act_ref_array-act_lv_array);
-	if(reward > 0.0)
-		cout << "******* " << learn_rate << " " << reward << " " << lm_eligibility << endl;
+	dw_lmr_lv = learn_rate * reward * lm_eligibility * (act_ref_array-w_lmr_lv.col(0));
 	w_lmr_lv += dw_lmr_lv;
 //	for(int i = 0; i < w_mu_gv.n_rows; i++)
 //		for(int j = 0; j < w_mu_gv.n_cols; j++)

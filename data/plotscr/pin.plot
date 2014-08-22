@@ -24,6 +24,10 @@ set output "../mu.eps"
 set view map
 plot "../mu.mat" matrix with image
 
+set output "../ref.eps"
+set view map
+plot "../ref.mat" matrix with image
+
 set output "../lv.eps"
 set view map
 plot "../lv.mat" matrix with image
@@ -42,5 +46,6 @@ plot "../gv_w.mat" matrix with image
 
 set output "../lv_w.eps"
 set view map
-plot "../lv_w.mat" matrix with image
+plot "../lv_w.mat" matrix with image, "../control.dat" u 0:(($21<0)?($21+180):$21) w l lw 3 lc rgb "green" t "Maximum weight" 
+
 

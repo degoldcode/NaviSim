@@ -51,6 +51,7 @@ public:
 	mat mu_array;
 	mat gv_weight;
 	mat lv_weight;
+	mat dweight;
 	double PI_angle_error;
 
 	double map_output;
@@ -66,6 +67,7 @@ public:
 	double GV_x;
 	double GV_y;
 	double cGV_angle;
+	double cLV_angle;
 	double LV_angle;
 	double LV_x;
 	double LV_y;
@@ -80,6 +82,8 @@ public:
 	int N;
 	int t;
 	int inv_sampling_rate;		//for activations stored in matrix ([s])
+
+	bool start_fixed;
 
 	ofstream stream;
 	ofstream r_stream;

@@ -32,11 +32,12 @@ NaviControl::NaviControl(int num_neurons){
 	LV_x = 0.0;
 	LV_y = 0.0;
 	cGV_angle = 0.0;
+	cLV_angle = 0.0;
 	CM_angle = 0.0;
 
 	lm_lowpass = 0.0;
 	accu_reward = 0.0;
-	disc_factor = 0.999;
+	disc_factor = 0.999;	//0.999
 	expl_factor = 1.0;
 
 	stream.open("./data/control.dat");
@@ -49,6 +50,7 @@ NaviControl::NaviControl(int num_neurons){
 NaviControl::~NaviControl(){
 	delete pin;
 	delete gln;
+	delete rln;
 	delete map;
 	stream.close();
 	r_stream.close();
@@ -58,17 +60,18 @@ NaviControl::~NaviControl(){
 void NaviControl::reset(){
 	pin->reset();
 	map->reset();
+	start_fixed = true;
 }
 
 void NaviControl::reset_matrices(){
 	outputs.reset();
 	mu_array.reset();
 	gv_array.reset();
-	ref_array.reset();
-	lv_array.reset();
 	gv_weight.reset();
 	lv_weight.reset();
 	out_array.reset();
+	ref_array.reset();
+	lv_array.reset();
 }
 
 void NaviControl::save_matrices(){
@@ -99,7 +102,7 @@ double NaviControl::update(double angle, double speed, double reward, double lm_
 					<< LV_x << "\t"
 					<< LV_y << endl;
 
-	if(t%inv_sampling_rate == 0)
+	//if(t%inv_sampling_rate == 0)
 		stream	<< t << "\t"
 				<< map_output << "\t"
 				<< PI_max_angle << "\t"
@@ -119,6 +122,8 @@ double NaviControl::update(double angle, double speed, double reward, double lm_
 				<< lm_recogn << "\t"
 				<< lm_lowpass << "\t"
 				<< reward << "\t"
+				<< LV_angle << "\t"						//20
+				<< in_degr(LV_angle) << "\t"
 				<< endl;
 
 //	if(reward > 0.0){
@@ -150,11 +155,13 @@ double NaviControl::update(double angle, double speed, double reward, double lm_
 
 	//if(sqrt(pow(GV_x-PI_x,2)+pow(GV_y-PI_y,2))>0.2)
 	//if((GV_x-PI_x)*cos(angle)+(GV_y-PI_y)*sin(angle)>0.2)
-		cGV_angle = atan2(GV_y-PI_y, GV_x-PI_x);
+	cGV_angle = atan2(GV_y-PI_y, GV_x-PI_x);
+	cLV_angle = atan2(LV_y-PI_y, LV_x-PI_x);
 	CM_angle = 0.0;
 
 	feedback_error = inv_angle(PI_avg_angle)-angle;
-	goal_factor = 4.0*(tanh(max(max(gln->w_mu_gv.col(0)))/N));
+	//goal_factor = 4.0*(tanh(max(max(gln->w_mu_gv.col(0)))/N));
+	goal_factor = 10.0*(tanh(max(max(rln->w_lmr_lv.col(0)))/N));
 
 	lm_lowpass = gln->act_mu_array(0)*(0.05*lm_recogn + 0.95*lm_lowpass);
 	accu_reward = reward + disc_factor*accu_reward;
@@ -162,10 +169,13 @@ double NaviControl::update(double angle, double speed, double reward, double lm_
 	//gln->learn_rate = expl_factor;
 
 	t++;
-	if(sqrt(rx*rx + ry*ry) < 1.11)
+
+/*	if(sqrt(rx*rx + ry*ry) < 1.11 && start_fixed){
+		start_fixed = false;
 		return 4.*sin(atan2(1., 0.5) - angle);
+	}*/
 	if(gln->act_mu_array(0) == 1.0)
-		return /*0.05*/ (1.-expl_factor)*4.*lm_recogn*sin(LV_angle - angle) + expl_factor*10.*rand(0., 0.15);//+ 1.5*map_output; //rand(0., 0.08); //
+		return /*0.05*/ (1.-expl_factor)*goal_factor*sin(cGV_angle - angle)/*(1.-expl_factor)*goal_factor*sin(LV_angle - angle)*/ + expl_factor*10.*rand(0., 0.15);//+ 1.5*map_output; //rand(0., 0.08); //
 	else
 		return 0.5*rand(0., 0.15) + 4.*sin(feedback_error);
 }
