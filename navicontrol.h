@@ -25,7 +25,7 @@ public:
 	~NaviControl();
 
 	void get_pos(double x, double y);
-	double update(double angle, double speed, double reward, double lm_recogn);
+	double update(double angle, double speed, double inReward, double lm_recogn);
 	void update_matrices(vec PI, vec GL, vec RL);
 	double bound_angle(double phi);
 	double inv_angle(double angle);
@@ -73,7 +73,11 @@ public:
 	double LV_y;
 	double CM_angle;		//CM = chaotic map
 	double lm_lowpass;
-	double accu_reward;
+	double reward;
+	double td_error;
+	double value;
+	double dvalue;
+	double val_discount;
 	double disc_factor;
 	double expl_factor;
 	double rx;

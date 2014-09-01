@@ -7,7 +7,7 @@ set ylabel "y"
 set cblabel "Time t [ts]" offset 1
 
 set size square
-SCALE = 16.
+SCALE = 48.
 OFFSETX = 0.0
 OFFSETY = 0.0
 set xtics SCALE/8.
@@ -30,11 +30,10 @@ plot	 "../goals.dat" u 1:2 w p pt 6 ps (29./SCALE) lc rgb "black" t "Goal", 				
          "../pipes.dat" u 1:2 w l lw (172./SCALE) lt 1 lc rgb "#aaaaaa" t "Pipe", 				\
 	 "../landmarks.dat" u 1:2 w p pt 12 ps (5./SCALE) lc rgb "black" t "Landmark",				\
 	 "../agent.dat" u 2:($1>ERASEFIRST?$3:1/0):1 w p pt 7 ps (10/SCALE)*0.3 lc palette t "" ,		\
-	 #"../lm_rec.dat" u 2:3:((1./SCALE)*$5) w p pt 1 ps var lc rgb "blue" t "Recognized landmark" , \
 	 "../landmarks.dat" u 1:(($3 > 0)?$2:1/0) w p pt 12 ps (5./SCALE) lc rgb "red" t "Visited landmark", 	\
 	 "../home.dat" u 1:2 w p pt 4 ps (29./SCALE) lc rgb "#bbbbbb" t "Home", 				\
 	 "../goals.dat" u 1:(($3 > 0)?$2:1/0) w p pt 6 lw (4./SCALE) ps (29./SCALE) lc rgb "green" t "Visited goal" 
-	 
+	 #"../lm_rec.dat" u 2:3:((1./SCALE)*$5) w p pt 1 ps var lc rgb "blue" t "Recognized landmark" , \ 
 	 #"../control.dat" u 7:($0>ERASEFIRST && $0<ERASELAST?$8:1/0) w p pt 7 ps (10/SCALE)*0.3 lc rgb "red" t ""	
 
 
