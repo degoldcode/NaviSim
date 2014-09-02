@@ -40,8 +40,10 @@ public:
 	int trial;
 
 	ofstream stream;
+	ofstream stream_s;
 	int sampling_interval;
 
+	bool short_write;
 	bool in_pipe;
 
 private:

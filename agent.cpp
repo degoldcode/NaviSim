@@ -22,16 +22,19 @@ Agent::Agent(int mySampling){
 	theta = 0.0;
 	sampling_interval = mySampling;
 	in_pipe = false;
+	short_write = true;
 
 	t = 0.0;
 	ts = 0;
 	trial = 1;
 
 	stream.open("./data/agent.dat", ios_base::out /*| ios_base::app*/);
+	stream_s.open("./data/agent2.dat", ios_base::out /*| ios_base::app*/);
 }
 
 Agent::~Agent(){
 	stream.close();
+	stream_s.close();
 }
 
 double Agent::bound_angle(double phi){
@@ -80,6 +83,12 @@ void Agent::update(double command){
 				<< theta << "\t"
 				<< distance << "\t"
 				<< trial  << endl;
+		if(short_write)
+			stream_s<< t << "\t"
+					<< x << "\t"
+					<< y << "\t"
+					<< trial  << endl;
+
 
 	if(!in_pipe)
 		dphi = dt * k_phi * command;

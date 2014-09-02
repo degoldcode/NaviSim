@@ -9,7 +9,7 @@
 
 NaviControl::NaviControl(int num_neurons) {
 	N = num_neurons;
-	pin = new PIN(N, 0.0000, 0.00, 0.00);
+	pin = new PIN(N, 0.0000, 0.05, 0.00);
 	gln = new GoalLearning(N, 2, 0.0);
 	rln = new RouteLearning(N, 1, 0.0);
 	map = new Map(-20.);
@@ -46,7 +46,7 @@ NaviControl::NaviControl(int num_neurons) {
 	stream.open("./data/control.dat");
 	r_stream.open("./data/reward.dat");
 	lm_stream.open("./data/lm_rec.dat");
-	inv_sampling_rate = 100;
+	inv_sampling_rate = 50;
 	t = 0;
 }
 
@@ -79,7 +79,8 @@ void NaviControl::reset_matrices() {
 
 void NaviControl::save_matrices() {
 	outputs.save("./data/out.mat", raw_ascii);
-	mu_array.save("./data/mu.mat", raw_ascii);
+	//mat mu_new = mu_array.col(0);
+	//mu_new.save("./data/mu.mat", raw_ascii);
 	gv_array.save("./data/gv.mat", raw_ascii);
 	ref_array.save("./data/ref.mat", raw_ascii);
 	lv_array.save("./data/lv.mat", raw_ascii);

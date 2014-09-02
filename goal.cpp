@@ -13,11 +13,11 @@
 using namespace std;
 
 Goal::Goal(double max_radius){
-	double min_radius = 2.;
+	double min_radius = 1.;
 	distance_to_origin = (max_radius-min_radius) * sqrt(rand(0.0, 1.0)) + min_radius;
 	angle_to_x_axis = 2 * M_PI * rand(0.0, 1.0);
-	amount = rand(0., 1.);
-	amount_rate = 0.001;
+	amount = 1.0;//rand(0., 1.);
+	amount_rate = 0.0;//0.001;
 	x_position = distance_to_origin * cos(angle_to_x_axis);
 	y_position = distance_to_origin * sin(angle_to_x_axis);
 	hit = 0;
@@ -53,7 +53,7 @@ double Goal::get_reward(double x, double y, int mode){
 			total_hits--;
 		}
 		//printf("Reward @ (%f, %f)\n", x, y);
-		return 5.*(0.2-rdist)*amount;
+		return 5.*(0.2-rdist)*amount*(1./distance_to_origin);
 	}
 	else
 		return 0.0;

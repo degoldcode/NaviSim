@@ -4,10 +4,10 @@ set output "../agent.eps"
 
 set xlabel "x"
 set ylabel "y"
-set cblabel "Time t [ts]" offset 1
+set cblabel "Time t [s]" offset 1
 
 set size square
-SCALE = 48.
+SCALE = 25.
 OFFSETX = 0.0
 OFFSETY = 0.0
 set xtics SCALE/8.
@@ -21,13 +21,14 @@ set key left outside
 set key spacing 2
 #set nokey
 #set grid
-
+set xtics 5
+set ytics 5
 ERASEFIRST = 0
 ERASELAST = 10000
 
 plot	 "../goals.dat" u 1:2 w p pt 6 ps (29./SCALE) lc rgb "black" t "Goal", 					\
 	 "../pipes.dat" u 1:2 w l lw (182./SCALE) lt 1 lc rgb "black" t "", 					\
-         "../pipes.dat" u 1:2 w l lw (172./SCALE) lt 1 lc rgb "#aaaaaa" t "Pipe", 				\
+         "../pipes.dat" u 1:2 w l lw (172./SCALE) lt 1 lc rgb "#aaaaaa" t "Channel", 				\
 	 "../landmarks.dat" u 1:2 w p pt 12 ps (5./SCALE) lc rgb "black" t "Landmark",				\
 	 "../agent.dat" u 2:($1>ERASEFIRST?$3:1/0):1 w p pt 7 ps (10/SCALE)*0.3 lc palette t "" ,		\
 	 "../landmarks.dat" u 1:(($3 > 0)?$2:1/0) w p pt 12 ps (5./SCALE) lc rgb "red" t "Visited landmark", 	\

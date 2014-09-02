@@ -11,7 +11,7 @@ from __future__ import print_function
 import numpy as np
 import sys
 
-M = np.loadtxt('../agent.dat', skiprows=5000)
+M = np.loadtxt('../agent.dat', skiprows=1)
 bins_x = 100
 bins_y = 100
 H, xedges, yedges = np.histogram2d(M[:,1], M[:,2], [bins_x, bins_y], normed=True)
