@@ -7,7 +7,7 @@
 
 #include "simulation.h"
 
-Simulation::Simulation(double param_start, double param_end, double dparam, int num_trials){
+Simulation::Simulation(param_types my_param, double param_start, double param_end, double dparam, int num_trials){
 	distor.open("./data/distor.dat");
 	gvlearn.open("./data/gvlearn.dat");
 	//lvlearn.open("./data/lvlearn.dat");

@@ -15,9 +15,43 @@
 #include "environment.h"
 #include "navicontrol.h"
 
+enum param_types {
+
+	//PI analysis
+	number_of_neurons = 0,
+	sensory_noise = 1,
+	maximum_outbound_time = 2,
+	exploration_factor = 3,
+	memory_leakage = 4,
+	response_function = 5,
+	decoding_kernel = 6,
+
+	//Homing analysis
+	PI_steer_constant = 7,
+
+	//GVL analysis
+	env_goal_density = 8,
+	learning_rate = 9,
+
+
+	//LVL analysis
+};
+
+std::string StringParamType[] = {	"number_of_neurons",
+									"sensory_noise",
+									"maximum_outbound_time",
+									"exploration_factor",
+									"memory_leakage",
+									"response_function",
+									"decoding_kernel",
+									"PI_steer_constant",
+									"env_goal_density",
+									"learning_rate"
+								};
+
 class Simulation {
 public:
-	Simulation(double param_start, double param_end, double dparam, int num_trials);
+	Simulation(param_types my_param, double param_start, double param_end, double dparam, int num_trials);
 	~Simulation();
 
 	void run_sim();

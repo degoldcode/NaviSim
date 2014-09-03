@@ -17,7 +17,7 @@ Simulation* my_sim;
 int main(){
 	Timer timer(true);
 
-	my_sim = new Simulation(0.0, 1.0, 0.1,100);
+	my_sim = new Simulation(number_of_neurons, 0.0, 1.0, 0.1,100);
 	my_sim->run_sim();
 	delete my_sim;
 
