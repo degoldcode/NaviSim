@@ -11,6 +11,7 @@
 #include <armadillo>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <cmath>
 #include "environment.h"
 #include "navicontrol.h"
@@ -37,24 +38,13 @@ enum param_types {
 	//LVL analysis
 };
 
-std::string StringParamType[] = {	"number_of_neurons",
-									"sensory_noise",
-									"maximum_outbound_time",
-									"exploration_factor",
-									"memory_leakage",
-									"response_function",
-									"decoding_kernel",
-									"PI_steer_constant",
-									"env_goal_density",
-									"learning_rate"
-								};
 
 class Simulation {
 public:
-	Simulation(param_types my_param, double param_start, double param_end, double dparam, int num_trials);
+	Simulation(string in_param_type, int in_num_trials);
 	~Simulation();
 
-	void run_sim();
+	void run_sim(double param);
 	void run_inbound();
 	void run_outbound();
 
@@ -62,20 +52,20 @@ public:
 	double inv_angle(double angle);
 	double in_degr(double angle);
 
-private:
-	NaviControl* controller;
-	Environment* environment;
-
-	ofstream distor;
-	ofstream gvlearn;
-	ofstream lvlearn;
+	string get_param_type(param_types input);
+	string get_param_name(param_types input);
+	void set_param();
 
 	// Simulation parameters
 	int total_runs;
 	bool inbound_on;
+	int num_params;
+	string file_ext;
 
 	// Controller parameters
 	int num_neurons;
+	double sens_noise;
+	double pi_leakage;
 	int num_motivs;
 	int max_outbound_time;
 	int max_inbound_time;
@@ -89,9 +79,20 @@ private:
 	double lm_density;
 	int num_landmarks;
 
+private:
+	NaviControl* controller;
+	Environment* environment;
+
+	ofstream distor;
+	ofstream PI_results;
+	ofstream PI_resultseach;
+	ofstream gvlearn;
+	ofstream lvlearn;
+	stringstream file_name;
+
 	// Evaluation
-	double PI_angular_error;
-	double PI_linear_error;
+	running_stat<double> PI_angular_error;
+	running_stat<double> PI_linear_error;
 	int num_goalhits;
 	int num_homing;
 };

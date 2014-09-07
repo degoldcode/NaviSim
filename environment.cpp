@@ -204,3 +204,7 @@ double Environment::gety(){
 	return agent_list.at(0)->get_y();
 }
 
+double Environment::get_real_HV(){
+	return agent_list.at(0)->theta;
+}
+

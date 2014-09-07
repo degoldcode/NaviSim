@@ -21,13 +21,14 @@ using namespace arma;
 
 class NaviControl {
 public:
-	NaviControl(int num_neurons);
+	NaviControl(int num_neurons, double sensory_noise, double leakage);
 	~NaviControl();
 
 	void get_pos(double x, double y);
 	double update(double angle, double speed, double inReward, double lm_recogn);
 	void update_matrices(vec PI, vec GL, vec RL);
 	double bound_angle(double phi);
+	double get_HV();
 	double inv_angle(double angle);
 	double in_degr(double angle);
 	void reset();

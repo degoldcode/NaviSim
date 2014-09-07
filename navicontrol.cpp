@@ -7,9 +7,9 @@
 
 #include "navicontrol.h"
 
-NaviControl::NaviControl(int num_neurons) {
+NaviControl::NaviControl(int num_neurons, double sensory_noise, double leakage) {
 	N = num_neurons;
-	pin = new PIN(N, 0.0000, 0.05, 0.00);
+	pin = new PIN(N, leakage, sensory_noise, 0.00);
 	gln = new GoalLearning(N, 2, 0.0);
 	rln = new RouteLearning(N, 1, 0.0);
 	map = new Map(-20.);
@@ -46,7 +46,7 @@ NaviControl::NaviControl(int num_neurons) {
 	stream.open("./data/control.dat");
 	r_stream.open("./data/reward.dat");
 	lm_stream.open("./data/lm_rec.dat");
-	inv_sampling_rate = 50;
+	inv_sampling_rate = 10000;
 	t = 0;
 }
 
@@ -89,8 +89,8 @@ void NaviControl::save_matrices() {
 	lv_weight.save("./data/lv_w.mat", raw_ascii);
 }
 
-double NaviControl::update(double angle, double speed, double inReward,
-		double lm_recogn) {
+double NaviControl::update(double angle, double speed, double inReward, double lm_recogn) {
+	//printf("%4.3f s.\n", t*0.1);
 	reward = inReward;
 	if (lm_lowpass > 0.0)
 		lm_stream << t << "\t" << rx << "\t" << ry << "\t" << lm_recogn << "\t"
@@ -155,7 +155,7 @@ double NaviControl::update(double angle, double speed, double inReward,
 	CM_angle = 0.0;
 
 	feedback_error = inv_angle(PI_avg_angle) - angle;
-	goal_factor = 4.0*(tanh(max(max(gln->w_mu_gv.col(0)))/N));
+	goal_factor = 0.0;//4.0*(tanh(max(max(gln->w_mu_gv.col(0)))/N));
 	//goal_factor = 10.0 * (tanh(max(max(rln->w_lmr_lv.col(0))) / N));
 
 	lm_lowpass = gln->act_mu_array(0) * (0.05 * lm_recogn + 0.95 * lm_lowpass);
@@ -223,4 +223,8 @@ double NaviControl::rand(double mean, double stdev) {
 void NaviControl::get_pos(double x, double y) {
 	rx = x;
 	ry = y;
+}
+
+double NaviControl::get_HV(){
+	return PI_avg_angle;
 }

@@ -31,6 +31,7 @@ public:
 	double get_distance(Goal* goal1, Goal* goal2);
 	double get_distance(Landmark* landmark1, Goal* goal2);
 	double get_distance(Landmark* landmark1, Landmark* landmark2);
+	double get_real_HV();
 	double getx();
 	double gety();
 	void reset();
