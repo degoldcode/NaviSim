@@ -13,7 +13,7 @@
 using namespace std;
 
 Goal::Goal(double max_radius){
-	double min_radius = 1.;
+	double min_radius = 2.5;
 	distance_to_origin = (max_radius-min_radius) * sqrt(rand(0.0, 1.0)) + min_radius;
 	angle_to_x_axis = 2 * M_PI * rand(0.0, 1.0);
 	amount = 1.0;//rand(0., 1.);

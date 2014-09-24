@@ -93,7 +93,7 @@ double PIN::get_max_value(vec input){
 double PIN::gaussian_noise(double width){
 	if(width > 0.0){
 		static random_device e{};
-		static normal_distribution<double> d(0., sqrt(width));
+		static normal_distribution<double> d(0., width);
 		return d(e);
 	}
 	else

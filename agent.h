@@ -35,6 +35,7 @@ public:
 
 	//timing
 	double t;
+	double trial_t;
 	const double dt = 0.1;
 	int ts;
 	int trial;

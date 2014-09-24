@@ -25,6 +25,7 @@ Agent::Agent(int mySampling){
 	short_write = true;
 
 	t = 0.0;
+	trial_t = 0.0;
 	ts = 0;
 	trial = 1;
 
@@ -69,6 +70,7 @@ double Agent::rand(double min, double max){
 void Agent::reset(){
 	x = 0.;
 	y = 0.;
+	trial_t = 0.0;
 	phi = rand(-M_PI, M_PI);
 	trial++;
 }
@@ -82,7 +84,8 @@ void Agent::update(double command){
 				<< dphi << "\t"
 				<< theta << "\t"
 				<< distance << "\t"
-				<< trial  << endl;
+				<< trial  << "\t"
+				<< trial_t<< endl;
 		if(short_write)
 			stream_s<< t << "\t"
 					<< x << "\t"
@@ -101,5 +104,6 @@ void Agent::update(double command){
 	theta = bound_angle(atan2(y,x));
 
 	ts++;
+	trial_t+=dt;
 	t=ts*dt;
 }

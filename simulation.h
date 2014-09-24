@@ -16,28 +16,6 @@
 #include "environment.h"
 #include "navicontrol.h"
 
-enum param_types {
-
-	//PI analysis
-	number_of_neurons = 0,
-	sensory_noise = 1,
-	maximum_outbound_time = 2,
-	exploration_factor = 3,
-	memory_leakage = 4,
-	response_function = 5,
-	decoding_kernel = 6,
-
-	//Homing analysis
-	PI_steer_constant = 7,
-
-	//GVL analysis
-	env_goal_density = 8,
-	learning_rate = 9,
-
-
-	//LVL analysis
-};
-
 
 class Simulation {
 public:
@@ -48,12 +26,13 @@ public:
 	void run_inbound();
 	void run_outbound();
 
+	NaviControl* get_controller();
+	Environment* get_environment();
+
 	double bound_angle(double phi);
 	double inv_angle(double angle);
 	double in_degr(double angle);
 
-	string get_param_type(param_types input);
-	string get_param_name(param_types input);
 	void set_param();
 
 	// Simulation parameters
@@ -79,6 +58,10 @@ public:
 	double lm_density;
 	int num_landmarks;
 
+	// Evaluation
+	int end_run;
+	double success_rate;
+
 private:
 	NaviControl* controller;
 	Environment* environment;
@@ -86,15 +69,20 @@ private:
 	ofstream distor;
 	ofstream PI_results;
 	ofstream PI_resultseach;
+	ofstream endpoints;
 	ofstream gvlearn;
 	ofstream lvlearn;
+	ofstream stats_gl;
+	ofstream statsall_gl;
 	stringstream file_name;
 
 	// Evaluation
 	running_stat<double> PI_angular_error;
 	running_stat<double> PI_linear_error;
+
 	int num_goalhits;
 	int num_homing;
+	int run_div;
 };
 
 

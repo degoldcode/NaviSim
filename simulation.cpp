@@ -13,15 +13,26 @@ Simulation::Simulation(string in_param_type, int in_num_trials){
 
 	distor.open("./data/distor.dat");
 	gvlearn.open("./data/gvlearn.dat");
+	endpoints.open("./data/end.dat");
 	PI_results.open(file_name.str().c_str());
 
+
+	///*** PI EXP
 	file_name.str(string());
 	file_name << "./data/PIerroreach_" << in_param_type << ".dat";
 	PI_resultseach.open(file_name.str().c_str());
 	//lvlearn.open("./data/lvlearn.dat");
 
+	///*** GOAL LEARNING EXP
+	stats_gl.open("./data/gl_stats.dat");
+	statsall_gl.open("./data/gl_statsall.dat");
+
 	// Simulation parameters
 	total_runs = in_num_trials;
+	run_div = int(total_runs/5.);
+	if(run_div<1)
+		run_div=1;
+	//printf("runs= %u - > div = %u\n", total_runs, run_div);
 	inbound_on = false;
 	num_params = 0;
 	file_ext = in_param_type;
@@ -33,8 +44,8 @@ Simulation::Simulation(string in_param_type, int in_num_trials){
 	sens_noise = 0.00;
 	pi_leakage = 0.00;
 	num_motivs = 2;				//0=outbound,	1=inbound
-	max_outbound_time = 100;
-	max_inbound_time = 10;//600;
+	max_outbound_time = 1000;
+	max_inbound_time = max_outbound_time;//600;
 	motor_command = 0.0;
 
 	// Environment parameters
@@ -48,6 +59,7 @@ Simulation::Simulation(string in_param_type, int in_num_trials){
 	// Evaluation
 	num_goalhits = 0;
 	num_homing = 0;
+	success_rate = 0.0;
 
 	controller = new NaviControl(num_neurons, sens_noise, pi_leakage);											/////	+
 	//environment = new Environment(agents/*, goals, landmarks, m_radius*/);
@@ -65,6 +77,9 @@ Simulation::~Simulation(){
 	gvlearn.close();
 	distor.close();
 	lvlearn.close();
+	endpoints.close();
+	stats_gl.close();
+	statsall_gl.close();
 }
 
 void Simulation::run_sim(double param){
@@ -72,43 +87,80 @@ void Simulation::run_sim(double param){
 	delete environment;
 
 	controller = new NaviControl(num_neurons, sens_noise, pi_leakage);
-	printf("set param -> %f\n", controller->pin->snoise);
-	environment = new Environment(agents/*, goals, landmarks, m_radius*/);
-	//environment = new Environment(agents, num_goals, num_landmarks, max_radius);
+	//printf("set param -> %f\n", controller->pin->snoise);
+	//environment = new Environment(agents/*, goals, landmarks, m_radius*/);
+	environment = new Environment(agents, num_goals, num_landmarks, max_radius);
+
+	//environment->add_pipe(0.0,0.0,0.0,-5.0, 0.15);
+	//environment->add_pipe(0.0,0.0,0.0,5.0, 0.15);
+	//environment->add_goal(0.,3.);
 
 	PI_angular_error.reset();
-	printf("Run = %6u\tPI error = %6g +- %6g\n", int(PI_angular_error.count()), PI_angular_error.mean(), PI_angular_error.stddev());
+	num_goalhits = 0;
+	end_run = 0;
+	//printf("Run = %6u\tPI error = %6g +- %6g\n", int(PI_angular_error.count()), PI_angular_error.mean(), PI_angular_error.stddev());
 	for(int run = 0; run < total_runs; run++){
 		double start_time = controller->t;
+		double trial_time = 0.0;
 		double old_gvl = controller->gln->length;		//Old GV len
-		while(controller->t < start_time + max_outbound_time && environment->sum_reward < 1.){																	//OUTBOUND RUN (SEARCHING)
+		while(controller->t < start_time + max_outbound_time && environment->sum_reward < 0.4){																	//OUTBOUND RUN (SEARCHING)
 			run_outbound();
+			endpoints << controller->PI_x-environment->getx() << "\t" << controller->PI_y-environment->gety() << endl;
+			trial_time+=0.1;
 		}
 		PI_angular_error(abs(bound_angle(controller->get_HV() - environment->get_real_HV())));
 		PI_resultseach << param << "\t" << abs(bound_angle(controller->get_HV() - environment->get_real_HV())) << endl;
 		//if((run+1)%(total_runs/100)==0)
 			//printf("%1.6f\n", abs(bound_angle(controller->get_HV() - environment->get_real_HV())));
-		if((run+1)%(total_runs/10)==0)
-			printf("Run = %6u\tPI error = %6g +- %6g\t(%6g)\n", int(PI_angular_error.count()), PI_angular_error.mean(), PI_angular_error.stddev(), abs(bound_angle(controller->get_HV() - environment->get_real_HV())));
 		double in_time = controller->t;
 		while(inbound_on && environment->agent_list.at(0)->distance > 0.2 && controller->t < in_time + max_inbound_time){ 	//INBOUND RUN (PI HOMING)
 			run_inbound();
+			endpoints << controller->PI_x-environment->getx() << "\t" << controller->PI_y-environment->gety() << endl;
+			trial_time+=0.1;
 		}
+		success_rate = 100.0*num_goalhits/(run+1);
+		if((run+1)%run_div==0)
+			printf("Run = %6u\tPI error = %6g +- %6g\t(%6g),\tSuccess rate: %g,\tExpl. rate: %g\n", int(PI_angular_error.count()), PI_angular_error.mean(), PI_angular_error.stddev(), abs(bound_angle(controller->get_HV() - environment->get_real_HV())), success_rate, controller->expl_factor);
 		//if(controller->gln->length - old_gvl < 0.000000001 && run > 20)	//convergence criterion
 		//run = total_runs;
 		if(environment->agent_list.at(0)->distance <= 0.2)
 			num_homing++;
-		num_goalhits += environment->get_hits();
+		if(environment->get_hits() > 0)
+			num_goalhits ++;
 		if(controller->expl_factor < 0.5)
 			environment->agent_list.at(0)->short_write = false;
-		gvlearn << run << " " << controller->t << " " << 1.0*num_goalhits/(run+1) << " " << 1.0*num_homing/(run+1) << " " << controller->expl_factor << endl;
+		gvlearn << run << " " << controller->t << " " << success_rate/100. << " " << 1.0*num_homing/(run+1) << " " << controller->expl_factor << endl;
 		//printf("Run = %3u, time@nest = %5u, hits/run = %2.3f, hits = %u, homing rate = %1.3f, dist_factor = %2.4f, expl_fact = %f, memory len = %1.3f\n", run+1, controller->t, (1.0*num_goalhits)/(1.0*(run+1)), num_goalhits, 1.0*num_homing/(run+1), controller->pin->length/environment->agent_list.at(0)->distance, controller->expl_factor, controller->pin->memory_length);
 		environment->reset();
 		controller->reset();
-	}
 
-	printf("Param = %6g\tPI error = %6g +- %6g\n\n", param, PI_angular_error.mean(), PI_angular_error.stddev());
-	PI_results << param << "\t" << PI_angular_error.mean() << "\t" << PI_angular_error.stddev() << endl;
+		if(success_rate > 95. && controller->expl_factor < 0.05 && end_run == 0){
+			printf("Converged after %u trials. Avg success rate = %3.3f. Exploration rate = %1.9f.\n", run+1, success_rate, controller->expl_factor);
+			printf("Learned goal at (%3.2f,%3.2f) = %3.2f\nNearest goal at (%3.2f,%3.2f) = %3.2f\n\n", controller->GV_x, controller->GV_y, sqrt(pow(controller->GV_x,2)+pow(controller->GV_y,2)), environment->get_nearest_x(), environment->get_nearest_y(), sqrt(pow(environment->get_nearest_x(),2)+pow(environment->get_nearest_y(),2)));
+			//run = total_runs;
+			end_run = run+1;
+		}
+		statsall_gl << run
+					<< "\t" << end_run
+					<< "\t" << controller->expl_factor
+					<< "\t" << 100.0*num_goalhits/total_runs
+					<< "\t" << sqrt(pow(controller->GV_x,2)+pow(controller->GV_y,2))
+					<< "\t" << sqrt(pow(environment->get_nearest_x(),2)+pow(environment->get_nearest_y(),2))
+					<< endl;
+		if(run+1==total_runs && end_run == 0)
+			end_run = total_runs;
+	}
+	if(end_run == total_runs){
+		printf("No convergence after %u.\nNearest goal at (%3.2f,%3.2f) = %3.2f\n\n", total_runs, environment->get_nearest_x(), environment->get_nearest_y(), sqrt(pow(environment->get_nearest_x(),2)+pow(environment->get_nearest_y(),2)));
+	}
+	stats_gl <<	end_run
+			<< "\t" << controller->expl_factor
+			<< "\t" << 100.0*num_goalhits/total_runs
+			<< "\t" << sqrt(pow(controller->GV_x,2)+pow(controller->GV_y,2))
+			<< "\t" << sqrt(pow(environment->get_nearest_x(),2)+pow(environment->get_nearest_y(),2))
+			<< endl;
+	//printf("Param = %6g\tPI error = %6g +- %6g\n\n", param, PI_angular_error.mean(), PI_angular_error.stddev());
+	//PI_results << param << "\t" << PI_angular_error.mean() << "\t" << PI_angular_error.stddev() << endl;
 }
 
 void Simulation::run_outbound(){
@@ -116,6 +168,8 @@ void Simulation::run_outbound(){
 	environment->mode = 0;
 	environment->update(motor_command);
 	controller->get_pos(environment->getx(), environment->gety());
+	//if(environment->reward>0.0)
+		//printf("R=%2.3f, r(t)= %2.3f, (x,y)=(%2.3f,%2.3f)\n", environment->sum_reward, environment->reward,environment->getx(), environment->gety());
 	motor_command = controller->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v, environment->reward, environment->lm_recogn);
 	distor << environment->agent_list.at(0)->distance << " " << controller->pin->length << " " << controller->gln->length << endl;
 	//if(controller->t%500==0)
@@ -127,84 +181,18 @@ void Simulation::run_inbound(){
 	environment->mode = 1;
 	motor_command = controller->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v, environment->reward, environment->lm_recogn);;
 	environment->update(motor_command);
-	if(environment->agent_list.at(0)->in_pipe)
-		cout << "No. I'm in a pipe.\n";
+	//if(environment->agent_list.at(0)->in_pipe)
+		//cout << "No. I'm in a pipe.\n";
 	//if(controller->t%100==0)
 	//printf("t = %4u\tFB_error = %1.3f\tPhi = %1.3f\n", controller->t, controller->feedback_error, environment->agent_list.at(0)->phi);
 }
 
-string Simulation::get_param_type(param_types input){
-	switch(input){
-	case number_of_neurons:
-		return "number_of_neurons";
-		break;
-	case sensory_noise:
-		return "sensory_noise";
-		break;
-	case maximum_outbound_time:
-		return "maximum_outbound_time";
-		break;
-	case exploration_factor:
-		return "exploration_factor";
-		break;
-	case memory_leakage:
-		return "memory_leakage";
-		break;
-	case response_function:
-		return "response_function";
-		break;
-	case decoding_kernel:
-		return "decoding_kernel";
-		break;
-	case PI_steer_constant:
-		return "PI_steer_constant";
-		break;
-	case env_goal_density:
-		return "env_goal_density";
-		break;
-	case learning_rate:
-		return "learning_rate";
-		break;
-	}
-	printf("Error. Didn't match keys.");
-	return "";
+NaviControl* Simulation::get_controller(){
+	return controller;
 }
 
-string Simulation::get_param_name(param_types input){
-	switch(input){
-	case number_of_neurons:
-		return "number of neurons";
-		break;
-	case sensory_noise:
-		return "sensory noise";
-		break;
-	case maximum_outbound_time:
-		return "maximum outbound time";
-		break;
-	case exploration_factor:
-		return "exploration factor";
-		break;
-	case memory_leakage:
-		return "memory leakage";
-		break;
-	case response_function:
-		return "response function";
-		break;
-	case decoding_kernel:
-		return "decoding kernel";
-		break;
-	case PI_steer_constant:
-		return "PI steering constant";
-		break;
-	case env_goal_density:
-		return "goal density";
-		break;
-	case learning_rate:
-		return "learning rate";
-		break;
-	}
-	printf("Error. Didn't match keys.");
-	return "";
+Environment* Simulation::get_environment(){
+	return environment;
 }
 
 double Simulation::bound_angle(double phi){

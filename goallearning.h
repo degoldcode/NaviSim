@@ -19,7 +19,7 @@ public:
 	vec update(vec pi_input, double in_reward);
 	void update_activities();
 	void update_weights();
-	void set_mu(double out, double in);
+	void set_mu(double state, int index);
 	double get_max_angle(vec input);
 	double get_max_value(vec input);
 	vec lin_rect(vec input);

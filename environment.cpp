@@ -68,6 +68,8 @@ Environment::Environment(double num_agents, double num_goals, double num_landmar
 		}
 		goal_list.push_back(goal);
 	}
+
+
 	for(unsigned int i = 0; i < num_landmarks; i++){
 		Landmark* landmark;
 		flag = false;
@@ -207,4 +209,29 @@ double Environment::gety(){
 double Environment::get_real_HV(){
 	return agent_list.at(0)->theta;
 }
+
+double Environment::get_nearest_x(){
+	double minr = 1000.;
+	int ind = 0;
+	for(int i=0;i<goal_list.size();i++){
+		if(goal_list.at(i)->distance_to_origin < minr){
+			minr=goal_list.at(i)->distance_to_origin;
+			ind = i;
+		}
+	}
+	return goal_list.at(ind)->x_position;
+}
+
+double Environment::get_nearest_y(){
+	double minr = 1000.;
+	int ind = 0;
+	for(int i=0; i<goal_list.size(); i++){
+		if(goal_list.at(i)->distance_to_origin < minr){
+			minr=goal_list.at(i)->distance_to_origin;
+			ind = i;
+		}
+	}
+	return goal_list.at(ind)->y_position;
+}
+
 

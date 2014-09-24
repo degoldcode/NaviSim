@@ -64,6 +64,8 @@ void NaviControl::reset() {
 	pin->reset();
 	map->reset();
 	start_fixed = true;
+
+	reset_matrices();
 }
 
 void NaviControl::reset_matrices() {
@@ -155,7 +157,7 @@ double NaviControl::update(double angle, double speed, double inReward, double l
 	CM_angle = 0.0;
 
 	feedback_error = inv_angle(PI_avg_angle) - angle;
-	goal_factor = 0.0;//4.0*(tanh(max(max(gln->w_mu_gv.col(0)))/N));
+	goal_factor = 4.0*(tanh(max(max(gln->w_mu_gv.col(0)))/N));
 	//goal_factor = 10.0 * (tanh(max(max(rln->w_lmr_lv.col(0))) / N));
 
 	lm_lowpass = gln->act_mu_array(0) * (0.05 * lm_recogn + 0.95 * lm_lowpass);
@@ -186,11 +188,11 @@ void NaviControl::update_matrices(vec PI, vec GL, vec RL) {
 }
 
 void NaviControl::set_inbound() {
-	gln->set_mu(0.0, 1.0);
+	gln->set_mu(-1.0, 0);
 }
 
 void NaviControl::set_outbound() {
-	gln->set_mu(1.0, 0.0);
+	gln->set_mu(1.0, 0);
 }
 
 double NaviControl::bound_angle(double phi) {

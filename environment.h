@@ -12,6 +12,7 @@
 #include "goal.h"
 #include "landmark.h"
 #include "pipe.h"
+#include <algorithm>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -31,6 +32,8 @@ public:
 	double get_distance(Goal* goal1, Goal* goal2);
 	double get_distance(Landmark* landmark1, Goal* goal2);
 	double get_distance(Landmark* landmark1, Landmark* landmark2);
+	double get_nearest_x();
+	double get_nearest_y();
 	double get_real_HV();
 	double getx();
 	double gety();

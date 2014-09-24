@@ -11,9 +11,9 @@ set xtics autofreq nomirror
 set key above
 set grid
 
-plot "../gvlearn.dat" u 1:3 w l lc rgb "#0022FF" t "Average goal success rate per trial", "" u 1:4 w l lt 1 lc rgb "#FF2200" t "Average homing success rate per trial", "" u 1:5 w l lc rgb "#00FF22" lt 1 t "Exploration rate"  
+plot "../gvlearn.dat" u 1:3 w p pt 7 ps 0.2 lc rgb "#0022FF" t "Average goal success rate per trial", "" u 1:4 w p pt 7 ps 0.2 lc rgb "#FF2200" t "Average homing success rate per trial", "" u 1:5 w p pt 7 ps 0.2 lc rgb "#00FF22" lt 1 t "Exploration rate"  
 #, "../control.dat" u (0.1*$1):16 w l lc rgb "#00FF22" lt 1 t "Exploration rate"  
-#, "" u 0:3 w l lt 1 lc rgb "blue" t "GV length" 
-#, "" u 0:2 w l lt 1 lc rgb "green" t "PI length", "" u 0:3 w l lt 1 lc rgb "blue" t "GV length" 
+#, "" u 0:3 w p pt 7 ps 0.2 lc rgb "blue" t "GV length" 
+#, "" u 0:2 w p pt 7 ps 0.2 lc rgb "green" t "PI length", "" u 0:3 w p pt 7 ps 0.2 lc rgb "blue" t "GV length" 
 set output
 

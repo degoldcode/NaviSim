@@ -75,11 +75,8 @@ void GoalLearning::update_weights(){
 //				w_mu_gv(i,j) = 0.0;
 }
 
-void GoalLearning::set_mu(double out, double in){
-	vec input(2);
-	input(0) = out;
-	input(1) = in;
-	act_mu_array = input;
+void GoalLearning::set_mu(double state, int index){
+	act_mu_array(index) = state;
 }
 
 double GoalLearning::get_max_angle(vec input){
