@@ -61,6 +61,10 @@ public:
 	// Evaluation
 	int end_run;
 	double success_rate;
+	vector< running_stat<double> > success_rate_avg;
+	vector< running_stat<double> > explor_rate_avg;
+
+	mat gv_history;
 
 private:
 	NaviControl* controller;
@@ -74,6 +78,7 @@ private:
 	ofstream lvlearn;
 	ofstream stats_gl;
 	ofstream statsall_gl;
+	ofstream gv_angl;
 	stringstream file_name;
 
 	// Evaluation

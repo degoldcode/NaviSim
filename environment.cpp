@@ -119,12 +119,12 @@ Environment::~Environment(){
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		delete agent_list.at(i);
 	for(unsigned int i = 0; i < goal_list.size(); i++){
-		stream_g << goal_list.at(i)->x_position << "\t" << goal_list.at(i)->y_position << "\t" << goal_list.at(i)->total_hits << endl;
+		stream_g << goal_list.at(i)->x() << "\t" << goal_list.at(i)->y() << "\t" << goal_list.at(i)->total_hits << endl;
 		delete goal_list.at(i);
 	}
 	stream_g.close();
 	for(unsigned int i = 0; i < landmark_list.size(); i++){
-		stream_lm << landmark_list.at(i)->x_position << "\t" << landmark_list.at(i)->y_position << "\t" << landmark_list.at(i)->total_hits << endl;
+		stream_lm << landmark_list.at(i)->x() << "\t" << landmark_list.at(i)->y() << "\t" << landmark_list.at(i)->total_hits << endl;
 		delete landmark_list.at(i);
 	}
 	stream_lm.close();
@@ -141,7 +141,7 @@ void Environment::update(double command){
 	lm_recogn = 0.0;
 	stream_food << agent_list.at(0)->t << " " ;
 	for(unsigned int j = 0; j < goal_list.size(); j++)
-			stream_food <<  goal_list.at(j)->amount << " ";
+			stream_food <<  goal_list.at(j)->a() << " ";
 	stream_food << endl;
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < pipe_list.size(); j++)
@@ -151,7 +151,7 @@ void Environment::update(double command){
 				agent_list.at(i)->in_pipe = true;
 		agent_list.at(i)->update(command);
 		for(unsigned int j = 0; j < goal_list.size(); j++)
-			reward += goal_list.at(j)->get_reward(agent_list.at(i)->get_x(), agent_list.at(i)->get_y(), mode);
+			reward += goal_list.at(j)->r(agent_list.at(i)->get_x(), agent_list.at(i)->get_y(), mode);
 		for(unsigned int j = 0; j < landmark_list.size(); j++)
 			lm_recogn += landmark_list.at(j)->get_hit(agent_list.at(i)->get_x(), agent_list.at(i)->get_y());
 	}
@@ -188,14 +188,14 @@ void Environment::reset(){
 		goal_list.at(j)->hit = 0;
 }
 
-double Environment::get_distance(Goal* goal1, Goal* goal2){
-	return sqrt(pow(goal1->x_position-goal2->x_position,2.) + pow(goal1->y_position-goal2->y_position,2.));
+double Environment::get_distance(Goal* g1, Goal* g2){
+	return sqrt(d(g1->x(),g2->x()) + d(g1->y(),g2->y()));
 }
-double Environment::get_distance(Landmark* landmark1, Goal* goal2){
-	return sqrt(pow(landmark1->x_position-goal2->x_position,2.) + pow(landmark1->y_position-goal2->y_position,2.));
+double Environment::get_distance(Landmark* lm1, Goal* g2){
+	return sqrt(d(lm1->x(),g2->x()) + d(lm1->y(),g2->y()));
 }
-double Environment::get_distance(Landmark* landmark1, Landmark* landmark2){
-	return sqrt(pow(landmark1->x_position-landmark2->x_position,2.) + pow(landmark1->y_position-landmark2->y_position,2.));
+double Environment::get_distance(Landmark* lm1, Landmark* lm2){
+	return sqrt(d(lm1->x(),lm2->x()) + d(lm1->y(),lm2->y()));
 }
 
 double Environment::getx(){
@@ -210,28 +210,22 @@ double Environment::get_real_HV(){
 	return agent_list.at(0)->theta;
 }
 
-double Environment::get_nearest_x(){
-	double minr = 1000.;
-	int ind = 0;
-	for(int i=0;i<goal_list.size();i++){
-		if(goal_list.at(i)->distance_to_origin < minr){
-			minr=goal_list.at(i)->distance_to_origin;
-			ind = i;
+Goal* Environment::nearest(double x, double y){
+	double min_dist = sqrt( d(goal_list.at(0)->x(), x) + d(goal_list.at(0)->y(), y));
+	double dist;
+	int idx=0;
+	for(int i=1; i<goal_list.size(); i++){
+		dist = sqrt( d(goal_list.at(i)->x(), x) + d(goal_list.at(i)->y(), y));
+		if(dist<min_dist){
+			idx = i;
+			min_dist = dist;
 		}
 	}
-	return goal_list.at(ind)->x_position;
+	return goal_list.at(idx);
 }
 
-double Environment::get_nearest_y(){
-	double minr = 1000.;
-	int ind = 0;
-	for(int i=0; i<goal_list.size(); i++){
-		if(goal_list.at(i)->distance_to_origin < minr){
-			minr=goal_list.at(i)->distance_to_origin;
-			ind = i;
-		}
-	}
-	return goal_list.at(ind)->y_position;
+double Environment::d(double x0, double x1){
+	return pow(x0-x1,2);
 }
 
 

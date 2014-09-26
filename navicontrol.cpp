@@ -124,11 +124,11 @@ double NaviControl::update(double angle, double speed, double inReward, double l
 	dvalue = -value;
 	value = reward + disc_factor * value;
 	dvalue += value;
-	td_error = reward - dvalue;
+	td_error = reward + dvalue;
 	expl_factor = exp(-value);
 
 	vec act_pi = pin->update(angle, speed);
-	vec act_gl = gln->update(act_pi, reward);
+	vec act_gl = gln->update(act_pi, td_error, expl_factor);
 	vec act_rl = rln->update(act_pi, reward, lm_recogn, angle, speed);
 
 	if (t % inv_sampling_rate == 0)

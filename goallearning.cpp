@@ -12,8 +12,9 @@ using namespace std;
 GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
 	N = neurons;
 	M = motiv_states;
-	learn_rate = 1.0;
+	learn_rate = 5.0;
 	reward = 0.0;
+	expl_rate =  0.0;
 	max_angle = 0.0;
 
 	pref_angle.zeros(N);
@@ -49,9 +50,10 @@ GoalLearning::~GoalLearning(){
 	w_mu_gv.save("./save/goalweights.mat", raw_ascii);
 }
 
-vec GoalLearning::update(vec pi_input, double in_reward){
+vec GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	act_pi_array = pi_input;
 	reward = in_reward;
+	expl_rate = in_expl;
 	update_activities();
 	update_weights();
 	var = mean(act_output);///mean(act_output);
@@ -67,7 +69,7 @@ void GoalLearning::update_activities(){
 }
 
 void GoalLearning::update_weights(){
-	dw_mu_gv = learn_rate * reward * (act_pi_array-act_gv_array) * act_mu_array.t();
+	dw_mu_gv = learn_rate * reward * expl_rate * (act_pi_array-act_gv_array) * act_mu_array.t();
 	w_mu_gv += dw_mu_gv;
 //	for(int i = 0; i < w_mu_gv.n_rows; i++)
 //		for(int j = 0; j < w_mu_gv.n_cols; j++)

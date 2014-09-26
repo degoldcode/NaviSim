@@ -16,14 +16,20 @@ public:
 	Landmark(double x, double y);
 	~Landmark();
 
-	double x_position;
-	double y_position;
-	double distance_to_origin;
-	double angle_to_x_axis;
+	double x();
+	double y();
+	double d();
+	double th();
 
 	double get_hit(double x, double y);
 	double rand(double min, double max);
 	int total_hits;
+
+private:
+	double x_position;
+	double y_position;
+	double distance_to_origin;
+	double angle_to_x_axis;
 };
 
 

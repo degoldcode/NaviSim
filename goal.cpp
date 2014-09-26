@@ -13,11 +13,11 @@
 using namespace std;
 
 Goal::Goal(double max_radius){
-	double min_radius = 2.5;
+	double min_radius = 1.;
 	distance_to_origin = (max_radius-min_radius) * sqrt(rand(0.0, 1.0)) + min_radius;
 	angle_to_x_axis = 2 * M_PI * rand(0.0, 1.0);
 	amount = 1.0;//rand(0., 1.);
-	amount_rate = 0.0;//0.001;
+	amount_rate = 0.0002;
 	x_position = distance_to_origin * cos(angle_to_x_axis);
 	y_position = distance_to_origin * sin(angle_to_x_axis);
 	hit = 0;
@@ -28,7 +28,7 @@ Goal::Goal(double x, double y){
 	distance_to_origin = sqrt(x*x+y*y);
 	angle_to_x_axis = atan2(y,x);
 	amount = 1.0;//rand(0., 1.);
-	amount_rate = 0.0;//0.001;
+	amount_rate = 0.0002;
 	x_position = x;
 	y_position = y;
 	hit = 0;
@@ -39,12 +39,33 @@ Goal::~Goal(){
 
 }
 
-double Goal::get_reward(double x, double y, int mode){
+double Goal::a(){
+	return amount;
+}
+
+double Goal::x(){
+	return x_position;
+}
+
+double Goal::y(){
+	return y_position;
+}
+
+double Goal::d(){
+	return distance_to_origin;
+}
+
+double Goal::th(){
+	return angle_to_x_axis;
+}
+
+double Goal::r(double x, double y, int mode){
 	double rxsqr = pow(x-x_position, 2.);
 	double rysqr = pow(y-y_position, 2.);
 	double rdist = sqrt(rxsqr+rysqr);
 	if(rdist < 0.2 && mode == 0){ //20 cm radius
 		hit = 1;
+		//factor = in_factor;
 		amount -= amount_rate;
 		total_hits++;
 		if(amount < 0.0){

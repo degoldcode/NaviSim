@@ -16,18 +16,25 @@ public:
 	Goal(double x, double y);
 	~Goal();
 
+	double a();
+	double x();
+	double y();
+	double d();
+	double th();
+	double r(double x, double y, int mode);
+	double rand(double min, double max);
+	int hit;
+	int total_hits;
+
+private:
 	double x_position;
 	double y_position;
 	double distance_to_origin;
 	double angle_to_x_axis;
 
-	double get_reward(double x, double y, int mode);
-	double rand(double min, double max);
-	int hit;
-	int total_hits;
-
 	double amount;
 	double amount_rate;
+	double factor;
 };
 
 

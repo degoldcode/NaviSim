@@ -17,8 +17,8 @@ const bool par_scan = false;
 const int max_idx = 6;
 double param_array[max_idx]={0.0,0.01,0.02,0.05,0.1,0.2};
 
-const int num_trials = 500;
-const int max_number_exp = 100;
+const int num_trials = 2000;
+const int max_number_exp = 1;
 string param_type = "sensory_noise";
 
 ofstream write_gl;
@@ -29,6 +29,7 @@ int main(){
 	Timer timer(true);
 	my_sim = new Simulation(param_type, num_trials);
 	double param;
+	write_gl.open("./data/allcycles.dat");
 
 	if(par_scan)
 		printf("\nStart simulation with varying %s from %g to %g. Averaged over %u trials.\n\n", param_type.c_str(), param_array[0], param_array[max_idx-1], num_trials);
@@ -61,9 +62,16 @@ int main(){
 		if(!par_scan)
 			idx = max_idx;
 	}
+	for(int trial = 0; trial < num_trials; trial++){
+		write_gl << my_sim->explor_rate_avg.at(trial).mean()
+				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->explor_rate_avg.at(trial).stddev()
+				<< "\t" << my_sim->success_rate_avg.at(trial).mean()
+				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->success_rate_avg.at(trial).stddev()
+				<< endl;
+	}
 
 	delete my_sim;
-
+	write_gl.close();
 	auto elapsed_secs_cl = timer.Elapsed();
 	printf("%4.3f s. Done.\n", elapsed_secs_cl.count()/1000.);
 }

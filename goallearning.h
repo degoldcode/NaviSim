@@ -16,7 +16,7 @@ public:
 	GoalLearning(int neurons, int motiv_states, double nnoise);
 	~GoalLearning();
 
-	vec update(vec pi_input, double in_reward);
+	vec update(vec pi_input, double in_reward, double in_expl);
 	void update_activities();
 	void update_weights();
 	void set_mu(double state, int index);
@@ -39,6 +39,7 @@ public:
 	int M;
 	double learn_rate;
 	double reward;
+	double expl_rate;
 	double max_angle;
 	double sum_length;
 	double length;

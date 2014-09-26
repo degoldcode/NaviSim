@@ -33,6 +33,23 @@ Landmark::~Landmark(){
 
 }
 
+double Landmark::x(){
+	return x_position;
+}
+
+double Landmark::y(){
+	return y_position;
+}
+
+double Landmark::d(){
+	return distance_to_origin;
+}
+
+double Landmark::th(){
+	return angle_to_x_axis;
+}
+
+
 double Landmark::get_hit(double x, double y){
 	double rxsqr = pow(x-x_position, 2.);
 	double rysqr = pow(y-y_position, 2.);
