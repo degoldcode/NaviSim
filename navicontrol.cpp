@@ -286,3 +286,7 @@ double NaviControl::get_HV(){
 double NaviControl::get_expl(){
 	return expl_factor(choice);
 }
+
+double NaviControl::get_expl(int i){
+	return expl_factor(i);
+}

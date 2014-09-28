@@ -31,6 +31,7 @@ public:
 	double bound_angle(double phi);
 	double get_HV();
 	double get_expl();
+	double get_expl(int i);
 	double inv_angle(double angle);
 	double in_degr(double angle);
 	void reset();

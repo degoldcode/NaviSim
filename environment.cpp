@@ -180,6 +180,15 @@ int Environment::get_hits(){
 	return sum;
 }
 
+int Environment::get_hits(int i){
+	int sum = 0;
+	for(unsigned int j = 0; j < goal_list.size(); j++){
+		if(goal_list.at(j)->type()==i)
+			sum += goal_list.at(j)->hit;
+	}
+	return sum;
+}
+
 void Environment::reset(){
 	sum_reward = 0.0;
 	for(unsigned int i = 0; i < agent_list.size(); i++)

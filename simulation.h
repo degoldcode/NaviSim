@@ -61,8 +61,16 @@ public:
 	// Evaluation
 	int end_run;
 	double success_rate;
+	int blue_hits;
+	int yellow_hits;
 	vector< running_stat<double> > success_rate_avg;
 	vector< running_stat<double> > explor_rate_avg;
+	vector< running_stat<double> > success_rate_avg2;	//YELLOW
+	vector< running_stat<double> > explor_rate_avg2;
+	vector< running_stat<double> > prob_B;
+	vector< running_stat<double> > prob_Y;
+	vector< running_stat<int> > choice;
+
 
 	mat gv_history0;
 	mat gv_history1;

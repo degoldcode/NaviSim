@@ -29,6 +29,7 @@ public:
 	void add_landmark(double x, double y);
 	void add_pipe(double x0, double x1, double y0, double y1, double width);
 	int get_hits();
+	int get_hits(int i);
 	double get_distance(Goal* g1, Goal* g2);
 	double get_distance(Landmark* lm1, Goal* g2);
 	double get_distance(Landmark* lm1, Landmark* lm2);

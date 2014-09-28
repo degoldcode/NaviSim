@@ -18,7 +18,7 @@ const int max_idx = 6;
 double param_array[max_idx]={0.0,0.01,0.02,0.05,0.1,0.2};
 
 const int num_trials = 400;
-const int max_number_exp = 1;
+const int max_number_exp = 50;
 string param_type = "sensory_noise";
 
 ofstream write_gl;
@@ -67,6 +67,16 @@ int main(){
 				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->explor_rate_avg.at(trial).stddev()
 				<< "\t" << my_sim->success_rate_avg.at(trial).mean()
 				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->success_rate_avg.at(trial).stddev()
+				<< "\t" << my_sim->explor_rate_avg2.at(trial).mean()
+				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->explor_rate_avg2.at(trial).stddev()
+				<< "\t" << my_sim->success_rate_avg2.at(trial).mean()
+				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->success_rate_avg2.at(trial).stddev()
+				<< "\t" << my_sim->prob_B.at(trial).mean()
+				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->prob_B.at(trial).stddev()
+				<< "\t" << my_sim->prob_Y.at(trial).mean()
+				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->prob_Y.at(trial).stddev()
+				<< "\t" << my_sim->choice.at(trial).mean()
+				<< "\t" << (1.96/sqrt(max_number_exp))*my_sim->choice.at(trial).stddev()
 				<< endl;
 	}
 

@@ -30,7 +30,7 @@ Simulation::Simulation(string in_param_type, int in_num_trials){
 
 	// Simulation parameters
 	total_runs = in_num_trials;
-	run_div = int(total_runs/200.);
+	run_div = int(total_runs/4.);
 	if(run_div<1)
 		run_div=1;
 	//printf("runs= %u - > div = %u\n", total_runs, run_div);
@@ -61,8 +61,15 @@ Simulation::Simulation(string in_param_type, int in_num_trials){
 	num_goalhits = 0;
 	num_homing = 0;
 	success_rate = 0.0;
+	blue_hits = 0;
+	yellow_hits = 0;
 	success_rate_avg.resize(in_num_trials);
 	explor_rate_avg.resize(in_num_trials);
+	success_rate_avg2.resize(in_num_trials);
+	explor_rate_avg2.resize(in_num_trials);
+	prob_B.resize(in_num_trials);
+	prob_Y.resize(in_num_trials);
+	choice.resize(in_num_trials);
 
 	controller = new NaviControl(num_neurons, sens_noise, pi_leakage);											/////	+
 	//environment = new Environment(agents/*, goals, landmarks, m_radius*/);
@@ -104,6 +111,8 @@ void Simulation::run_sim(double param){
 	PI_angular_error.reset();
 	num_goalhits = 0;
 	end_run = 0;
+	blue_hits = 0;
+	yellow_hits = 0;
 	//printf("Run = %6u\tPI error = %6g +- %6g\n", int(PI_angular_error.count()), PI_angular_error.mean(), PI_angular_error.stddev());
 	for(int run = 0; run < total_runs; run++){
 		if(total_runs > 50 && run==int(total_runs/4))
@@ -114,10 +123,10 @@ void Simulation::run_sim(double param){
 		double start_time = controller->t;
 		double trial_time = 0.0;
 		double old_gvl = controller->gln->length;		//Old GV len
-		while(controller->t < start_time + max_outbound_time && environment->sum_reward < 0.4){																	//OUTBOUND RUN (SEARCHING)
+		while(controller->t < start_time + max_outbound_time && environment->sum_reward < 0.25){																	//OUTBOUND RUN (SEARCHING)
 			run_outbound();
-			if(environment->sum_reward>0.4)
-				printf("Enough: (%2.2f,%2.2f)", environment->getx(), environment->gety());
+			//if(environment->sum_reward>0.4)
+				//printf("Enough: (%2.2f,%2.2f)", environment->getx(), environment->gety());
 			endpoints << controller->PI_x-environment->getx() << "\t" << controller->PI_y-environment->gety() << endl;
 			trial_time+=0.1;
 		}
@@ -131,7 +140,6 @@ void Simulation::run_sim(double param){
 			endpoints << controller->PI_x-environment->getx() << "\t" << controller->PI_y-environment->gety() << endl;
 			trial_time+=0.1;
 		}
-		success_rate = 100.0*num_goalhits/(run+1);
 		if((run+1)%run_div==0){
 			printf("Run = %5u\t", run+1);
 			printf("Success rate: %3.3f,\t", success_rate);
@@ -152,8 +160,20 @@ void Simulation::run_sim(double param){
 		if(controller->get_expl() < 0.5)
 			environment->agent_list.at(0)->short_write = false;
 
-		success_rate_avg.at(run)(success_rate/100.);
-		explor_rate_avg.at(run)(controller->get_expl());
+		success_rate = 100.0*num_goalhits/(run+1);
+		if(environment->get_hits(0) > 0)
+			blue_hits++;
+		if(environment->get_hits(1) > 0)
+			yellow_hits++;
+		//printf("%u\t%u -> %u\t%u\n", environment->get_hits(0), environment->get_hits(1), blue_hits, yellow_hits);
+
+		success_rate_avg.at(run)(blue_hits);
+		explor_rate_avg.at(run)(controller->get_expl(0));
+		success_rate_avg2.at(run)(yellow_hits);
+		explor_rate_avg2.at(run)(controller->get_expl(1));
+		prob_B.at(run)(controller->prob(0));
+		prob_Y.at(run)(controller->prob(1));
+		choice.at(run)(controller->choice);
 
 		gvlearn << run << " " << controller->t << " " << success_rate/100. << " " << 1.0*num_homing/(run+1) << " " << controller->get_expl() << endl;
 

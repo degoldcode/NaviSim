@@ -38,12 +38,12 @@ Goal::Goal(double x, double y, int color){
 	angle_to_x_axis = atan2(y,x);
 	amount_rate = 0.0;//0.0001;
 	goal_type = color;
-	printf("Goal added (%1.1f,%1.1f) with color %u", x, y, goal_type);
+	printf("Goal added (%1.1f,%1.1f) with color %u ", x, y, goal_type);
 	if(goal_type==1)
 		amount = 1.0;
 	else
 		amount = 0.25;
-	printf("with amount = %f\n", amount);
+	printf("and amount = %f\n", amount);
 	x_position = x;
 	y_position = y;
 	hit = 0;
