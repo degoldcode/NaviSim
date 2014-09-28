@@ -13,7 +13,7 @@ using namespace std;
 class Goal {
 public:
 	Goal(double max_radius);
-	Goal(double x, double y);
+	Goal(double x, double y, int color = 0);
 	~Goal();
 
 	double a();
@@ -21,6 +21,8 @@ public:
 	double y();
 	double d();
 	double th();
+	void swap();
+	int type();
 	double r(double x, double y, int mode);
 	double rand(double min, double max);
 	int hit;
@@ -35,6 +37,7 @@ private:
 	double amount;
 	double amount_rate;
 	double factor;
+	int goal_type;
 };
 
 

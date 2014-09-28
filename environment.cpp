@@ -119,7 +119,7 @@ Environment::~Environment(){
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		delete agent_list.at(i);
 	for(unsigned int i = 0; i < goal_list.size(); i++){
-		stream_g << goal_list.at(i)->x() << "\t" << goal_list.at(i)->y() << "\t" << goal_list.at(i)->total_hits << endl;
+		stream_g << goal_list.at(i)->x() << "\t" << goal_list.at(i)->y() << "\t" << goal_list.at(i)->total_hits << "\t" << goal_list.at(i)->type() << endl;
 		delete goal_list.at(i);
 	}
 	stream_g.close();
@@ -158,8 +158,8 @@ void Environment::update(double command){
 	sum_reward += reward;
 }
 
-void Environment::add_goal(double x, double y){
-	Goal* goal = new Goal(x,y);
+void Environment::add_goal(double x, double y, int color){
+	Goal* goal = new Goal(x,y,color);
 	goal_list.push_back(goal);
 }
 
@@ -186,6 +186,12 @@ void Environment::reset(){
 		agent_list.at(i)->reset();
 	for(unsigned int j = 0; j < goal_list.size(); j++)
 		goal_list.at(j)->hit = 0;
+}
+
+int Environment::type(){
+	int type = nearest(getx(),gety())->type();
+	agent_list.at(0)->set_type(type);
+	return type;
 }
 
 double Environment::get_distance(Goal* g1, Goal* g2){
@@ -226,6 +232,11 @@ Goal* Environment::nearest(double x, double y){
 
 double Environment::d(double x0, double x1){
 	return pow(x0-x1,2);
+}
+
+void Environment::swap_reward(){
+	for(int i=0; i<goal_list.size(); i++)
+		goal_list.at(i)->swap();
 }
 
 

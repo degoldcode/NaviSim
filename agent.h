@@ -23,6 +23,7 @@ public:
 	double get_y();
 	double rand(double min, double max);
 	void reset();
+	void set_type(int input);
 	void update(double command);
 
 	double phi;
@@ -50,6 +51,7 @@ public:
 private:
 	double x;
 	double y;
+	int type;
 };
 
 

@@ -25,7 +25,7 @@ public:
 	~Environment();
 
 	void update(double command);
-	void add_goal(double x, double y);
+	void add_goal(double x, double y, int color = 0);
 	void add_landmark(double x, double y);
 	void add_pipe(double x0, double x1, double y0, double y1, double width);
 	int get_hits();
@@ -37,7 +37,9 @@ public:
 	double getx();
 	double gety();
 	double d(double x0, double x1);
+	int type();
 	void reset();
+	void swap_reward();
 	vector<Agent*> agent_list;
 	vector<Goal*> goal_list;
 	vector<Landmark*> landmark_list;

@@ -45,7 +45,7 @@ Simulation::Simulation(string in_param_type, int in_num_trials){
 	sens_noise = 0.00;
 	pi_leakage = 0.00;
 	num_motivs = 2;				//0=outbound,	1=inbound
-	max_outbound_time = 500;
+	max_outbound_time = 250;
 	max_inbound_time = max_outbound_time;//600;
 	motor_command = 0.0;
 
@@ -92,23 +92,32 @@ void Simulation::run_sim(double param){
 
 	controller = new NaviControl(num_neurons, sens_noise, pi_leakage);
 	//printf("set param -> %f\n", controller->pin->snoise);
-	//environment = new Environment(agents/*, goals, landmarks, m_radius*/);
-	environment = new Environment(agents, num_goals, num_landmarks, max_radius);
+	environment = new Environment(agents/*, goals, landmarks, m_radius*/);
+	//environment = new Environment(agents, num_goals, num_landmarks, max_radius);
 
-	//environment->add_pipe(0.0,0.0,0.0,-5.0, 0.15);
+	//environment->add_pipe(0.0,3.0,0.0,3.0, 0.15);
 	//environment->add_pipe(0.0,0.0,0.0,5.0, 0.15);
-	//environment->add_goal(0.,3.);
+	environment->add_goal(-1.5,3.,0);
+	environment->add_goal(1.5,3.,1);
+
 
 	PI_angular_error.reset();
 	num_goalhits = 0;
 	end_run = 0;
 	//printf("Run = %6u\tPI error = %6g +- %6g\n", int(PI_angular_error.count()), PI_angular_error.mean(), PI_angular_error.stddev());
 	for(int run = 0; run < total_runs; run++){
+		if(total_runs > 50 && run==int(total_runs/4))
+			controller->beta = 1.;
+		if(total_runs > 50 && run==int(total_runs/2)){
+			environment->swap_reward();
+		}
 		double start_time = controller->t;
 		double trial_time = 0.0;
 		double old_gvl = controller->gln->length;		//Old GV len
 		while(controller->t < start_time + max_outbound_time && environment->sum_reward < 0.4){																	//OUTBOUND RUN (SEARCHING)
 			run_outbound();
+			if(environment->sum_reward>0.4)
+				printf("Enough: (%2.2f,%2.2f)", environment->getx(), environment->gety());
 			endpoints << controller->PI_x-environment->getx() << "\t" << controller->PI_y-environment->gety() << endl;
 			trial_time+=0.1;
 		}
@@ -123,8 +132,16 @@ void Simulation::run_sim(double param){
 			trial_time+=0.1;
 		}
 		success_rate = 100.0*num_goalhits/(run+1);
-		if((run+1)%run_div==0)
-			printf("Run = %5u\tSuccess rate: %3.3f,\tExpl. rate: %1.5e,\t GV = (%3.2f,%3.2f),\t nearest (%3.2f,%3.2f) has amount = %g\n", run+1, success_rate, controller->expl_factor, controller->GV_x, controller->GV_y, environment->nearest(controller->GV_x, controller->GV_y)->x(), environment->nearest(controller->GV_x, controller->GV_y)->y(), environment->nearest(controller->GV_x, controller->GV_y)->a());
+		if((run+1)%run_div==0){
+			printf("Run = %5u\t", run+1);
+			printf("Success rate: %3.3f,\t", success_rate);
+			printf("Expl. rate: %1.5e,\n", controller->get_expl());
+			for(int i = 0; i < num_motivs; i++){
+				printf("GV = (%3.2f,%3.2f) angle = %3.3f / %3.3f,\t", controller->GV_x.at(i), controller->GV_y.at(i), in_degr(controller->cGV_angle.at(i)), in_degr(controller->GV_angle.at(i)));
+				printf("nearest (%3.2f,%3.2f) has amount = %g\n", environment->nearest(controller->GV_x.at(i), controller->GV_y.at(i))->x(), environment->nearest(controller->GV_x.at(i), controller->GV_y.at(i))->y(), environment->nearest(controller->GV_x.at(i), controller->GV_y.at(i))->a());
+			}
+			printf("P[B] = %f\t P[Y] = %f\t-> %u\n", controller->prob(0), controller->prob(1), controller->choice);
+		}
 		//PI error = %6g +- %6g\t(%6g),\t;, PI_angular_error.mean(), PI_angular_error.stddev()
 		//if(controller->gln->length - old_gvl < 0.000000001 && run > 20)	//convergence criterion
 		//run = total_runs;
@@ -132,32 +149,34 @@ void Simulation::run_sim(double param){
 			num_homing++;
 		if(environment->get_hits() > 0)
 			num_goalhits ++;
-		if(controller->expl_factor < 0.5)
+		if(controller->get_expl() < 0.5)
 			environment->agent_list.at(0)->short_write = false;
 
 		success_rate_avg.at(run)(success_rate/100.);
-		explor_rate_avg.at(run)(controller->expl_factor);
+		explor_rate_avg.at(run)(controller->get_expl());
 
-		gvlearn << run << " " << controller->t << " " << success_rate/100. << " " << 1.0*num_homing/(run+1) << " " << controller->expl_factor << endl;
+		gvlearn << run << " " << controller->t << " " << success_rate/100. << " " << 1.0*num_homing/(run+1) << " " << controller->get_expl() << endl;
 
 
-		gv_history = join_rows(gv_history, controller->gln->w_mu_gv.col(0));
-		gv_angl << run << "\t" << controller->GV_angle << endl;
-		//printf("Run = %3u, time@nest = %5u, hits/run = %2.3f, hits = %u, homing rate = %1.3f, dist_factor = %2.4f, expl_fact = %f, memory len = %1.3f\n", run+1, controller->t, (1.0*num_goalhits)/(1.0*(run+1)), num_goalhits, 1.0*num_homing/(run+1), controller->pin->length/environment->agent_list.at(0)->distance, controller->expl_factor, controller->pin->memory_length);
+		gv_history0 = join_rows(gv_history0, controller->gln->w_mu_gv.col(0));
+		gv_history1 = join_rows(gv_history1, controller->gln->w_mu_gv.col(1));
+		gv_angl << run << "\t" << controller->GV_angle.at(0) << "\t" << controller->GV_angle.at(1) << endl;
+		//printf("Run = %3u, time@nest = %5u, hits/run = %2.3f, hits = %u, homing rate = %1.3f, dist_factor = %2.4f, expl_fact = %f, memory len = %1.3f\n", run+1, controller->t, (1.0*num_goalhits)/(1.0*(run+1)), num_goalhits, 1.0*num_homing/(run+1), controller->pin->length/environment->agent_list.at(0)->distance, controller->get_expl(), controller->pin->memory_length);
 		environment->reset();
 		controller->reset();
 
-		if(success_rate > 95. && controller->expl_factor < 0.05 && end_run == 0){
-			printf("Converged after %u trials. Avg success rate = %3.3f. Exploration rate = %1.9f.\n", run+1, success_rate, controller->expl_factor);
-			printf("Learned goal at (%3.2f,%3.2f) = %3.2f\nNearest goal at (%3.2f,%3.2f) = %3.2f\n\n", controller->GV_x, controller->GV_y, sqrt(pow(controller->GV_x,2)+pow(controller->GV_y,2)), environment->nearest()->x(), environment->nearest()->y(), sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2)));
+		if(success_rate > 95. && controller->get_expl() < 0.05 && end_run == 0){
+			printf("Converged after %u trials. Avg success rate = %3.3f. Exploration rate = %1.9f.\n", run+1, success_rate, controller->get_expl());
+			//printf("Learned goal at (%3.2f,%3.2f) = %3.2f\nNearest goal at (%3.2f,%3.2f) = %3.2f\n\n", controller->GV_x, controller->GV_y, sqrt(pow(controller->GV_x,2)+pow(controller->GV_y,2)), environment->nearest()->x(), environment->nearest()->y(), sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2)));
 			//run = total_runs;
 			end_run = run+1;
 		}
 		statsall_gl << run
 					<< "\t" << end_run
-					<< "\t" << controller->expl_factor
+					<< "\t" << controller->get_expl()
 					<< "\t" << 100.0*num_goalhits/total_runs
-					<< "\t" << sqrt(pow(controller->GV_x,2)+pow(controller->GV_y,2))
+					<< "\t" << sqrt(pow(controller->GV_x.at(0),2)+pow(controller->GV_y.at(0),2))
+					<< "\t" << sqrt(pow(controller->GV_x.at(1),2)+pow(controller->GV_y.at(1),2))
 					<< "\t" << sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2))
 					<< endl;
 		if(run+1==total_runs && end_run == 0)
@@ -167,11 +186,13 @@ void Simulation::run_sim(double param){
 		printf("No convergence after %u.\nNearest goal at (%3.2f,%3.2f) = %3.2f\n\n", total_runs, environment->nearest()->x(), environment->nearest()->y(), sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2)));
 	}
 
-	gv_history.save("./data/gv_hist.mat", raw_ascii);
+	gv_history0.save("./data/gv_hist.mat", raw_ascii);
+	gv_history1.save("./data/gv_hist1.mat", raw_ascii);
 	stats_gl <<	end_run
-			<< "\t" << controller->expl_factor
+			<< "\t" << controller->get_expl()
 			<< "\t" << 100.0*num_goalhits/total_runs
-			<< "\t" << sqrt(pow(controller->GV_x,2)+pow(controller->GV_y,2))
+			<< "\t" << sqrt(pow(controller->GV_x.at(0),2)+pow(controller->GV_y.at(0),2))
+			<< "\t" << sqrt(pow(controller->GV_x.at(1),2)+pow(controller->GV_y.at(1),2))
 			<< "\t" << sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2))
 			<< endl;
 	//printf("Param = %6g\tPI error = %6g +- %6g\n\n", param, PI_angular_error.mean(), PI_angular_error.stddev());
@@ -185,7 +206,7 @@ void Simulation::run_outbound(){
 	controller->get_pos(environment->getx(), environment->gety());
 	//if(environment->reward>0.0)
 		//printf("R=%2.3f, r(t)= %2.3f, (x,y)=(%2.3f,%2.3f)\n", environment->sum_reward, environment->reward,environment->getx(), environment->gety());
-	motor_command = controller->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v, environment->reward, environment->lm_recogn);
+	motor_command = controller->update(environment->agent_list.at(0)->phi, environment->agent_list.at(0)->v, environment->reward, environment->type());
 	distor << environment->agent_list.at(0)->distance << " " << controller->pin->length << " " << controller->gln->length << endl;
 	//if(controller->t%500==0)
 		//printf("t = %4u\tPI_error_ang = %1.3f\tSumR = %2.3f\tValue = %2.3f\tPhi = %3.2f\tGV angle = %3.2f (%2.3f)\tLV angle = %3.2f (%2.3f)\n", controller->t, PI_angular_error, environment->sum_reward, controller->value, in_degr(environment->agent_list.at(0)->phi), in_degr(controller->GV_angle), controller->gln->length, in_degr(controller->LV_angle), controller->rln->length);

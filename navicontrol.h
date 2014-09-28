@@ -18,6 +18,7 @@
 using namespace std;
 using namespace arma;
 
+enum{blue,yellow};
 
 class NaviControl {
 public:
@@ -25,10 +26,11 @@ public:
 	~NaviControl();
 
 	void get_pos(double x, double y);
-	double update(double angle, double speed, double inReward, double lm_recogn);
+	double update(double angle, double speed, double inReward, int color);
 	void update_matrices(vec PI, vec GL, vec RL);
 	double bound_angle(double phi);
 	double get_HV();
+	double get_expl();
 	double inv_angle(double angle);
 	double in_degr(double angle);
 	void reset();
@@ -37,6 +39,7 @@ public:
 	void set_inbound();
 	void set_outbound();
 	double rand(double mean, double stdev);
+	double randu(double min, double max);
 
 	PIN* pin;
 	GoalLearning* gln;
@@ -64,28 +67,40 @@ public:
 	double PI_avg_angle;
 	double PI_x;
 	double PI_y;
-	double GV_angle;
-	double GV_x;
-	double GV_y;
-	double cGV_angle;
+
+	vector<double> GV_angle;
+	vector<double> GV_x;
+	vector<double> GV_y;
+	vector<double> cGV_angle;
+
 	double cLV_angle;
 	double LV_angle;
 	double LV_x;
 	double LV_y;
 	double CM_angle;		//CM = chaotic map
 	double lm_lowpass;
-	double reward;
-	double td_error;
-	double value;
-	double dvalue;
+	vec reward;
+	vec td_error;
+	vec value;
+	vec dvalue;
 	double val_discount;
 	double disc_factor;
-	double expl_factor;
+	vec expl_factor;
 	double rx;
 	double ry;
+	double foraging;
+
+	//ACTION SELECTION
+	vec prob;
+	vec act;
+	int choice;
+	double beta;
 
 	int N;
+	int num_colors;
 	int t;
+	int trial_t;
+	int run;
 	int inv_sampling_rate;		//for activations stored in matrix ([s])
 
 	bool start_fixed;

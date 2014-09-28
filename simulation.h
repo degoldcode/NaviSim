@@ -64,7 +64,8 @@ public:
 	vector< running_stat<double> > success_rate_avg;
 	vector< running_stat<double> > explor_rate_avg;
 
-	mat gv_history;
+	mat gv_history0;
+	mat gv_history1;
 
 private:
 	NaviControl* controller;

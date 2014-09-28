@@ -75,17 +75,23 @@ void Agent::reset(){
 	trial++;
 }
 
+void Agent::set_type(int input){
+	type = input;
+}
+
 void Agent::update(double command){
 	//if(ts%sampling_interval==0)
 		stream  << t << "\t"
 				<< x << "\t"
 				<< y << "\t"
 				<< phi << "\t"
-				<< dphi << "\t"
+				<< dphi << "\t"			// 5
 				<< theta << "\t"
 				<< distance << "\t"
 				<< trial  << "\t"
-				<< trial_t<< endl;
+				<< trial_t  << "\t"
+				<< type << "\t"
+				<< endl;
 		if(short_write)
 			stream_s<< t << "\t"
 					<< x << "\t"

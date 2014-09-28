@@ -22,6 +22,8 @@ public:
 	void set_mu(double state, int index);
 	double get_max_angle(vec input);
 	double get_max_value(vec input);
+	double angle(int i);
+	double len(int i);
 	vec lin_rect(vec input);
 
 	vec pref_angle;
