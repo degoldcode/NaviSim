@@ -17,8 +17,8 @@ const bool par_scan = false;
 const int max_idx = 6;
 double param_array[max_idx]={0.0,0.01,0.02,0.05,0.1,0.2};
 
-const int num_trials = 400;
-const int max_number_exp = 50;
+const int num_trials = 200;
+const int max_number_exp = 20;
 string param_type = "sensory_noise";
 
 ofstream write_gl;
@@ -52,10 +52,12 @@ int main(){
 			else
 				flags++;
 			if(learn_exp_idx%10==0){
+				printf("\n=== Avg Total reward = %5.3f +- %5.3f ===\n", my_sim->total_reward.mean(), my_sim->total_reward.stddev());
 				printf("\n=== Avg convergence at %3.1f +- %3.1f\tflags = %u ===\n", conv_time.mean(),conv_time.stddev(),flags);
 				printf("=== Avg SUCCESS RATE at %3.3f +- %3.3f,\tMIN = %3.3f,\tMAX = %3.3f ===\n\n", succ_rate.mean(),succ_rate.stddev(),succ_rate.min(),succ_rate.max());
 			}
 		}
+		printf("\n===+++ END Avg Total reward = %5.3f +- %5.3f +++===\n", my_sim->total_reward.mean(), my_sim->total_reward.stddev());
 		printf("\n===+++ END Avg convergence at %3.1f +- %3.1f,\tMIN = %3.1f,\tMAX = %3.1f,\tflags = %u END +++===\n", conv_time.mean(),conv_time.stddev(),conv_time.min(),conv_time.max(),flags);
 		printf("===+++ END Avg SUCCESS RATE at %3.3f +- %3.3f,\tMIN = %3.3f,\tMAX = %3.3f END +++===\n\n", succ_rate.mean(),succ_rate.stddev(),succ_rate.min(),succ_rate.max());
 		idx++;

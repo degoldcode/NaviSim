@@ -46,7 +46,7 @@ NaviControl::NaviControl(int num_neurons, double sensory_noise, double leakage) 
 
 	prob = zeros(num_colors);
 	act = zeros(num_colors);
-	beta = .01;
+	beta = 1.;
 
 	val_discount = 0.99;
 	disc_factor = 0.999;	//0.999

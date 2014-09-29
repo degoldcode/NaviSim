@@ -70,6 +70,7 @@ public:
 	vector< running_stat<double> > prob_B;
 	vector< running_stat<double> > prob_Y;
 	vector< running_stat<int> > choice;
+	running_stat<double> total_reward;
 
 
 	mat gv_history0;

@@ -25,6 +25,7 @@ Environment::Environment(double num_agents){
 	/*** SET UP CLASS VARIABLES ***/
 	reward = 0.0;
 	sum_reward = 0.0;
+	total_reward = 0.0;
 	lm_recogn = 0.0;
 	count = 0;
 	flag = 0;
@@ -156,6 +157,7 @@ void Environment::update(double command){
 			lm_recogn += landmark_list.at(j)->get_hit(agent_list.at(i)->get_x(), agent_list.at(i)->get_y());
 	}
 	sum_reward += reward;
+	total_reward += reward;
 }
 
 void Environment::add_goal(double x, double y, int color){
@@ -246,6 +248,10 @@ double Environment::d(double x0, double x1){
 void Environment::swap_reward(){
 	for(int i=0; i<goal_list.size(); i++)
 		goal_list.at(i)->swap();
+}
+
+double Environment::get_total_reward(){
+	return total_reward;
 }
 
 

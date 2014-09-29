@@ -30,6 +30,7 @@ public:
 	void add_pipe(double x0, double x1, double y0, double y1, double width);
 	int get_hits();
 	int get_hits(int i);
+	double get_total_reward();
 	double get_distance(Goal* g1, Goal* g2);
 	double get_distance(Landmark* lm1, Goal* g2);
 	double get_distance(Landmark* lm1, Landmark* lm2);
@@ -48,6 +49,7 @@ public:
 
 	double reward;
 	double sum_reward;
+	double total_reward;
 	double lm_recogn;
 	bool flag;
 	int count;

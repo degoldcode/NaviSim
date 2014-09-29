@@ -115,8 +115,8 @@ void Simulation::run_sim(double param){
 	yellow_hits = 0;
 	//printf("Run = %6u\tPI error = %6g +- %6g\n", int(PI_angular_error.count()), PI_angular_error.mean(), PI_angular_error.stddev());
 	for(int run = 0; run < total_runs; run++){
-		if(total_runs > 50 && run==int(total_runs/4))
-			controller->beta = 1.;
+		/*if(total_runs > 50 && run==int(total_runs/4))
+			controller->beta = 1.;*/
 		if(total_runs > 50 && run==int(total_runs/2)){
 			environment->swap_reward();
 		}
@@ -206,6 +206,7 @@ void Simulation::run_sim(double param){
 		printf("No convergence after %u.\nNearest goal at (%3.2f,%3.2f) = %3.2f\n\n", total_runs, environment->nearest()->x(), environment->nearest()->y(), sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2)));
 	}
 
+	total_reward(environment->get_total_reward());
 	gv_history0.save("./data/gv_hist.mat", raw_ascii);
 	gv_history1.save("./data/gv_hist1.mat", raw_ascii);
 	stats_gl <<	end_run
