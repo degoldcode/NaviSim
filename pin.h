@@ -28,42 +28,52 @@
 #ifndef PIN_H_
 #define PIN_H_
 
+#include "circulararray.h"
 #include <armadillo>
+#include <vector>
 using namespace std;
 using namespace arma;
 
-class PIN {
+
+
+enum{HD, G, M, HV};    	//HD = Head Direction; G = Gater; M = Memory; HV = Home vector
+
+
+/**
+ * Path Integration Network Class
+ *
+ * 	This class creates a network of circular array
+ * 	for path integration
+ *
+ */
+
+class PIN:
+	public CircArray
+	{
 public:
-	PIN(int neurons, double leak, double sensnoise, double neurnoise);
+	/**
+	 * Constructor
+	 *
+	 *  @param (int) num_neurons: number of neurons in this array (default: 360)
+	 *  @param (int) input_dim: number of incoming signals (default: 0)
+	 */
+	PIN(int num_neurons, double leak, double sens_noise, double neur_noise);
 	~PIN();
 
+	CircArray* array(int i);
+
+	mat cos_kernel();
+
 	void reset();
-	vec update(double angle, double speed);
-	vec lin_rect(vec input);
-	double get_avg_angle(vec input);
-	double get_max_angle(vec input);
-	double get_max_value(vec input);
-	double gaussian_noise(double width);
-	double bound_PI_angle(double angle);
-	double maxeigenvalue(mat & A);
 
-	vec pref_angle;
-	vec act_head_direction;
-	vec act_gater;
-	vec act_integrator;
-	vec act_output;
-	mat w_cos;
+	void update(double angle, double speed);
 
-	double max_angle;
-	double avg_angle;
-	double length;
-	double memory_length;
+private:
+	vector<CircArray*> ar;
 
-	int N;
 	double leak_rate;
 	double snoise;
 	double nnoise;
-	int t;
 };
 
 

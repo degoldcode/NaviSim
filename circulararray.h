@@ -1,5 +1,5 @@
 /*****************************************************************************
- *  pin.cpp                                                                  *
+ *  circulararray.h                                                          *
  *                                                                           *
  *  Created on:   Oct 07, 2014                                               *
  *  Author:       Dennis Goldschmidt                                         *
@@ -100,12 +100,33 @@ public:
 	};
 
 	/**
+	 * Returns cosine kernel
+	 *
+	 *  @return (mat)
+	 */
+	mat cos_kernel(){
+		mat w_cos = zeros<mat>(N,M);
+		for(int i = 0; i < N; i++)
+				for(int j = 0; j < N; j++)
+					w_cos(i,j) = cos(preferred_angle(i) - preferred_angle(j));
+		return w_cos;
+	};
+
+	/**
 	 * Returns Gaussian noise with given width
 	 *
 	 *  @param (double) width: standarad deviation of the normal distribution
 	 *  @return (double)
 	 */
-	double noise(double width);
+	double noise(double width){
+		if(width > 0.0){
+			static random_device e{};
+			static normal_distribution<double> d(0., width);
+			return d(e);
+		}
+		else
+			return 0.;
+	};
 
 	/**
 	 * Returns the preferred angle of the neuron with maximum firing
@@ -153,7 +174,9 @@ public:
 	 *
 	 *  @return (vec)
 	 */
-	vec rate();
+	vec rate(){
+		return output_rate;
+	};
 
 	/**
 	 * Returns the rate of a given neuron of the array
@@ -161,21 +184,89 @@ public:
 	 *  @param (int) i: index of neuron
 	 *  @return (vec)
 	 */
-	double rate(int i);
+	double rate(int i){
+		return output_rate(i);
+	};
 
 	/**
-	 * Resets the activities of the arrays
+	 * Resets the activities of the array
 	 *
 	 * @return (void)
 	 */
-	void reset();
+	void reset(){
+		input_rate.zeros();
+		output_rate.zeros();
+	};
+
+	/**
+	 * Sets the incoming connections to the array
+	 *
+	 * @return (void)
+	 */
+	void set_w(mat weight){
+		input_conns = weight;
+	};
+
+	/**
+	 * Updates the average angle of maximum firing in the array
+	 *
+	 * @return (void)
+	 */
+	void update_avg(){
+		double sum_act = 0.0;
+		double output = 0.0;
+		if(output_rate(0) == 0.0){
+			for(int i = 0; i < N; i++){
+				if(output_rate(i) > 0.0){
+					output += preferred_angle(i)*output_rate(i);
+					sum_act += output_rate(i);
+				}
+			}
+			output /= sum_act;
+		}
+		else{
+			for(int i = 0; i < N; i++){
+				if(output_rate(i) > 0.0){
+					output += bound(preferred_angle(i))*output_rate(i);
+					sum_act += output_rate(i);
+				}
+			}
+			output /= sum_act;
+		}
+		avg_angle = output;
+	};
+
+	/**
+	 * Updates the length of array rate
+	 *
+	 * @return (void)
+	 */
+	void update_len(){
+		length = scale_factor * sum(output_rate)/N;
+	};
+
+	/**
+	 * Updates the angle & rate of maximum firing neuron
+	 *
+	 * @return (void)
+	 */
+	void update_max(){
+		uword index;
+		max_rate = output_rate.max(index);
+		max_angle = preferred_angle(index);
+	};
 
 	/**
 	 * Updates the activities of the arrays
 	 *
 	 * @return (void)
 	 */
-	void update(vec input);
+	void update_rate(vec rate){
+		output_rate = rate;
+		update_avg();
+		update_len();
+		update_max();
+	};
 
 private:
 	int N;                                          // Number of neurons
@@ -190,6 +281,7 @@ private:
 	vec output_rate;								// Activity rate of neuron array
 	vec input_rate;                                 // Input activity rate to the array
 	mat input_conns;                                // incoming connections
+	vec bias;										// Bias vector
 };
 
 
