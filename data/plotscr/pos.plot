@@ -7,7 +7,7 @@ set ylabel "y"
 set cblabel "Trials" offset 1
 
 set size square
-SCALE = 5.
+SCALE = 50.
 OFFSETX = 0.0
 OFFSETY = 1.5
 set xtics 1.5
@@ -31,7 +31,7 @@ col(x) = int(255*x)*65536 + int(68+170*x)*256 + int(255*(1-x))
 
 plot	 "../pipes.dat" u 1:2 w l lw (182./SCALE) lt 1 lc rgb "black" t "", 					\
          "../pipes.dat" u 1:2 w l lw (172./SCALE) lt 1 lc rgb "#aaaaaa" t "Channel", 				\
-	 "../agent.dat" u 2:(($8>ERASEFIRST && $8<ERASELAST)?$3:1/0):8 w p pt 7 ps (10/SCALE)*0.3 lc palette t "" ,		\
+	 "../agent.dat" u 2:(($9>ERASEFIRST && $9<ERASELAST)?$3:1/0):9 w p pt 7 ps (10/SCALE)*0.3 lc palette t "" ,		\
 	 "../goals.dat" u 1:2:(0.2):(col($4)) w circles fs solid lc rgb var t "Goal", 		\
 	 "../home.dat" u 1:2:(0.2) w circles fs solid noborder lc rgb "#000000" t "Home"
 AGN=5.

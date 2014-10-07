@@ -17,8 +17,8 @@ const bool par_scan = false;
 const int max_idx = 6;
 double param_array[max_idx]={0.0,0.01,0.02,0.05,0.1,0.2};
 
-const int num_trials = 200;
-const int max_number_exp = 20;
+const int num_trials = 1;
+const int max_number_exp = 1;
 string param_type = "sensory_noise";
 
 ofstream write_gl;
@@ -44,10 +44,10 @@ int main(){
 		for(int learn_exp_idx = 0; learn_exp_idx < max_number_exp; learn_exp_idx++){
 			//param = param_array[idx];
 			printf("\nStart learning cycle %u\n\n", learn_exp_idx+1);
-			my_sim->run_sim(param);
-			if(my_sim->end_run < num_trials){
-				conv_time(double(my_sim->end_run));
-				succ_rate(double(my_sim->success_rate));
+			my_sim->run();
+			if(my_sim->get_lrun()< num_trials){
+				conv_time(double(my_sim->get_lrun()));
+				succ_rate(double(my_sim->get_srate()));
 			}
 			else
 				flags++;
