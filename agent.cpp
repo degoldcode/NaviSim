@@ -56,8 +56,8 @@ Agent::~Agent(){
 	stream.close();
 }
 
-double Agent::bound(double phi){
-	double rphi = phi;
+double Agent::bound(double angle){
+	double rphi = angle;
 	while(rphi > M_PI)
 		rphi -= 2 * M_PI;
 	while(rphi < - M_PI)
