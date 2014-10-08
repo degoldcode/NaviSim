@@ -60,7 +60,7 @@ public:
 	~GoalLearning();
 
 	void set_mu(double state);
-	vec update(vec pi_input, double in_reward, double in_expl);
+	void update(vec pi_input, double in_reward, double in_expl);
 	void update_weights(vec pi_input);
 
 	/**

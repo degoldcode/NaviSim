@@ -34,6 +34,8 @@ GoalLearning::GoalLearning(int num_neurons, double nnoise, bool opt_load) : Circ
 	learn_rate = 5.;
 	reward = 0.0;
 	expl_rate =  0.0;
+	GV_x = 0.0;
+	GV_y = 0.0;
 	load_weights = opt_load;
 	if(load_weights)
 		w().load("./save/goalweights.mat", raw_ascii);
@@ -47,12 +49,15 @@ void GoalLearning::set_mu(double state){
 	foraging_state = state;
 }
 
-vec GoalLearning::update(vec pi_input, double in_reward, double in_expl){
+void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	reward = in_reward;
 	expl_rate = in_expl;
 
 	vec input = foraging_state*ones<vec>(K);
+	update_rate(input_conns*input);
 	update_weights(pi_input);
+	GV_x = len()*cos(avg());
+	GV_y = len()*sin(avg());
 }
 
 void GoalLearning::update_weights(vec pi_input){

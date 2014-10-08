@@ -3,3 +3,4 @@ g++ test/test_gl.cpp goallearning.cpp pin.cpp environment.cpp agent.cpp goal.cpp
 ./gl_test
 cd test
 gnuplot pos.plot
+gnuplot weights.plot

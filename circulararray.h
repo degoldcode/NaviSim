@@ -309,7 +309,7 @@ private:
 	double max_rate;                                // Maximum rate of neuron array
 	double avg_angle;                               // Average position of the maximum firing rate
 	double length;                                  // Length of vector = (some scaling factor)*(sum of activities)/N
-	const double scale_factor = 33.6124212;       // Scaling factor
+	const double scale_factor = 2.41474212;       // Scaling factor
 
 	vec input_rate;                                 // Input activity rate to the array
 	vec bias;										// Bias vector

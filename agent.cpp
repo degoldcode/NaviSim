@@ -151,8 +151,8 @@ void Agent::update(double command, double speed_command){
 	abs_dphi = abs(diff_heading);
 	diff_speed = dt * k_s * speed_command;
 	speed += diff_speed;
-	x_position += speed * cos(heading);
-	y_position += speed * sin(heading);
+	x_position += dt * speed * cos(heading);
+	y_position += dt * speed * sin(heading);
 	distance = sqrt(pow(x_position,2)+pow(y_position,2));
 	theta = bound(atan2(y_position,x_position));
 
