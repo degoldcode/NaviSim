@@ -86,6 +86,20 @@ public:
 	double dphi();
 
 	/**
+	 * Sets write option to false -> no writing to file
+	 *
+	 *  @return (void)
+	 */
+	void no_write();
+
+	/**
+	 * Returns heading direction of agent
+	 *
+	 * @return (double)
+	 */
+	double phi();
+
+	/**
 	 * Returns a random number drawn from a uniform distribution
 	 *
 	 * @param (double) min: lower bound of the distribution (default: 0.0)
@@ -110,19 +124,20 @@ public:
 	void set_dphi(double input);
 
 	/**
+	 * Sets the heading direction of the agent
+	 *
+	 * @param (double) input: new heading
+	 * @return (void)
+	 */
+	void set_phi(double input);
+
+	/**
 	 * Sets the foraging state of agent
 	 *
 	 * @param (int) input: foraging state
 	 * @return (void)
 	 */
 	void set_type(int input);
-
-	/**
-	 * Returns heading direction of agent
-	 *
-	 * @return (double)
-	 */
-	double phi();
 
 	/**
 	 * Returns global time
@@ -158,9 +173,10 @@ public:
 	 * Updates the kinematics of agent based on the motor command from the controller
 	 *
 	 * @param (double) command: motor command
+	 * @param (double) speed_command: motor speed command
 	 * @return (void)
 	 */
-	void update(double command);
+	void update(double command, double speed_command = 0.0);
 
 	/**
 	 * Returns the linear speed of the agent
@@ -193,28 +209,32 @@ private:
 
 	//************ Spatial parameters ************//
 
-	double x_position;		// X position of agent
-	double y_position;		// Y position of agent
-	double heading;			// Angle of heading direction (in rad; ccw from x-axis)
-	double speed;			// Walking speed of agent
-	double k_phi;			//
-	double diff_heading;			// Change in heading direction (in rad)
+	double x_position;      // X position of agent
+	double y_position;      // Y position of agent
+	double heading;         // Angle of heading direction (in rad; ccw from x-axis)
+	double speed;           // Walking speed of agent
+	double k_phi;           // Steering constant
+	double k_s;             // Acceleration constant
+	double diff_heading;    // Change in heading direction (in rad)
+	double external;		// External change in heading direction (in rad)
 	double abs_dphi;		// Absolute change in heading direction (in rad)
+	double diff_speed;      // Change in walking speed of agent
 	double theta;			// Angle of direction to home position (in rad)
 	double distance;		// Distance to home position
-	int type;				// ++
+	int type;               // Goal type
 
 	//************ Timing parameters ************//
 
-	double global_time;		// continuous time during multiple trials
-	double trial_time;		// continuous time during one trial
-	const double dt = 0.1;	// integration time
-	int timestep;			// discrete time steps
-	int trial;				// trial number
+	double global_time;		// Continuous time during multiple trials
+	double trial_time;		// Continuous time during one trial
+	const double dt = 0.1;	// Integration time
+	int timestep;			// Discrete time steps
+	int trial;				// Trial number
 
 	//************ Other class members ************//
-	ofstream stream;		// output file stream for agent kinematics and parameters
-	int sampling_interval;	// sampling interval of writing data into file
+	ofstream stream;		// Output file stream for agent kinematics and parameters
+	int sampling_interval;	// Sampling interval of writing data into file
+	bool write;				// Option to write data into file
 };
 
 #endif /* AGENT_H_ */

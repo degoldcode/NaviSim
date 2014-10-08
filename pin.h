@@ -48,9 +48,10 @@ enum{HD, G, M, HV};    	//HD = Head Direction; G = Gater; M = Memory; HV = Home 
  */
 
 class PIN:
-	public CircArray
-	{
+		public CircArray
+{
 public:
+
 	/**
 	 * Constructor
 	 *
@@ -58,6 +59,11 @@ public:
 	 *  @param (int) input_dim: number of incoming signals (default: 0)
 	 */
 	PIN(int num_neurons, double leak, double sens_noise, double neur_noise);
+
+	/**
+	 * Destructor
+	 *
+	 */
 	~PIN();
 
 	CircArray* array(int i);
@@ -78,8 +84,25 @@ public:
 	 */
 	void update(double angle, double speed);
 
+	/**
+	 * Returns the PI x coordinate
+	 *
+	 * @return (double)
+	 */
+	double x();
+
+	/**
+	 * Returns the PI y coordinate
+	 *
+	 * @return (double)
+	 */
+	double y();
+
 private:
 	vector<CircArray*> ar;
+
+	double PI_x;
+	double PI_y;
 
 	mat w_cos;
 	double leak_rate;

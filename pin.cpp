@@ -27,11 +27,12 @@
 
 #include "pin.h"
 
-
 PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise) : CircArray(num_neurons) {
 	leak_rate = leak;
 	snoise = sens_noise;
 	nnoise = neur_noise;
+	PI_x = 0.0;
+	PI_y = 0.0;
 
 	CircArray* in_array = new CircArray(N);
 	ar.push_back(in_array);
@@ -62,10 +63,10 @@ void PIN::update(double angle, double speed){
 	double noisy_speed = speed + noise(snoise);
 
 	//---Layer 1 -> Head Direction Layer
-	vec input = cos(noisy_angle*ones<vec>(N) - preferred_angle) + vnoise(N,nnoise);
+	vec input = cos(noisy_angle*ones<vec>(N) - preferred_angle)*(-0.5) + 0.5*ones<vec>(N) + vnoise(N,nnoise);
 	ar.at(HD)->update_rate(input);
 	//---Layer 2 -> Gater Layer
-	ar.at(G)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(HD)->rate()+(noisy_speed-1.)*ones<vec>(N)) + vnoise(N,nnoise));
+	ar.at(G)->update_rate(lin_rect(-eye<mat>(N,N)*ar.at(HD)->rate()+(noisy_speed)*ones<vec>(N)) + vnoise(N,nnoise));
 	//---Layer 3 -> Memory Layer
 	ar.at(M)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(G)->rate() + (1.0-leak_rate)*eye<mat>(N,N)*ar.at(M)->rate()) + vnoise(N,nnoise));
 	//---Layer 4 -> Vector Decoding Layer
@@ -74,22 +75,14 @@ void PIN::update(double angle, double speed){
 	update_avg();
 	update_len();
 	update_max();
+	PI_x = len()*cos(avg());
+	PI_y = len()*sin(avg());
 }
 
-PIN* my_pin;
+double PIN::x(){
+	return PI_x;
+}
 
-int main(){
-	my_pin = new PIN(8, 0.0, .0,.0);
-
-	for(int i = 0; i < 10; i++){
-		my_pin->update(M_PI/2., 1.0);
-		cout << my_pin->avg() << endl;
-	}
-	for(int i = 0; i < 10; i++){
-		my_pin->update(0.0, 1.0);
-		cout << my_pin->avg() << endl;
-	}
-
-
-	delete my_pin;
-};
+double PIN::y(){
+	return PI_y;
+}

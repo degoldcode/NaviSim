@@ -34,15 +34,18 @@ Agent::Agent(int mySampling, double x, double y){
 	cout << "Create AGENT" << endl;
 	x_position = x;
 	y_position = y;
-	heading =  rand(-M_PI, M_PI);		// random initial orientation
+	heading = rand(-M_PI, M_PI);		// random initial orientation
 	speed = 0.1;
 	k_phi = M_PI;
+	k_s = 0.01;
 	diff_heading = 0.0;
+	external = 0.0;
 	abs_dphi = 0.0;
 	distance = 0.0;
 	theta = 0.0;
 	sampling_interval = mySampling;
 	in_pipe = false;
+	write = true;
 
 	global_time = 0.0;
 	trial_time = 0.0;
@@ -77,6 +80,10 @@ double Agent::phi(){
 	return heading;
 }
 
+void Agent::no_write(){
+	write = false;
+};
+
 double Agent::rand(double min, double max){
 	static random_device e{};
 	static uniform_real_distribution<double> d(min, max);
@@ -92,7 +99,11 @@ void Agent::reset(){
 }
 
 void Agent::set_dphi(double input){
-	diff_heading = input;
+	external = input;
+}
+
+void Agent::set_phi(double input){
+	heading = input;
 }
 
 void Agent::set_type(int input){
@@ -116,8 +127,8 @@ double Agent::trial_t(){
 	return trial_time;
 }
 
-void Agent::update(double command){
-	//if(timestep%sampling_interval==0)
+void Agent::update(double command, double speed_command){
+	if(write && timestep%sampling_interval==0)
 		stream  << global_time << "\t"		//1
 				<< x_position << "\t"
 				<< y_position << "\t"
@@ -131,10 +142,15 @@ void Agent::update(double command){
 				<< endl;
 
 	if(!in_pipe)
-		diff_heading = dt * k_phi * command;
+		diff_heading = dt * k_phi * command + external;
+	else
+		diff_heading = external;
+	external = 0.0;
 	heading += diff_heading;
 	heading = bound(heading);
 	abs_dphi = abs(diff_heading);
+	diff_speed = dt * k_s * speed_command;
+	speed += diff_speed;
 	x_position += speed * cos(heading);
 	y_position += speed * sin(heading);
 	distance = sqrt(pow(x_position,2)+pow(y_position,2));

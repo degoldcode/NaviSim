@@ -234,7 +234,7 @@ public:
 			}
 			output /= sum_act;
 		}
-		avg_angle = output;
+		avg_angle = bound(output);
 	};
 
 	/**
@@ -243,7 +243,7 @@ public:
 	 * @return (void)
 	 */
 	void update_len(){
-		length = scale_factor * sum(output_rate)/N;
+		length = scale_factor * sum(output_rate)/(N*N);
 	};
 
 	/**
@@ -254,7 +254,7 @@ public:
 	void update_max(){
 		uword index;
 		max_rate = output_rate.max(index);
-		max_angle = preferred_angle(index);
+		max_angle = bound(preferred_angle(index));
 	};
 
 	/**
@@ -263,6 +263,8 @@ public:
 	 * @return (void)
 	 */
 	void update_rate(vec rate){
+		if(rate.n_elem != output_rate.n_elem)
+			printf("WARNING: Dimension has been changed.\n");
 		output_rate = rate;
 		update_avg();
 		update_len();
@@ -284,11 +286,21 @@ public:
 			return zeros<vec>(dim);
 	};
 
+	/**
+	 * Returns the weight matrix of the array
+	 *
+	 *  @return (mat)
+	 */
+	mat w(){
+		return input_conns;
+	};
+
 protected:
 
 	int N;                                          // Number of neurons
 	int K;                                          // Input dimension
 	vec output_rate;								// Activity rate of neuron array
+	mat input_conns;                                // incoming connections
 	vec preferred_angle;                            // Preferred angle of neurons
 
 private:
@@ -297,10 +309,9 @@ private:
 	double max_rate;                                // Maximum rate of neuron array
 	double avg_angle;                               // Average position of the maximum firing rate
 	double length;                                  // Length of vector = (some scaling factor)*(sum of activities)/N
-	const double scale_factor = 7.686168886;        // Scaling factor
+	const double scale_factor = 33.6124212;       // Scaling factor
 
 	vec input_rate;                                 // Input activity rate to the array
-	mat input_conns;                                // incoming connections
 	vec bias;										// Bias vector
 };
 

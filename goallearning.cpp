@@ -1,113 +1,69 @@
-/*
- * goallearning.cpp
- *
- *  Created on: Jul 25, 2014
- *      Author: degoldschmidt
- */
+/*****************************************************************************
+ *  goallearning.cpp                                                         *
+ *                                                                           *
+ *  Created on:   Jul 25, 2014                                               *
+ *  Author:       Dennis Goldschmidt                                         *
+ *  Email:        goldschmidtd@ini.phys.ethz.ch                              *
+ *                                                                           *
+ *                                                                           *
+ *  Copyright (C) 2014 by Dennis Goldschmidt                                 *
+ *                                                                           *
+ *  This file is part of the program NaviSim                                 *
+ *                                                                           *
+ *  NaviSim is free software: you can redistribute it and/or modify          *
+ *  it under the terms of the GNU General Public License as published by     *
+ *  the Free Software Foundation, either version 3 of the License, or        *
+ *  (at your option) any later version.                                      *
+ *                                                                           *
+ *  This program is distributed in the hope that it will be useful,          *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ *  GNU General Public License for more details.                             *
+ *                                                                           *
+ *  You should have received a copy of the GNU General Public License        *
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ *                                                                           *
+ ****************************************************************************/
 
 #include "goallearning.h"
 using namespace std;
 
 
-GoalLearning::GoalLearning(int neurons, int motiv_states, double nnoise){
-	N = neurons;
-	M = motiv_states;
+GoalLearning::GoalLearning(int num_neurons, double nnoise, bool opt_load) : CircArray(num_neurons,1) {
+	foraging_state = 1.0;
 	learn_rate = 5.;
 	reward = 0.0;
 	expl_rate =  0.0;
-	max_angle = 0.0;
-
-	pref_angle.zeros(N);
-	act_pi_array.zeros(N);
-	act_mu_array.zeros(M);
-	act_gv_array.zeros(N);
-	act_output.zeros(N);
-	w_cos.zeros(N,N);
-	w_mu_gv.zeros(N,M);
-	//w_mu_gv.load("./save/goalweights.mat", raw_ascii);
-	w_pi_gv.eye(N,N);
-
-	mat One = eye<mat>(N/2,N/2);
-	mat Zero = zeros<mat>(N/2,N/2);
-
-	mat Upper = join_rows(Zero, One);
-	mat Lower = join_rows(One, Zero);
-
-	w_pi_gv = join_cols(Upper, Lower);
-
-	for(int i = 0; i < N; i++)
-		pref_angle(i) = (2.*M_PI*i)/N;
-	for(int i = 0; i < N; i++)
-		for(int j = 0; j < N; j++)
-			w_cos(i,j) = 0.01*cos(pref_angle(i) - pref_angle(j));
-	t = 0;
-	sum_length = 0.0;
-	length = 0.0;
-	var = 0.0;
+	load_weights = opt_load;
+	if(load_weights)
+		w().load("./save/goalweights.mat", raw_ascii);
 }
 
 GoalLearning::~GoalLearning(){
-	w_mu_gv.save("./save/goalweights.mat", raw_ascii);
+	w().save("./save/goalweights.mat", raw_ascii);
+}
+
+void GoalLearning::set_mu(double state){
+	foraging_state = state;
 }
 
 vec GoalLearning::update(vec pi_input, double in_reward, double in_expl){
-	act_pi_array = pi_input;
 	reward = in_reward;
 	expl_rate = in_expl;
-	update_activities();
-	update_weights();
-	var = mean(act_output);///mean(act_output);
-	max_angle = get_max_angle(act_output);
-	length =  7.686168886*get_max_value(act_output)/N;// + 0.00002*(t+1);
-	t++;
-	return act_output;
+
+	vec input = foraging_state*ones<vec>(K);
+	update_weights(pi_input);
 }
 
-void GoalLearning::update_activities(){
-	act_gv_array = w_mu_gv*act_mu_array;// + w_pi_gv*act_pi_array);
-	act_output = act_gv_array; // 1.9119355*   //lin_rect(w_cos*act_gv_array) /*+ w_cos*act_output*/;//eye<mat>(act_gv_array.size(),act_gv_array.size())
+void GoalLearning::update_weights(vec pi_input){
+	weight_change = learn_rate * reward * expl_rate * foraging_state * (pi_input-input_conns);
+	input_conns += weight_change;
 }
 
-void GoalLearning::update_weights(){
-	dw_mu_gv = learn_rate * reward * expl_rate * (act_pi_array-act_gv_array) * act_mu_array.t();
-	w_mu_gv += dw_mu_gv;
-	for(int i = 0; i < 2; i++)
-		if(dw_mu_gv(i)>0.0)
-			printf("%u\n",i);
-//	for(int i = 0; i < w_mu_gv.n_rows; i++)
-//		for(int j = 0; j < w_mu_gv.n_cols; j++)
-//			if(w_mu_gv(i,j) < 0.0)
-//				w_mu_gv(i,j) = 0.0;
+double GoalLearning::x(){
+	return GV_x;
 }
 
-void GoalLearning::set_mu(double state, int index){
-	act_mu_array(index) = state;
-}
-
-double GoalLearning::get_max_angle(vec input){
-	uword  index;
-	double min_val = input.max(index);
-	return pref_angle(index);
-}
-
-double GoalLearning::get_max_value(vec input){
-	uword  index;
-	double max_val = input.max(index);
-	return max_val;
-}
-
-vec GoalLearning::lin_rect(vec input){
-	vec copy = input;
-	for(int i = 0; i < copy.n_rows; i++)
-		if(copy(i) < 0.0)
-			copy(i) = 0.0;
-	return copy;
-}
-
-double GoalLearning::angle(int i){
-	return get_max_angle(w_mu_gv.col(i));
-}
-
-double GoalLearning::len(int i){
-	return 7.686168886*get_max_value(w_mu_gv.col(i))/N;
+double GoalLearning::y(){
+	return GV_y;
 }
