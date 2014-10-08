@@ -39,11 +39,16 @@ PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise) : C
 		CircArray* array = new CircArray(N,N);
 		ar.push_back(array);
 	}
+	w_cos = ar.at(HV)->cos_kernel();
 }
 
 PIN::~PIN(){
 	for(int i = 0; i < ar.size(); i++)
 		delete ar.at(i);
+}
+
+CircArray* PIN::array(int i){
+	return ar.at(i);
 }
 
 void PIN::reset(){
@@ -57,65 +62,34 @@ void PIN::update(double angle, double speed){
 	double noisy_speed = speed + noise(snoise);
 
 	//---Layer 1 -> Head Direction Layer
-	ar.at(HD)->update_rate(cos(noisy_angle*ones<vec>(N) - preferred_angle)*(-0.5) + 0.5 + noise(nnoise));
+	vec input = cos(noisy_angle*ones<vec>(N) - preferred_angle) + vnoise(N,nnoise);
+	ar.at(HD)->update_rate(input);
 	//---Layer 2 -> Gater Layer
-	ar.at(G)->update_rate(lin_rect(-eye<mat>(N,N)*ar.at(HD)->rate() + noisy_speed*ones<vec>(N)) + noise(nnoise));
+	ar.at(G)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(HD)->rate()+(noisy_speed-1.)*ones<vec>(N)) + vnoise(N,nnoise));
 	//---Layer 3 -> Memory Layer
-	ar.at(M)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(G)->rate() + (1.0-leak_rate)*eye<mat>(N,N)*ar.at(M)->rate()) + noise(nnoise));
+	ar.at(M)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(G)->rate() + (1.0-leak_rate)*eye<mat>(N,N)*ar.at(M)->rate()) + vnoise(N,nnoise));
 	//---Layer 4 -> Vector Decoding Layer
-	ar.at(HV)->update_rate(lin_rect(w_cos * act_integrator) + gaussian_noise(nnoise));
-
-	avg_angle = bound_PI_angle(get_avg_angle(act_output));
-	max_angle = bound_PI_angle(get_max_angle(act_output));
-	memory_length = sum(act_integrator)/N;
-	length = 7.686168886*get_max_value(act_output)/N;// - 0.00408306293795454578;//*(t+1); // correcting term
-
-	return act_output;
+	ar.at(HV)->update_rate(lin_rect(w_cos * ar.at(M)->rate()) + vnoise(N,nnoise));
+	output_rate = ar.at(HV)->rate();
+	update_avg();
+	update_len();
+	update_max();
 }
 
-double PIN::bound_PI_angle(double phi){
-	double rphi;
-	int counter = 0;
-	rphi = phi;
-	while(rphi > M_PI){
-		rphi -= 2 * M_PI;
-		counter++;
-		if(counter > 5){
-			//cout << "Weird input angle: " << phi << ". Set to zero.\n";
-			rphi= 0.0;
-		}
-	}
-	while(rphi < - M_PI){
-		rphi += 2 * M_PI;
-		counter++;
-		if(counter > 5){
-			//cout << "Weird angle. Set to zero.\n";
-			rphi= 0.0;
-		}
-	}
-	return rphi;
-}
+PIN* my_pin;
 
-double PIN::get_avg_angle(vec input){
-	double sum_act = 0.0;
-	double output;
-	if(input(0) == 0.0){
-		for(int i = 0; i < N; i++){
-			if(act_output(i) > 0.0){
-				output += pref_angle(i)*act_output(i);
-				sum_act += act_output(i);
-			}
-		}
-		output /= sum_act;
+int main(){
+	my_pin = new PIN(8, 0.0, .0,.0);
+
+	for(int i = 0; i < 10; i++){
+		my_pin->update(M_PI/2., 1.0);
+		cout << my_pin->avg() << endl;
 	}
-	else{
-		for(int i = 0; i < N; i++){
-			if(act_output(i) > 0.0){
-				output += bound_PI_angle(pref_angle(i))*act_output(i);
-				sum_act += act_output(i);
-			}
-		}
-		output /= sum_act;
+	for(int i = 0; i < 10; i++){
+		my_pin->update(0.0, 1.0);
+		cout << my_pin->avg() << endl;
 	}
-	return output;
-}
+
+
+	delete my_pin;
+};

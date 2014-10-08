@@ -62,15 +62,26 @@ public:
 
 	CircArray* array(int i);
 
-	mat cos_kernel();
-
+	/**
+	 * Resets the activities of the path integration network
+	 *
+	 *  @return (void)
+	 */
 	void reset();
 
+	/**
+	 * Updates the path integration network
+	 *
+	 *  @param (double) angle: Input angle from compass
+	 *  @param (double) speed: Input walking speed from odometry (legged: "differential step counter")
+	 *  @return (void)
+	 */
 	void update(double angle, double speed);
 
 private:
 	vector<CircArray*> ar;
 
+	mat w_cos;
 	double leak_rate;
 	double snoise;
 	double nnoise;

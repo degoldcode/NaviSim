@@ -53,18 +53,19 @@ public:
 	 */
 	CircArray(int num_neurons=360, int input_dim = 0){
 		N = num_neurons;
-		M = input_dim;
+		K = input_dim;
 		preferred_angle.zeros(N);
 		for(unsigned int i = 0; i < N; i++)
 			preferred_angle(i) = 2. * M_PI * i / N; // Preferred angle of neurons
+		//cout << preferred_angle << endl;
 		max_angle = 0.0;
 		max_rate = 0.0;
 		avg_angle = 0.0;
 		length = 0.0;
 
 		output_rate.zeros(N);
-		input_rate.zeros(M);
-		input_conns.zeros(N,M);
+		input_rate.zeros(K);
+		input_conns.zeros(N,K);
 	};
 
 	/**
@@ -105,7 +106,7 @@ public:
 	 *  @return (mat)
 	 */
 	mat cos_kernel(){
-		mat w_cos = zeros<mat>(N,M);
+		mat w_cos = zeros<mat>(N,K);
 		for(int i = 0; i < N; i++)
 				for(int j = 0; j < N; j++)
 					w_cos(i,j) = cos(preferred_angle(i) - preferred_angle(j));
@@ -268,17 +269,36 @@ public:
 		update_max();
 	};
 
-private:
+	/**
+	 * Returns vector of Gaussian noise with given width
+	 *
+	 *  @param (int) dim: vector dimension
+	 *  @param (double) width: standarad deviation of the normal distribution
+	 *  @return (vec)
+	 */
+	vec vnoise(int dim, double width){
+		if(width > 0.0){
+			return width*randn<vec>(dim);
+		}
+		else
+			return zeros<vec>(dim);
+	};
+
+protected:
+
 	int N;                                          // Number of neurons
-	int M;                                          // Input dimension
+	int K;                                          // Input dimension
+	vec output_rate;								// Activity rate of neuron array
 	vec preferred_angle;                            // Preferred angle of neurons
+
+private:
+
 	double max_angle;                               // Angle of the maximum-firing neuron
 	double max_rate;                                // Maximum rate of neuron array
 	double avg_angle;                               // Average position of the maximum firing rate
 	double length;                                  // Length of vector = (some scaling factor)*(sum of activities)/N
 	const double scale_factor = 7.686168886;        // Scaling factor
 
-	vec output_rate;								// Activity rate of neuron array
 	vec input_rate;                                 // Input activity rate to the array
 	mat input_conns;                                // incoming connections
 	vec bias;										// Bias vector
