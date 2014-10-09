@@ -101,8 +101,8 @@ public:
 private:
 	vector<CircArray*> ar;
 
-	double PI_x;
-	double PI_y;
+	double HV_x;
+	double HV_y;
 
 	mat w_cos;
 	double leak_rate;

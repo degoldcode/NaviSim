@@ -59,8 +59,31 @@ public:
 	 */
 	~GoalLearning();
 
+	/**
+	 * Sets the foraging state
+	 *
+	 *	@param (double) state: foraging state
+	 * 	@return (void)
+	 */
 	void set_mu(double state);
+
+	/**
+	 * Updates the goal learning circuit
+	 *
+	 *  @param (vec) pi_input: Input PI state
+	 *  @param (double) in_reward: Reward signal
+	 *  @param (double) in_expl: Exploration rate
+	 *  @return (void)
+	 */
 	void update(vec pi_input, double in_reward, double in_expl);
+
+	/**
+	 * Updates the path integration network
+	 *
+	 *  @param (double) angle: Input angle from compass
+	 *  @param (double) speed: Input walking speed from odometry (legged: "differential step counter")
+	 *  @return (void)
+	 */
 	void update_weights(vec pi_input);
 
 	/**

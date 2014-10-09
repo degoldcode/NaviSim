@@ -75,14 +75,14 @@ void PIN::update(double angle, double speed){
 	update_avg();
 	update_len();
 	update_max();
-	PI_x = len()*cos(avg());
-	PI_y = len()*sin(avg());
+	HV_x = len()*cos(avg());
+	HV_y = len()*sin(avg());
 }
 
 double PIN::x(){
-	return PI_x;
+	return HV_x;
 }
 
 double PIN::y(){
-	return PI_y;
+	return HV_y;
 }
