@@ -31,8 +31,8 @@ PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise) : C
 	leak_rate = leak;
 	snoise = sens_noise;
 	nnoise = neur_noise;
-	PI_x = 0.0;
-	PI_y = 0.0;
+	HV_x = 0.0;
+	HV_y = 0.0;
 
 	CircArray* in_array = new CircArray(N);
 	ar.push_back(in_array);

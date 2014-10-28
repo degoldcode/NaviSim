@@ -40,10 +40,10 @@ Goal::Goal(double max_radius){
 	angle_to_x_axis = 2 * M_PI * rand(0.0, 1.0);
 	amount = 1.0;						//rand(0., 1.);
 	amount_rate = 0.0;					//0.0001;// decay of reward loss
-	double prob_blue = 0.5;				// Probability of BLUE
-	bool s = sample(prob_blue);			// Sampling with probability for blue
-	amount = (s ? 0.0 : 1.0);
-	goal_type = (s ? 0 : 1);
+	//double prob_blue = 0.5;				// Probability of BLUE
+	//bool s = sample(prob_blue);			// Sampling with probability for blue
+	//amount = (s ? 0.0 : 1.0);
+	goal_type = 0;//(s ? 0 : 1);
 
 	x_position = distance_to_origin * cos(angle_to_x_axis);
 	y_position = distance_to_origin * sin(angle_to_x_axis);

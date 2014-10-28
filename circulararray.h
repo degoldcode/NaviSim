@@ -223,7 +223,8 @@ public:
 					sum_act += output_rate(i);
 				}
 			}
-			output /= sum_act;
+			if(sum_act>0.0)
+				output /= sum_act;
 		}
 		else{
 			for(int i = 0; i < N; i++){
@@ -232,7 +233,8 @@ public:
 					sum_act += output_rate(i);
 				}
 			}
-			output /= sum_act;
+			if(sum_act>0.0)
+				output /= sum_act;
 		}
 		avg_angle = bound(output);
 	};

@@ -65,8 +65,7 @@ Simulation::Simulation(string in_param_type, int in_num_trials){
 	choice.resize(total_runs);
 
 	controller = new NaviControl(num_neurons, sens_noise, pi_leakage);
-	environment = (rand_env ? new Environment(agents, ngs, nlms, m_rad) : new Environment(agents));
-
+	environment = (rand_env ? new Environment(ngs, nlms, m_rad, agents) : new Environment(agents));
 	global_time = 0.0;
 	timestep = 0;
 }
@@ -140,8 +139,10 @@ void Simulation::reset(){
 
 	//environment->add_pipe(0.0,3.0,0.0,3.0, 0.15);
 	//environment->add_pipe(0.0,0.0,0.0,5.0, 0.15);
-	environment->add_goal(-1.5,3.,0);
-	environment->add_goal(1.5,3.,1);
+	//environment->add_pipe(0.,0.,0.,-5.);
+	//environment->add_pipe(0.,-5.,-5.,-5.);
+	//environment->add_goal(-1.5,3.,0);
+	//environment->add_goal(1.5,3.,1);
 }
 
 void Simulation::run(){
@@ -162,12 +163,12 @@ void Simulation::run(){
 
 		while(global_time < start_time + max_outbound_time && environment->get_sum_reward() < 0.25){																	//OUTBOUND RUN (SEARCHING)
 			run_outbound();
-			endpoints << controller->PI_x-environment->x() << "\t" << controller->PI_y-environment->y() << endl;
+			endpoints << controller->HV()->x()-environment->x() << "\t" << controller->HV()->y()-environment->y() << endl;
 			trial_time+=dt;
 			global_time+=dt;
 		}
-		PI_angular_error(abs(bound(controller->get_HV() - environment->th())));
-		PI_resultseach << abs(bound(controller->get_HV() - environment->th())) << endl;
+		PI_angular_error(abs(bound(controller->HV()->avg() - environment->th())));
+		PI_resultseach << abs(bound(controller->HV()->avg() - environment->th())) << endl;
 
 
 
@@ -177,7 +178,7 @@ void Simulation::run(){
 
 		while(inbound_on && environment->agent()->d() > 0.2 && global_time < in_time + max_inbound_time){ 	//INBOUND RUN (PI HOMING)
 			run_inbound();
-			endpoints << controller->PI_x-environment->x() << "\t" << controller->PI_y-environment->y() << endl;
+			endpoints << controller->HV()->x()-environment->x() << "\t" << controller->HV()->y()-environment->y() << endl;
 			trial_time+=dt;
 			global_time+=dt;
 		}
@@ -187,17 +188,17 @@ void Simulation::run(){
 		if((run+1)%run_div==0){
 			printf("Run = %5u\t", run+1);
 			printf("Success rate: %3.3f,\t", success_rate);
-			printf("Expl. rate: %1.5e,\n", controller->get_expl());
+			printf("Expl. rate: %1.5e,\n", controller->expl());
 			for(int i = 0; i < num_motivs; i++){
-				printf("GV = (%3.2f", controller->GV_x.at(i));
-				printf(",%3.2f) ", controller->GV_y.at(i));
-				printf("angle = %3.3f", in_degr(controller->cGV_angle.at(i)));
-				printf(" (%3.3f),\t", in_degr(controller->GV_angle.at(i)));
-				printf("nearest (%3.2f,", environment->nearest(controller->GV_x.at(i), controller->GV_y.at(i))->x());
-				printf("%3.2f) ", environment->nearest(controller->GV_x.at(i), controller->GV_y.at(i))->y());
-				printf("has amount = %g\n", environment->nearest(controller->GV_x.at(i), controller->GV_y.at(i))->a());
+				printf("GV = (%3.2f", controller->GV(i)->x());
+				printf(",%3.2f) ", controller->GV(i)->y());
+				printf("angle = %3.3f", in_degr(controller->cGV(i)));
+				printf(" (%3.3f),\t", in_degr(controller->cGV(i)));
+				printf("nearest (%3.2f,", environment->nearest(controller->GV(i)->x(), controller->GV(i)->y())->x());
+				printf("%3.2f) ", environment->nearest(controller->GV(i)->x(), controller->GV(i)->y())->y());
+				printf("has amount = %g\n", environment->nearest(controller->GV(i)->x(), controller->GV(i)->x())->a());
 			}
-			printf("P[B] = %f\t P[Y] = %f\t-> %u\n", controller->prob(0), controller->prob(1), controller->choice);
+			printf("P[B] = %f\t P[Y] = %f\t-> %u\n", controller->p(0), controller->p(1), controller->q());
 		}
 
 		//************ Evaluation of cycle ************//
@@ -214,33 +215,33 @@ void Simulation::run(){
 			yellow_hits++;
 
 		success_rate_avg.at(run)(blue_hits);
-		explor_rate_avg.at(run)(controller->get_expl(0));
+		explor_rate_avg.at(run)(controller->expl(0));
 		success_rate_avg2.at(run)(yellow_hits);
-		explor_rate_avg2.at(run)(controller->get_expl(1));
-		prob_B.at(run)(controller->prob(0));
-		prob_Y.at(run)(controller->prob(1));
-		choice.at(run)(controller->choice);
+		explor_rate_avg2.at(run)(controller->expl(1));
+		prob_B.at(run)(controller->p(0));
+		prob_Y.at(run)(controller->p(1));
+		choice.at(run)(controller->q());
 
-		gvlearn << run << " " << controller->t << " " << success_rate/100. << " " << 1.0*num_homing/(run+1) << " " << controller->get_expl() << endl;
+		gvlearn << run << " " << global_time << " " << success_rate/100. << " " << 1.0*num_homing/(run+1) << " " << controller->expl() << endl;
 
 
-		gv_history0 = join_rows(gv_history0, controller->gln->w_mu_gv.col(0));
-		gv_history1 = join_rows(gv_history1, controller->gln->w_mu_gv.col(1));
-		gv_angl << run << "\t" << controller->GV_angle.at(0) << "\t" << controller->GV_angle.at(1) << endl;
+		gv_history0 = join_rows(gv_history0, controller->GV(0)->w().col(0));
+		gv_history1 = join_rows(gv_history1, controller->GV(1)->w().col(0));
+		gv_angl << run << "\t" << controller->GV(0)->avg() << "\t" << controller->GV(1)->avg() << endl;
 		environment->reset();
 		controller->reset();
 
-		if(success_rate > 95. && controller->get_expl() < 0.05 && last_run == 0){
-			printf("Converged after %u trials. Avg success rate = %3.3f. Exploration rate = %1.9f.\n", run+1, success_rate, controller->get_expl());
+		if(success_rate > 95. && controller->expl() < 0.05 && last_run == 0){
+			printf("Converged after %u trials. Avg success rate = %3.3f. Exploration rate = %1.9f.\n", run+1, success_rate, controller->expl());
 			//run = total_runs;
 			last_run = run+1;
 		}
 		statsall_gl << run
 					<< "\t" << last_run
-					<< "\t" << controller->get_expl()
+					<< "\t" << controller->expl()
 					<< "\t" << 100.0*num_goalhits/total_runs
-					<< "\t" << sqrt(pow(controller->GV_x.at(0),2)+pow(controller->GV_y.at(0),2))
-					<< "\t" << sqrt(pow(controller->GV_x.at(1),2)+pow(controller->GV_y.at(1),2))
+					<< "\t" << sqrt(pow(controller->GV(0)->x(),2)+pow(controller->GV(0)->y(),2))
+					<< "\t" << sqrt(pow(controller->GV(1)->x(),2)+pow(controller->GV(1)->y(),2))
 					<< "\t" << sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2))
 					<< endl;
 		if(run+1==total_runs && last_run == 0)
@@ -254,25 +255,25 @@ void Simulation::run(){
 	gv_history0.save("./data/gv_hist.mat", raw_ascii);
 	gv_history1.save("./data/gv_hist1.mat", raw_ascii);
 	stats_gl <<	last_run
-			<< "\t" << controller->get_expl()
+			<< "\t" << controller->expl()
 			<< "\t" << 100.0*num_goalhits/total_runs
-			<< "\t" << sqrt(pow(controller->GV_x.at(0),2)+pow(controller->GV_y.at(0),2))
-			<< "\t" << sqrt(pow(controller->GV_x.at(1),2)+pow(controller->GV_y.at(1),2))
+			<< "\t" << sqrt(pow(controller->GV(0)->x(),2)+pow(controller->GV(0)->y(),2))
+			<< "\t" << sqrt(pow(controller->GV(1)->x(),2)+pow(controller->GV(1)->y(),2))
 			<< "\t" << sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2))
 			<< endl;
 }
 
 void Simulation::run_outbound(){
-	controller->set_outbound();
+	controller->set_mode(outbound);
 	environment->set_mode(outbound);
 	environment->update(motor_command);
 	controller->get_pos(environment->x(), environment->y());
 	motor_command = controller->update(environment->agent()->phi(), environment->agent()->v(), environment->r(), environment->color());
-	distor << environment->agent()->d() << " " << controller->pin->length << " " << controller->gln->length << endl;
+	distor << environment->agent()->d() << " " << controller->HV()->len() << " " << controller->GV(0)->len() << endl;
 }
 
 void Simulation::run_inbound(){
-	controller->set_inbound();
+	controller->set_mode(inbound);
 	environment->set_mode(inbound);
 	motor_command = controller->update(environment->agent()->phi(), environment->agent()->v(), environment->r(), environment->lmr());;
 	environment->update(motor_command);

@@ -7,11 +7,11 @@ set ylabel "y"
 set cblabel "Trials" offset 1
 
 set size square
-SCALE = 50.
+SCALE = 30.
 OFFSETX = 0.0
-OFFSETY = 1.5
-set xtics 1.5
-set ytics 1.5
+OFFSETY = 0.0
+set xtics 5
+set ytics 5
 set xrange [-SCALE/2+OFFSETX:SCALE/2+OFFSETX]
 set yrange [-SCALE/2+OFFSETY:SCALE/2+OFFSETY]
 #set xrange [15:35]
@@ -22,7 +22,7 @@ set key spacing 2
 set nokey
 #set grid
 ERASEFIRST = 0 ##18
-ERASELAST = 400
+ERASELAST = 5000
 #set palette defined (0 "black", 1 "red")
 #yellowrgb(x) = int(r)*65536 + int(g)*256 + int(b)
 #bluergb(x) = int(r)*65536 + int(g)*256 + int(b)
@@ -31,9 +31,9 @@ col(x) = int(255*x)*65536 + int(68+170*x)*256 + int(255*(1-x))
 
 plot	 "../pipes.dat" u 1:2 w l lw (182./SCALE) lt 1 lc rgb "black" t "", 					\
          "../pipes.dat" u 1:2 w l lw (172./SCALE) lt 1 lc rgb "#aaaaaa" t "Channel", 				\
-	 "../agent.dat" u 2:(($9>ERASEFIRST && $9<ERASELAST)?$3:1/0):9 w p pt 7 ps (10/SCALE)*0.3 lc palette t "" ,		\
 	 "../goals.dat" u 1:2:(0.2):(col($4)) w circles fs solid lc rgb var t "Goal", 		\
-	 "../home.dat" u 1:2:(0.2) w circles fs solid noborder lc rgb "#000000" t "Home"
+	 "../home.dat" u 1:2:(0.2) w circles fs solid noborder lc rgb "#000000" t "Home", \
+	 "../agent.dat" u 2:(($9>ERASEFIRST && $9<ERASELAST)?$3:1/0):9 w p pt 7 ps (10/SCALE)*0.3 lc palette t ""
 AGN=5.
 #set style line lt 1
 set output "../agent_each.eps"

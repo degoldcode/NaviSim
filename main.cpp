@@ -17,7 +17,7 @@ const bool par_scan = false;
 const int max_idx = 6;
 double param_array[max_idx]={0.0,0.01,0.02,0.05,0.1,0.2};
 
-const int num_trials = 1;
+const int num_trials = 50;
 const int max_number_exp = 1;
 string param_type = "sensory_noise";
 

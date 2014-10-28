@@ -175,9 +175,13 @@ Agent* Environment::agent(int i){
 }
 
 int Environment::color(){
-	int out = nearest(x(),y())->color();
-	agent_list.at(0)->set_type(out);
-	return out;
+	if(goal_list.size()>0){
+		int out = nearest(x(),y())->color();
+		agent_list.at(0)->set_type(out);
+		return out;
+	}
+	else
+		return 0;
 }
 
 double Environment::d(Goal* g1, Goal* g2){
@@ -229,7 +233,11 @@ double Environment::lmr(){
 }
 
 Goal* Environment::nearest(double x, double y){
-	double min_dist = sqrt( d(goal_list.at(0)->x(), x) + d(goal_list.at(0)->y(), y));
+	double min_dist;
+	if(goal_list.size()>0)
+		min_dist = sqrt( d(goal_list.at(0)->x(), x) + d(goal_list.at(0)->y(), y));
+	else
+		return 0;
 	double dist;
 	int idx=0;
 	for(int i=1; i<goal_list.size(); i++){

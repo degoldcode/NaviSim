@@ -128,7 +128,7 @@ double Agent::trial_t(){
 }
 
 void Agent::update(double command, double speed_command){
-	if(write && timestep%sampling_interval==0)
+	if(write && timestep%1==0)
 		stream  << global_time << "\t"		//1
 				<< x_position << "\t"
 				<< y_position << "\t"

@@ -15,7 +15,7 @@
 #include "pin.h"
 #include "map.h"
 #include "goallearning.h"
-#include "routelearning.h"
+//#include "routelearning.h"
 using namespace std;
 using namespace arma;
 
@@ -59,6 +59,14 @@ public:
 	double bound(double angle);
 
 	/**
+	 * Returns current goal vector angle of goal i
+	 *
+	 *  @param (int) i: goal index
+	 *  @return (double)
+	 */
+	double cGV(int i);
+
+	/**
 	 * Returns exploration rate of chosen goal
 	 *
 	 *  @return (double)
@@ -83,19 +91,19 @@ public:
 	void get_pos(double x, double y);
 
 	/**
-	 * Returns global vector angle of goal i
+	 * Returns global vector of goal i
 	 *
-	 *  @param (double) i: goal index
-	 *  @return (double)
+	 *  @param (int) i: goal index
+	 *  @return (Pointer to CircArray)
 	 */
-	double GV(int i);
+	GoalLearning* GV(int i);
 
 	/**
-	 * Returns home vector angle
+	 * Returns home vector
 	 *
-	 *  @return (double)
+	 *  @return (Pointer to CircArray)
 	 */
-	double HV();
+	PIN* HV();
 
 	/**
 	 * Returns inverted angle -> angle - PI (in rad)
@@ -119,6 +127,21 @@ public:
 	 *  @return (void)
 	 */
 	void no_write();
+
+	/**
+	 * Returns agent's goal choice
+	 *
+	 *  @return (int)
+	 */
+	int q();
+
+	/**
+	 * Returns choice probability of goal i
+	 *
+	 *  @param (int) i: goal index
+	 *  @return (double)
+	 */
+	double p(int i);
 
 	/**
 	 * Returns a random number drawn from a Gaussian distribution
@@ -226,7 +249,7 @@ private:
 	vec value;
 	vec dvalue;
 	double val_discount;
-	const double disc_factor;
+	const double disc_factor = 0.999;
 	vec expl_factor;
 	int current_goal;
 

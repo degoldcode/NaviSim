@@ -10,9 +10,13 @@
 NaviControl::NaviControl(int num_neurons, double sensory_noise, double leakage) {
 	N = num_neurons;
 	pin = new PIN(N, leakage, sensory_noise, 0.00);
-	num_colors = 2;
-	for(int i = blue; i <= yellow; i++)
+	num_colors = 1;
+	gvl.resize(num_colors);
+	for(int i = 0; i < num_colors; i++)
 		gvl.at(i) = new GoalLearning(N, 0.0);
+
+	gl_array.resize(num_colors);
+	gv_weight.resize(num_colors);
 
 	pi_command = 0.0;
 	gl_command = 0.0;
@@ -42,11 +46,10 @@ NaviControl::NaviControl(int num_neurons, double sensory_noise, double leakage) 
 	beta = 1.;
 
 	val_discount = 0.99;
-	disc_factor = 0.999;	//0.999
 	expl_factor = ones(num_colors);
 
 	write = true;
-	state_matrc = false;
+	state_matrc = true;
 	stream.open("./data/control.dat");
 	r_stream.open("./data/reward.dat");
 	lm_stream.open("./data/lm_rec.dat");
@@ -61,7 +64,7 @@ NaviControl::NaviControl(int num_neurons, double sensory_noise, double leakage) 
 
 NaviControl::~NaviControl() {
 	delete pin;
-	for(int i = blue; i <= yellow; i++)
+	for(int i = blue; i < gvl.size(); i++)
 		delete gvl.at(i);
 	stream.close();
 	r_stream.close();
@@ -77,12 +80,22 @@ double NaviControl::bound(double angle){
 	return rphi;
 }
 
+double NaviControl::cGV(int i){
+	if(i < cGV_angle.size())
+		return cGV_angle.at(i);
+	else
+		return cGV_angle.back();
+}
+
 double NaviControl::expl(){
 	return expl_factor(choice);
 }
 
 double NaviControl::expl(int i){
-	return expl_factor(i);
+	if(i < expl_factor.n_elem)
+		return expl_factor(i);
+	else
+		return expl_factor(0);
 }
 
 void NaviControl::get_pos(double x, double y) {
@@ -90,12 +103,15 @@ void NaviControl::get_pos(double x, double y) {
 	ry = y;
 }
 
-double NaviControl::GV(int i){
-	return GV_angle.at(i);
+GoalLearning* NaviControl::GV(int i){
+	if(i < gvl.size())
+		return gvl.at(i);
+	else
+		return gvl.at(0);
 }
 
-double NaviControl::HV(){
-	return HV_angle;
+PIN* NaviControl::HV(){
+	return pin;
 }
 
 double NaviControl::in_degr(double angle) {
@@ -111,6 +127,17 @@ double NaviControl::inv_angle(double angle) {
 
 void NaviControl::no_write(){
 	write = false;
+}
+
+int NaviControl::q(){
+	return choice;
+}
+
+double NaviControl::p(int i){
+	if(i < prob.n_elem)
+		return prob(i);
+	else
+		return prob(0);
 }
 
 double NaviControl::rand(double mean, double stdev) {
@@ -130,7 +157,6 @@ void NaviControl::reset() {
 	pin->reset();
 	trial_t = 0;
 	run++;
-	//reset_matrices();
 }
 
 void NaviControl::reset_matrices() {
@@ -142,13 +168,13 @@ void NaviControl::reset_matrices() {
 }
 
 void NaviControl::set_mode(int in_mode) {
-	foraging_state = ((in_mode == 1) ? 1.0 : 0.0);
+	foraging_state = ((in_mode == 0) ? 1.0 : 0.0);
 }
 
 
 void NaviControl::save_matrices() {
 	pi_array.save("./data/out.mat", raw_ascii);
-	for(int i = blue; i <= yellow; i++){
+	for(int i = blue; i < num_colors; i++){
 		gl_array.at(i).save("./data/gv.mat", raw_ascii);
 		gv_weight.at(i).save("./data/gv_w.mat", raw_ascii);
 	}
@@ -165,7 +191,7 @@ void NaviControl::stream_write() {
 
 	//************ General stream ************//
 	if(t%inv_sampling_rate == 0){
-		stream  << t                                      //1
+		stream  << t*0.1                                  //1
 				<< "\t" << trial_t
 				<< "\t" << pi_command
 				<< "\t" << gl_command
@@ -191,8 +217,8 @@ void NaviControl::stream_write() {
 
 double NaviControl::update(double angle, double speed, double inReward, int color) {
 	//printf("%4.3f s.\n", t*0.1);
-	if (t % inv_sampling_rate == 0)
-		update_matrices();
+	//if (t % inv_sampling_rate == 0)
+		//update_matrices();
 	if(write)
 		stream_write();
 
@@ -202,8 +228,10 @@ double NaviControl::update(double angle, double speed, double inReward, int colo
 	HV_x = pin->x();
 	HV_y = pin->y();
 
+
 	reward(color) = inReward;
-	reward(1-color) = 0.0;
+	if(num_colors > 1)
+		reward(1-color) = 0.0;
 	current_goal = color;
 	dvalue(choice) = -value(choice);
 	value(choice) = reward(choice) + disc_factor * value(choice);
@@ -211,7 +239,7 @@ double NaviControl::update(double angle, double speed, double inReward, int colo
 	td_error(choice) = reward(choice) + dvalue(choice);
 	expl_factor(choice) = exp(-.5 * value(choice));
 
-	for(int i = blue; i <= yellow; i++){
+	for(int i = blue; i < num_colors; i++){
 		gvl.at(i)->set_mu(foraging_state);
 		gvl.at(i)->update(pin->rate(), reward(color), expl_factor(choice));
 		GV_angle.at(i) = gvl.at(i)->avg();
@@ -223,14 +251,18 @@ double NaviControl::update(double angle, double speed, double inReward, int colo
 
 	prob = exp(beta*value);
 	prob /= sum(exp(beta*value));
-	if(trial_t%50==0){
-		if(run>100 || trial_t==0){
-			if(randu(0.,1.) < prob.at(0))
-				choice = blue;
-			else
-				choice = yellow;
+	if(num_colors > 1){
+		if(trial_t%50==0){
+			if(run>100 || trial_t==0){
+				if(randu(0.,1.) < prob.at(0))
+					choice = blue;
+				else
+					choice = yellow;
+			}
 		}
 	}
+	else
+		choice = 0;
 	pi_command = sin(inv_angle(HV_angle) - angle);
 	gl_command = sin(cGV_angle.at(choice) - angle);
 
@@ -239,7 +271,7 @@ double NaviControl::update(double angle, double speed, double inReward, int colo
 	trial_t++;
 
 	if (foraging_state == 1.0){
-		return 4.0 * (1. - expl_factor(choice)) * gl_command + expl_factor(choice) * 10. * rand(0., 0.15);
+		return 4.0 * (1. - expl_factor(choice)) * gl_command + expl_factor(choice) * 4. * rand(0., 0.15);
 	}
 	else
 		return 0.5 * rand(0., 0.15) + 4. * pi_command;
@@ -247,7 +279,7 @@ double NaviControl::update(double angle, double speed, double inReward, int colo
 
 void NaviControl::update_matrices() {
 	pi_array = join_rows(pi_array, pin->rate());
-	for(int i = blue; i <= yellow; i++){
+	for(int i = blue; i < gvl.size(); i++){
 		gl_array.at(i) = join_rows(gl_array.at(i), gvl.at(i)->rate());
 		gv_weight.at(i) = join_rows(gv_weight.at(i), gvl.at(i)->w());
 	}
