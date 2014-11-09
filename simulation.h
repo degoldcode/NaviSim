@@ -197,7 +197,7 @@ private:
 	const int ngs = int(g_dens*(M_PI*pow(m_rad,2)));// number of goals
 	const double lm_dens = 0.05;					// density of landmarks
 	const int nlms = int(lm_dens*(M_PI*pow(m_rad,2)));// number of landmarks
-	const bool rand_env = true;						// option random environment
+	const bool rand_env = false;						// option random environment
 
 	//************ Output file streams ************//
 

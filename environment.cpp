@@ -232,6 +232,10 @@ double Environment::lmr(){
 	return lm_recogn;
 }
 
+int Environment::n_goals(){
+	return goal_list.size();
+}
+
 Goal* Environment::nearest(double x, double y){
 	double min_dist;
 	if(goal_list.size()>0)

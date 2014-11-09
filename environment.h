@@ -227,6 +227,13 @@ public:
 	double lmr();
 
 	/**
+	 * Returns number of goals
+	 *
+	 * 	@return (int)
+	 */
+	int n_goals();
+
+	/**
 	 * Returns goal pointer of the nearest goal from a given position
 	 *
 	 *	@param (double) x: position to be evaluated (default: 0.)

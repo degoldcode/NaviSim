@@ -139,8 +139,8 @@ void Simulation::reset(){
 
 	//environment->add_pipe(0.0,3.0,0.0,3.0, 0.15);
 	//environment->add_pipe(0.0,0.0,0.0,5.0, 0.15);
-	//environment->add_pipe(0.,0.,0.,-5.);
-	//environment->add_pipe(0.,-5.,-5.,-5.);
+	environment->add_pipe(0.,0.,0.,-5.);
+	environment->add_pipe(0.,-5.,-5.,-5.);
 	//environment->add_goal(-1.5,3.,0);
 	//environment->add_goal(1.5,3.,1);
 }
@@ -185,7 +185,7 @@ void Simulation::run(){
 
 		//************ Console output ************//
 
-		if((run+1)%run_div==0){
+		if((run+1)%run_div==0 && environment->n_goals() > 0){
 			printf("Run = %5u\t", run+1);
 			printf("Success rate: %3.3f,\t", success_rate);
 			printf("Expl. rate: %1.5e,\n", controller->expl());
@@ -222,12 +222,12 @@ void Simulation::run(){
 		prob_Y.at(run)(controller->p(1));
 		choice.at(run)(controller->q());
 
-		gvlearn << run << " " << global_time << " " << success_rate/100. << " " << 1.0*num_homing/(run+1) << " " << controller->expl() << endl;
-
-
-		gv_history0 = join_rows(gv_history0, controller->GV(0)->w().col(0));
-		gv_history1 = join_rows(gv_history1, controller->GV(1)->w().col(0));
-		gv_angl << run << "\t" << controller->GV(0)->avg() << "\t" << controller->GV(1)->avg() << endl;
+		if(environment->n_goals() > 0){
+			gvlearn << run << " " << global_time << " " << success_rate/100. << " " << 1.0*num_homing/(run+1) << " " << controller->expl() << endl;
+			gv_history0 = join_rows(gv_history0, controller->GV(0)->w().col(0));
+			gv_history1 = join_rows(gv_history1, controller->GV(1)->w().col(0));
+			gv_angl << run << "\t" << controller->GV(0)->avg() << "\t" << controller->GV(1)->avg() << endl;
+		}
 		environment->reset();
 		controller->reset();
 
@@ -236,6 +236,7 @@ void Simulation::run(){
 			//run = total_runs;
 			last_run = run+1;
 		}
+		if(environment->n_goals() > 0){
 		statsall_gl << run
 					<< "\t" << last_run
 					<< "\t" << controller->expl()
@@ -244,23 +245,26 @@ void Simulation::run(){
 					<< "\t" << sqrt(pow(controller->GV(1)->x(),2)+pow(controller->GV(1)->y(),2))
 					<< "\t" << sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2))
 					<< endl;
+		}
 		if(run+1==total_runs && last_run == 0)
 			last_run = total_runs;
 	}
-	if(last_run == total_runs){
+	if(last_run == total_runs && environment->n_goals() > 0){
 		printf("No convergence after %u.\nNearest goal at (%3.2f,%3.2f) = %3.2f\n\n", total_runs, environment->nearest()->x(), environment->nearest()->y(), sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2)));
 	}
 
 	total_reward(environment->get_total_reward());
 	gv_history0.save("./data/gv_hist.mat", raw_ascii);
 	gv_history1.save("./data/gv_hist1.mat", raw_ascii);
-	stats_gl <<	last_run
-			<< "\t" << controller->expl()
-			<< "\t" << 100.0*num_goalhits/total_runs
-			<< "\t" << sqrt(pow(controller->GV(0)->x(),2)+pow(controller->GV(0)->y(),2))
-			<< "\t" << sqrt(pow(controller->GV(1)->x(),2)+pow(controller->GV(1)->y(),2))
-			<< "\t" << sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2))
-			<< endl;
+	if(environment->n_goals() > 0){
+		stats_gl <<	last_run
+				<< "\t" << controller->expl()
+				<< "\t" << 100.0*num_goalhits/total_runs
+				<< "\t" << sqrt(pow(controller->GV(0)->x(),2)+pow(controller->GV(0)->y(),2))
+				<< "\t" << sqrt(pow(controller->GV(1)->x(),2)+pow(controller->GV(1)->y(),2))
+				<< "\t" << sqrt(pow(environment->nearest()->x(),2)+pow(environment->nearest()->y(),2))
+				<< endl;
+	}
 }
 
 void Simulation::run_outbound(){
