@@ -140,6 +140,22 @@ public:
 	void set_type(int input);
 
 	/**
+	 * Sets the x position of the agent
+	 *
+	 * @param (double) input: new x position
+	 * @return (void)
+	 */
+	void set_x(double input);
+
+	/**
+	 * Sets the y position of the agent
+	 *
+	 * @param (double) input: new y position
+	 * @return (void)
+	 */
+	void set_y(double input);
+
+	/**
 	 * Returns global time
 	 *
 	 * @return (double)

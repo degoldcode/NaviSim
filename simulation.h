@@ -184,7 +184,7 @@ private:
 	//************ Simulation parameters ************//
 
 	int total_runs;
-	const bool inbound_on = false;					// if inbound is simulated
+	const bool inbound_on = true;					// if inbound is simulated
 	const double max_outbound_time = 100.;				// maximum time for outbound foraging
 	const double max_inbound_time = max_outbound_time;	// maximum time for inbound foraging
 	string file_ext;								// string for file name extension

@@ -110,6 +110,14 @@ void Agent::set_type(int input){
 	type = input;
 }
 
+void Agent::set_x(double input){
+	x_position = input;
+}
+
+void Agent::set_y(double input){
+	y_position = input;
+}
+
 double Agent::t(){
 	return global_time;
 }

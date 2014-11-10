@@ -10,7 +10,7 @@
 NaviControl::NaviControl(int num_neurons, double sensory_noise, double leakage) {
 	N = num_neurons;
 	pin = new PIN(N, leakage, sensory_noise, 0.00);
-	num_colors = 1;
+	num_colors = 2;
 	gvl.resize(num_colors);
 	for(int i = 0; i < num_colors; i++)
 		gvl.at(i) = new GoalLearning(N, 0.0);
@@ -219,6 +219,7 @@ double NaviControl::update(double angle, double speed, double inReward, int colo
 	//printf("%4.3f s.\n", t*0.1);
 	//if (t % inv_sampling_rate == 0)
 		//update_matrices();
+
 	if(write)
 		stream_write();
 

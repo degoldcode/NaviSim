@@ -113,7 +113,10 @@ double Simulation::get_srate(){
 }
 
 double Simulation::in_degr(double angle){
-	return 180.*angle/M_PI;
+	if(angle > 0.)
+		return 180.*angle/M_PI;
+	else
+		return 180.*angle/M_PI + 360.;
 }
 
 double Simulation::inv_angle(double angle){
@@ -141,6 +144,7 @@ void Simulation::reset(){
 	//environment->add_pipe(0.0,0.0,0.0,5.0, 0.15);
 	environment->add_pipe(0.,0.,0.,-5.);
 	environment->add_pipe(0.,-5.,-5.,-5.);
+	environment->add_goal(-5., -5., 0);
 	//environment->add_goal(-1.5,3.,0);
 	//environment->add_goal(1.5,3.,1);
 }
@@ -192,8 +196,8 @@ void Simulation::run(){
 			for(int i = 0; i < num_motivs; i++){
 				printf("GV = (%3.2f", controller->GV(i)->x());
 				printf(",%3.2f) ", controller->GV(i)->y());
-				printf("angle = %3.3f", in_degr(controller->cGV(i)));
-				printf(" (%3.3f),\t", in_degr(controller->cGV(i)));
+				printf("angle = %3.3f", controller->GV(i)->avg());
+				printf(" (%3.3f),\t", in_degr(controller->GV(i)->avg()));
 				printf("nearest (%3.2f,", environment->nearest(controller->GV(i)->x(), controller->GV(i)->y())->x());
 				printf("%3.2f) ", environment->nearest(controller->GV(i)->x(), controller->GV(i)->y())->y());
 				printf("has amount = %g\n", environment->nearest(controller->GV(i)->x(), controller->GV(i)->x())->a());
@@ -254,7 +258,7 @@ void Simulation::run(){
 	}
 
 	total_reward(environment->get_total_reward());
-	gv_history0.save("./data/gv_hist.mat", raw_ascii);
+	gv_history0.save("./data/gv_hist0.mat", raw_ascii);
 	gv_history1.save("./data/gv_hist1.mat", raw_ascii);
 	if(environment->n_goals() > 0){
 		stats_gl <<	last_run

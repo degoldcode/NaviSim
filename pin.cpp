@@ -72,9 +72,9 @@ void PIN::update(double angle, double speed){
 	//---Layer 4 -> Vector Decoding Layer
 	ar.at(HV)->update_rate(lin_rect(w_cos * ar.at(M)->rate()) + vnoise(N,nnoise));
 	output_rate = ar.at(HV)->rate();
-	update_avg();
-	update_len();
-	update_max();
+	update_avg(output_rate);
+	update_len(output_rate);
+	update_max(output_rate);
 	HV_x = len()*cos(avg());
 	HV_y = len()*sin(avg());
 }

@@ -30,6 +30,7 @@ using namespace std;
 
 
 GoalLearning::GoalLearning(int num_neurons, double nnoise, bool opt_load) : CircArray(num_neurons,1) {
+	type = 1;
 	foraging_state = 1.0;
 	learn_rate = 5.;
 	reward = 0.0;

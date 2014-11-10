@@ -142,7 +142,7 @@ private:
 	double x_pos_1;				// x position of end
 	double y_pos_0;				// y position of start
 	double y_pos_1;				// y position of end
-	const double p_width = 0.2;	// width of pipe
+	const double p_width = 0.05;// width of pipe
 	double alpha;				// angle of pipe w.r.t. to x-axis
 	double len;					// length of pipe
 

@@ -62,6 +62,7 @@ public:
 		max_rate = 0.0;
 		avg_angle = 0.0;
 		length = 0.0;
+		type = 0;
 
 		output_rate.zeros(N);
 		input_rate.zeros(K);
@@ -211,16 +212,17 @@ public:
 	/**
 	 * Updates the average angle of maximum firing in the array
 	 *
+	 * @param (vec) input: vector
 	 * @return (void)
 	 */
-	void update_avg(){
+	void update_avg(vec input){
 		double sum_act = 0.0;
 		double output = 0.0;
-		if(output_rate(0) == 0.0){
+		if(input(0) == 0.0){
 			for(int i = 0; i < N; i++){
-				if(output_rate(i) > 0.0){
-					output += preferred_angle(i)*output_rate(i);
-					sum_act += output_rate(i);
+				if(input(i) > 0.0){
+					output += preferred_angle(i)*input(i);
+					sum_act += input(i);
 				}
 			}
 			if(sum_act>0.0)
@@ -228,9 +230,9 @@ public:
 		}
 		else{
 			for(int i = 0; i < N; i++){
-				if(output_rate(i) > 0.0){
-					output += bound(preferred_angle(i))*output_rate(i);
-					sum_act += output_rate(i);
+				if(input(i) > 0.0){
+					output += bound(preferred_angle(i))*input(i);
+					sum_act += input(i);
 				}
 			}
 			if(sum_act>0.0)
@@ -242,10 +244,11 @@ public:
 	/**
 	 * Updates the length of array rate
 	 *
+	 * @param (vec) input: vector
 	 * @return (void)
 	 */
-	void update_len(){
-		length = scale_factor * sum(output_rate)/(N*N);
+	void update_len(vec input){
+		length = scale_factor * sum(input)/(N*N);
 	};
 
 	/**
@@ -253,24 +256,32 @@ public:
 	 *
 	 * @return (void)
 	 */
-	void update_max(){
+	void update_max(vec input){
 		uword index;
-		max_rate = output_rate.max(index);
+		max_rate = input.max(index);
 		max_angle = bound(preferred_angle(index));
 	};
 
 	/**
 	 * Updates the activities of the arrays
 	 *
+	 * @param (vec) input: vector
 	 * @return (void)
 	 */
 	void update_rate(vec rate){
 		if(rate.n_elem != output_rate.n_elem)
 			printf("WARNING: Dimension has been changed.\n");
 		output_rate = rate;
-		update_avg();
-		update_len();
-		update_max();
+		if(type == 0){
+			update_avg(output_rate);
+			update_len(output_rate);
+			update_max(output_rate);
+		}
+		else{
+			update_avg(input_conns.col(0));
+			update_len(input_conns.col(0));
+			update_max(input_conns.col(0));
+		}
 	};
 
 	/**
@@ -297,6 +308,8 @@ public:
 		return input_conns;
 	};
 
+	int type;                                       // 0 = rate, 1 = weight
+
 protected:
 
 	int N;                                          // Number of neurons
@@ -315,6 +328,7 @@ private:
 
 	vec input_rate;                                 // Input activity rate to the array
 	vec bias;										// Bias vector
+
 };
 
 

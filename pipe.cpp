@@ -50,6 +50,10 @@ Agent* Pipe::set_agent_pipe(Agent* agent){
 	double y_m = y_pipe(agent->x(), agent->y());
 	if((x_m > -p_width && x_m < p_width && abs(y_m) < .5*p_width) || in_this_pipe){
 		agent->set_dphi(alpha - agent->phi());
+		if(!in_this_pipe){
+			agent->set_x(x_pos_0);
+			agent->set_y(y_pos_0);
+		}
 		in_this_pipe = true;	//puts agent in pipe
 		agent->in_pipe = true;
 	}
