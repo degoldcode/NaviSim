@@ -29,9 +29,9 @@
 #define ENVIRONMENT_H_
 
 #include "agent.h"
-#include "goal.h"
-#include "landmark.h"
-#include "pipe.h"
+//#include "goal.h"
+//#include "landmark.h"
+//#include "pipe.h"
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -240,7 +240,7 @@ public:
 	 *	@param (double) y: position to be evaluated (default: 0.)
 	 *	@return (Goal*)
 	 */
-	Goal* nearest(double x=0.0, double y=0.0);
+	//Goal* nearest(double x=0.0, double y=0.0);
 
 	/**
 	 * Returns reward signal
@@ -318,9 +318,9 @@ private:
 
 	//************ Object containers ************//
 	vector<Agent*> agent_list;
-	vector<Goal*> goal_list;
-	vector<Landmark*> landmark_list;
-	vector<Pipe*> pipe_list;
+	//vector<Goal*> goal_list;
+	//vector<Landmark*> landmark_list;
+	//vector<Pipe*> pipe_list;
 
 	//************ output file streams ************//
 	ofstream stream_g;		//goal positions

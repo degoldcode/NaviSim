@@ -53,7 +53,7 @@ public:
 	 * @param (int) mySampling: sampling interval for writing data into file
 	 * @return (class object)
 	 */
-	Agent(int mySampling, double start_x=0.0, double start_y=0.0);
+	Agent(double start_x=0.0, double start_y=0.0, bool in_verbose=false);
 
 	/**
 	 * Destructor
@@ -223,7 +223,7 @@ public:
 
 private:
 
-	//************ Spatial parameters ************//
+	//************ Kinematics parameters ************//
 
 	double x_position;      // X position of agent
 	double y_position;      // Y position of agent
@@ -233,24 +233,14 @@ private:
 	double k_s;             // Acceleration constant
 	double diff_heading;    // Change in heading direction (in rad)
 	double external;		// External change in heading direction (in rad)
-	double abs_dphi;		// Absolute change in heading direction (in rad)
 	double diff_speed;      // Change in walking speed of agent
 	double theta;			// Angle of direction to home position (in rad)
 	double distance;		// Distance to home position
+	const double dt = 0.1;	// Integration time
 	int type;               // Goal type
 
-	//************ Timing parameters ************//
-
-	double global_time;		// Continuous time during multiple trials
-	double trial_time;		// Continuous time during one trial
-	const double dt = 0.1;	// Integration time
-	int timestep;			// Discrete time steps
-	int trial;				// Trial number
-
-	//************ Other class members ************//
-	ofstream stream;		// Output file stream for agent kinematics and parameters
-	int sampling_interval;	// Sampling interval of writing data into file
-	bool write;				// Option to write data into file
+	//************ IO parameters ************//
+	bool verbose;
 };
 
 #endif /* AGENT_H_ */
