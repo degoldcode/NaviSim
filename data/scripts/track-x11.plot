@@ -1,13 +1,16 @@
 reset
-set term x11 enhanced font "Helvetica,8"
+set term x11 persist enhanced font "Helvetica,8"
 set output "../figs/track.eps"
+columns = "`head ../agent.dat -n1 | wc -w`"
+
+load 'moreland.pal'
 
 set xlabel "x"
 set ylabel "y"
-set cblabel "Trials" offset 1
+set cblabel "Time t" offset 1
 
 set size square
-SCALE = 20.
+SCALE = 10.
 OFFSETX = 0.0
 OFFSETY = 0.0
 set xtics 5
@@ -23,6 +26,7 @@ ERASEFIRST = 0 ##18
 ERASELAST = 5000
 col(x) = int(255*x)*65536 + int(68+170*x)*256 + int(255*(1-x))
 
-
-plot "../agent.dat" u 2:(($9>ERASEFIRST && $9<ERASELAST)?$3:1/0):9 w p pt 7 ps (10/SCALE)*0.3 lc palette t ""
+plot for [cole=2:columns:2] '../agent.dat' \
+	u cole:cole+1:1 \
+	w p pt 7 ps 0.6 lc palette t ""
 set output

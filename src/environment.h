@@ -90,7 +90,7 @@ public:
 	 * 	@param (int) color: color index of goal (default: 0)
 	 * 	@return (void)
 	 */
-	void add_goal(double x, double y, int color = 0);
+	//void add_goal(double x, double y, int color = 0);
 
 	/**
 	 * Adds a randomly placed goal
@@ -98,7 +98,7 @@ public:
 	 *	@param (double) max_radius: maximum radius of placement
 	 * 	@return (void)
 	 */
-	void add_goal(double max_radius);
+	//void add_goal(double max_radius);
 
 	/**
 	 * Adds a landmark at position (x,y)
@@ -107,7 +107,7 @@ public:
 	 * 	@param (double) y: y postion of goal
 	 * 	@return (void)
 	 */
-	void add_landmark(double x, double y);
+	//void add_landmark(double x, double y);
 
 	/**
 	 * Adds a randomly placed landmark
@@ -115,7 +115,7 @@ public:
 	 *	@param (double) max_radius: maximum radius of placement
 	 * 	@return (void)
 	 */
-	void add_landmark(double max_radius);
+	//void add_landmark(double max_radius);
 
 	/**
 	 * Adds a pipe from (x0,y0) to (x1,y1)
@@ -126,7 +126,7 @@ public:
 	 * 	@param (double) y1: y postion of pipe end
 	 * 	@return (void)
 	 */
-	void add_pipe(double x0, double y0, double x1, double y1);
+	//void add_pipe(double x0, double y0, double x1, double y1);
 
 	/**
 	 * Returns agent pointer with given index
@@ -134,14 +134,14 @@ public:
 	 *	@param (int) i: index of agent (default: 0)
 	 *	@return (Agent*)
 	 */
-	Agent* agent(int i=0);
+	Agent* a(int i=0);
 
 	/**
 	 * Returns color index of nearest goal
 	 *
 	 *	@return (int)
 	 */
-	int color();
+	//int color();
 
 	/**
 	 * Returns the distance between two given goals
@@ -151,7 +151,7 @@ public:
 	 * 	@param (Goal*) g2: second goal
 	 * 	@return (double)
 	 */
-	double d(Goal* g1, Goal* g2);
+	//double d(Goal* g1, Goal* g2);
 
 	/**
 	 * Returns the distance between a landmark and goal
@@ -161,7 +161,7 @@ public:
 	 * 	@param (Goal*) g2: second goal
 	 * 	@return (double)
 	 */
-	double d(Landmark* lm1, Goal* g2);
+	//double d(Landmark* lm1, Goal* g2);
 
 	/**
 	 * Returns the distance between two given goals
@@ -171,7 +171,7 @@ public:
 	 * 	@param (Goal*) g2: second goal
 	 * 	@return (double)
 	 */
-	double d(Landmark* lm1, Landmark* lm2);
+	//double d(Landmark* lm1, Landmark* lm2);
 
 	/**
 	 * Returns the distance between two points x0, x1 in 2D plane
@@ -187,7 +187,7 @@ public:
 	 *
 	 * 	@return (int)
 	 */
-	int get_hits();
+	//int get_hits();
 
 	/**
 	 * Returns number of hits of goal i
@@ -195,21 +195,21 @@ public:
 	 *	@param (int) i: goal index
 	 * 	@return (int)
 	 */
-	int get_hits(int i);
+	//int get_hits(int i);
 
 	/**
 	 * Returns sum of reward given during the trial
 	 *
 	 * 	@return (double)
 	 */
-	double get_sum_reward();
+	//double get_sum_reward();
 
 	/**
 	 * Returns total amount of reward given
 	 *
 	 * 	@return (double)
 	 */
-	double get_total_reward();
+	//double get_total_reward();
 
 	/**
 	 * Returns goal pointer with given index
@@ -217,21 +217,21 @@ public:
 	 *	@param (int) i: index of goal (default: 0)
 	 *	@return (Goal*)
 	 */
-	Goal* goal(int i=0);
+	//Goal* g(int i=0);
 
 	/**
 	 * Returns landmark recognition signal
 	 *
 	 * 	@return (double)
 	 */
-	double lmr();
+	//double lmr();
 
 	/**
 	 * Returns number of goals
 	 *
 	 * 	@return (int)
 	 */
-	int n_goals();
+	//int n_goals();
 
 	/**
 	 * Returns goal pointer of the nearest goal from a given position
@@ -247,7 +247,7 @@ public:
 	 *
 	 * 	@return (double)
 	 */
-	double r();
+	//double r();
 
 	/**
 	 * Resets the environment -> reset of agent and trial-based statistics
@@ -269,7 +269,7 @@ public:
 	 *
 	 * 	@return (void)
 	 */
-	void swap_reward();
+	//void swap_reward();
 
 	/**
 	 * Returns the "real" HV angle of agent i
@@ -286,6 +286,14 @@ public:
 	 *	@return (void)
 	 */
 	void update(double command);
+
+	/**
+	 * Updates agents with given motor command
+	 *
+	 *	@param (double) command: motor command from controller
+	 *	@return (void)
+	 */
+	void update_agents(double command);
 
 	/**
 	 * Returns x position of agent i
