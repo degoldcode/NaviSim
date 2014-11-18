@@ -25,13 +25,17 @@ double randn(double mean, double var){
 	return d(e);
 }
 
+Agent* a(int i){
+	return env->a(i);
+}
+
 int main(){
 	agent_str.open("data/agent.dat");
 	env = new Environment(numagents);
 	while(tstep*dt< T){
 		agent_str << tstep*dt;
 		for(unsigned int i= 0; i< numagents; i++){
-			agent_str << "\t" << env->a(i)->x()<< "\t" << env->a(i)->y();
+			agent_str << "\t" << a(i)->x()<< "\t" << a(i)->y();
 			env->update(randn(0.,1.));
 		}
 		agent_str << endl;

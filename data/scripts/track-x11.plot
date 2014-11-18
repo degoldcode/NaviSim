@@ -1,9 +1,8 @@
 reset
 set term x11 persist enhanced font "Helvetica,8"
-set output "../figs/track.eps"
 columns = "`head ../agent.dat -n1 | wc -w`"
 
-load 'moreland.pal'
+#load 'moreland.pal'
 
 set xlabel "x"
 set ylabel "y"
