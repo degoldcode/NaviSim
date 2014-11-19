@@ -5,40 +5,26 @@
  *      Author: degoldschmidt
  */
 
-#include "../src/environment.h"
+#include "../src/simulation.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <random>
 using namespace std;
 
-Environment* env;
+Simulation* sim;//Environment* env;
 const int numagents= 1;
+const int numtrials= 1;
 const double T= 1000.;
 const double dt= 0.1;
-int tstep= 0;
-ofstream agent_str;
-
-double randn(double mean, double var){
-	static random_device e{};
-	static normal_distribution<double> d(mean, var);
-	return d(e);
-}
-
-Agent* a(int i){
-	return env->a(i);
-}
+//int tstep= 0;
+//ofstream agent_str;
 
 int main(){
-	agent_str.open("data/agent.dat");
-	env = new Environment(numagents);
-	while(tstep*dt< T){
-		agent_str << tstep*dt;
-		for(unsigned int i= 0; i< numagents; i++){
-			agent_str << "\t" << a(i)->x()<< "\t" << a(i)->y();
-			env->update(randn(0.,1.));
-		}
-		agent_str << endl;
-		tstep++;
-	}
+	//agent_str.open("data/agent.dat");
+	sim = new Simulation(numagents, true);//env = new Environment(numagents);
+
+	sim->run(numtrials, T, dt);
+
+	delete sim;
 }
