@@ -274,11 +274,11 @@ double Environment::th(int i){
 	return agent_list.at(i)->th();
 }
 
-void Environment::update(double command){
+void Environment::update(){
 	reward = 0.0;
 	lm_recogn = 0.0;
 
-	update_agents(command);
+	update_agents();
 
 //		for(unsigned int j = 0; j < goal_list.size(); j++)
 //			reward += goal_list.at(j)->r(agent_list.at(i)->x(), agent_list.at(i)->y(), mode);
@@ -288,11 +288,11 @@ void Environment::update(double command){
 	total_reward += reward;
 }
 
-void Environment::update_agents(double command){
+void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 /*		for(unsigned int j = 0; j < pipe_list.size(); j++)
 			agent_list.at(i) = pipe_list.at(j)->set_agent_pipe(agent_list.at(i));*/
-		agent_list.at(i)->update(command);
+		agent_list.at(i)->update();
 	}
 }
 

@@ -140,11 +140,11 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage) {
 		return prob(0);
 }*/
 
-/*double NaviControl::rand(double mean, double stdev) {
+double Controller::randn(double mean, double stdev) {
 	static random_device e { };
 	static normal_distribution<double> d(mean, stdev);
 	return d(e);
-}*/
+}
 
 /*double NaviControl::randu(double min, double max) {
 	static random_device e { };
@@ -215,8 +215,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage) {
 }*/
 
 double Controller::update(double angle, double speed, double inReward, int color) {
-	test+=1.1;
-	return 0.;
+	return randn();
 }
 
 /*void NaviControl::update_matrices() {

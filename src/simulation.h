@@ -70,8 +70,6 @@ public:
 
 	void init_controller(int num_neurons=360, double sensory_noise=0.0, double leakage=0.0);
 
-	double randn(double mean, double var);
-
 	/**
 	 * Runs the simulation
 	 *
@@ -82,7 +80,7 @@ public:
 	 */
 	void run(int in_numtrials, double in_duration, double in_interval);
 
-	void update(double command= 0.0);
+	void update();
 
 private:
 

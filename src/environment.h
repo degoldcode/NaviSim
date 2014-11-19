@@ -282,18 +282,16 @@ public:
 	/**
 	 * Updates the environment with given motor command
 	 *
-	 *	@param (double) command: motor command from controller
 	 *	@return (void)
 	 */
-	void update(double command);
+	void update();
 
 	/**
 	 * Updates agents with given motor command
 	 *
-	 *	@param (double) command: motor command from controller
 	 *	@return (void)
 	 */
-	void update_agents(double command);
+	void update_agents();
 
 	/**
 	 * Returns x position of agent i

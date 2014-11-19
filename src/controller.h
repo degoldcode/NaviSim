@@ -150,7 +150,7 @@ public:
 	 * @param (double) stdev: width of the distribution (default: 1.0)
 	 * @return (double)
 	 */
-	//double rand(double mean=0.0, double stdev=1.0);
+	double randn(double mean=0.0, double stdev=1.0);
 
 	/**
 	 * Returns a random number drawn from a uniform distribution
@@ -215,7 +215,6 @@ public:
 	 */
 	//void update_matrices();
 
-	double test;
 
 
 private:

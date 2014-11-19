@@ -195,7 +195,7 @@ public:
 	 * @param (double) speed_command: motor speed command
 	 * @return (void)
 	 */
-	void update(double command, double speed_command = 0.0);
+	void update();
 
 	/**
 	 * Returns the linear speed of the agent
@@ -223,15 +223,16 @@ public:
 
 	bool in_pipe;			// status if agent is in pipe [TRUE = agent is in a pipe; FALSE = it's free!]
 	double test;
-	Controller* control;
+
 
 private:
 
 	//************ Class object ************//
-
+	Controller* control;
 
 	//************ Kinematics parameters ************//
 
+	double control_output;
 	double x_position;      // X position of agent
 	double y_position;      // Y position of agent
 	double heading;         // Angle of heading direction (in rad; ccw from x-axis)

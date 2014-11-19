@@ -118,11 +118,10 @@ void Agent::to(double x_new, double y_new){
 	y_position = y_new;
 }
 
-void Agent::update(double command, double speed_command){
-	test = control->test;
-	external = control->update(heading, speed, 0.0, 0);
+void Agent::update(){
+	control_output = control->update(heading, speed, 0.0, 0);
 	if(!in_pipe)
-		diff_heading = dt * k_phi * command + external;
+		diff_heading = dt * k_phi * control_output + external;
 	else
 		diff_heading = external;
 	external = 0.0;
@@ -130,7 +129,7 @@ void Agent::update(double command, double speed_command){
 	heading += diff_heading;
 	heading = bound(heading);
 
-	diff_speed = dt * k_s * speed_command;
+	diff_speed = dt * k_s * 0.0;
 	speed += diff_speed;
 
 	x_position += dt * speed * cos(heading);

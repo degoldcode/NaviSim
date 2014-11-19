@@ -56,12 +56,6 @@ void Simulation::init_controller(int num_neurons, double sensory_noise, double l
 	}
 }
 
-double Simulation::randn(double mean, double var){
-	static random_device e{};
-	static normal_distribution<double> d(mean, var);
-	return d(e);
-}
-
 void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 	T = in_duration;
 	dt = in_interval;
@@ -73,16 +67,16 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 		while(tstep*dt< T){
 			agent_str << tstep*dt;
 			//double control_output =
-			update(randn(0.,1.));
+			update();
 			tstep++;
 		}
 	}
 }
 
-void Simulation::update(double command){
+void Simulation::update(){
 	for(unsigned int i= 0; i< agents; i++){
 		agent_str << "\t" << a(i)->x()<< "\t" << a(i)->y();
-		environment->update(command);
 	}
 	agent_str << endl;
+	environment->update();
 }
