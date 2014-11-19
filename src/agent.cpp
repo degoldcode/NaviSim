@@ -69,6 +69,10 @@ double Agent::dphi(){
 	return diff_heading;
 }
 
+void Agent::init(Controller* control){
+	this->control = control;
+}
+
 double Agent::phi(){
 	return heading;
 }
@@ -115,6 +119,8 @@ void Agent::to(double x_new, double y_new){
 }
 
 void Agent::update(double command, double speed_command){
+	test = control->test;
+	external = control->update(heading, speed, 0.0, 0);
 	if(!in_pipe)
 		diff_heading = dt * k_phi * command + external;
 	else

@@ -48,6 +48,14 @@ Agent* Simulation::a(int i){
 	return environment->a(i);
 }
 
+void Simulation::init_controller(int num_neurons, double sensory_noise, double leakage){
+	for(unsigned int i= 0; i< agents; i++){
+		Controller* control = new Controller(num_neurons, sensory_noise, leakage);
+		a(i)->init(control);
+		controllers.push_back(control);
+	}
+}
+
 double Simulation::randn(double mean, double var){
 	static random_device e{};
 	static normal_distribution<double> d(mean, var);
@@ -58,9 +66,13 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 	T = in_duration;
 	dt = in_interval;
 	int tstep = 0;
+
+
+
 	for(int trial_num= 0; trial_num < in_numtrials; trial_num++){
 		while(tstep*dt< T){
 			agent_str << tstep*dt;
+			//double control_output =
 			update(randn(0.,1.));
 			tstep++;
 		}

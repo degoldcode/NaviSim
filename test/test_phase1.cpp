@@ -23,6 +23,7 @@ const double dt= 0.1;
 int main(){
 	//agent_str.open("data/agent.dat");
 	sim = new Simulation(numagents, true);//env = new Environment(numagents);
+	sim->init_controller();
 
 	sim->run(numtrials, T, dt);
 

@@ -12,9 +12,9 @@
 #include <armadillo>
 #include <cmath>
 #include <vector>
-#include "pin.h"
-#include "map.h"
-#include "goallearning.h"
+//#include "pin.h"
+//#include "map.h"
+//#include "goallearning.h"
 //#include "routelearning.h"
 using namespace std;
 using namespace arma;
@@ -31,7 +31,7 @@ enum{blue,yellow};
  *
  */
 
-class NaviControl {
+class Controller {
 public:
 
 	/**
@@ -42,13 +42,13 @@ public:
 	 *	@param (double) leakage: leakage of PI memory
 	 *
 	 */
-	NaviControl(int num_neurons, double sensory_noise, double leakage);
+	Controller(int num_neurons, double sensory_noise, double leakage);
 
 	/**
 	 * Destructor
 	 *
 	 */
-	~NaviControl();
+	~Controller();
 
 	/**
 	 * Returns angle within bounds [-PI,PI]
@@ -56,7 +56,7 @@ public:
 	 *  @param (double) angle: input angle
 	 *  @return (double)
 	 */
-	double bound(double angle);
+	//double bound(double angle);
 
 	/**
 	 * Returns current goal vector angle of goal i
@@ -64,14 +64,14 @@ public:
 	 *  @param (int) i: goal index
 	 *  @return (double)
 	 */
-	double cGV(int i);
+	//double cGV(int i);
 
 	/**
 	 * Returns exploration rate of chosen goal
 	 *
 	 *  @return (double)
 	 */
-	double expl();
+	//double expl();
 
 	/**
 	 * Returns exploration rate of goal i
@@ -79,7 +79,7 @@ public:
 	 *  @param (double) i: goal index
 	 *  @return (double)
 	 */
-	double expl(int i);
+	//double expl(int i);
 
 	/**
 	 * Sets real position of agent
@@ -88,7 +88,7 @@ public:
 	 *  @param (double) y: y position of agent
 	 *  @return (void)
 	 */
-	void get_pos(double x, double y);
+	//void get_pos(double x, double y);
 
 	/**
 	 * Returns global vector of goal i
@@ -96,14 +96,14 @@ public:
 	 *  @param (int) i: goal index
 	 *  @return (Pointer to CircArray)
 	 */
-	GoalLearning* GV(int i);
+	//GoalLearning* GV(int i);
 
 	/**
 	 * Returns home vector
 	 *
 	 *  @return (Pointer to CircArray)
 	 */
-	PIN* HV();
+	//PIN* HV();
 
 	/**
 	 * Returns inverted angle -> angle - PI (in rad)
@@ -111,7 +111,7 @@ public:
 	 *  @param (double) angle: input angle
 	 *  @return (double)
 	 */
-	double inv_angle(double angle);
+	//double inv_angle(double angle);
 
 	/**
 	 * Returns angle in degrees
@@ -119,21 +119,21 @@ public:
 	 *  @param (double) angle: input angle
 	 *  @return (double)
 	 */
-	double in_degr(double angle);
+	//double in_degr(double angle);
 
 	/**
 	 * Sets write option to false -> no writing to file
 	 *
 	 *  @return (void)
 	 */
-	void no_write();
+	//void no_write();
 
 	/**
 	 * Returns agent's goal choice
 	 *
 	 *  @return (int)
 	 */
-	int q();
+	//int q();
 
 	/**
 	 * Returns choice probability of goal i
@@ -141,7 +141,7 @@ public:
 	 *  @param (int) i: goal index
 	 *  @return (double)
 	 */
-	double p(int i);
+	//double p(int i);
 
 	/**
 	 * Returns a random number drawn from a Gaussian distribution
@@ -150,7 +150,7 @@ public:
 	 * @param (double) stdev: width of the distribution (default: 1.0)
 	 * @return (double)
 	 */
-	double rand(double mean=0.0, double stdev=1.0);
+	//double rand(double mean=0.0, double stdev=1.0);
 
 	/**
 	 * Returns a random number drawn from a uniform distribution
@@ -159,28 +159,28 @@ public:
 	 * @param (double) max: upper bound of the distribution (default: 1.0)
 	 * @return (double)
 	 */
-	double randu(double min=0.0, double max=1.0);
+	//double randu(double min=0.0, double max=1.0);
 
 	/**
 	 * Resets the controller for subsequent runs
 	 *
 	 *  @return (void)
 	 */
-	void reset();
+	//void reset();
 
 	/**
 	 * Resets the state matrices
 	 *
 	 *  @return (void)
 	 */
-	void reset_matrices();
+	//void reset_matrices();
 
 	/**
 	 * Saves the state matrices
 	 *
 	 *  @return (void)
 	 */
-	void save_matrices();
+	//void save_matrices();
 
 	/**
 	 * Sets the foraging state
@@ -188,14 +188,14 @@ public:
 	 *	@param (int) in_mode: foraging state
 	 * 	@return (void)
 	 */
-	void set_mode(int in_mode);
+	//void set_mode(int in_mode);
 
 	/**
 	 * Writes data into files
 	 *
 	 *  @return (void)
 	 */
-	void stream_write();
+	//void stream_write();
 
 	/**
 	 * Updates the Navigation Controller
@@ -213,14 +213,16 @@ public:
 	 *
 	 *  @return (void)
 	 */
-	void update_matrices();
+	//void update_matrices();
+
+	double test;
 
 
 private:
 
 	//************ Navigation Modules & Controller Parameters ************//
-	PIN* pin;
-	vector<GoalLearning*> gvl;
+	//PIN* pin;
+	//vector<GoalLearning*> gvl;
 	//RouteLearning* lvl;
 	//Map* map;
 	double foraging_state;

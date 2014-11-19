@@ -32,9 +32,10 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <cstdio>
 #include <cmath>
 #include "environment.h"
-//#include "navicontrol.h"
+#include "controller.h"
 
 
 /**
@@ -67,6 +68,8 @@ public:
 
 	Agent* a(int i);
 
+	void init_controller(int num_neurons=360, double sensory_noise=0.0, double leakage=0.0);
+
 	double randn(double mean, double var);
 
 	/**
@@ -86,6 +89,7 @@ private:
 	//************ Class objects ************//
 
 	Environment* environment;
+	vector<Controller*> controllers;
 
 	//************ Simulation parameters ************//
 

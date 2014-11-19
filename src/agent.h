@@ -30,6 +30,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "controller.h"
 using namespace std;
 
 
@@ -84,6 +85,8 @@ public:
 	 * @return (double)
 	 */
 	double dphi();
+
+	void init(Controller* control);
 
 	/**
 	 * Sets write option to false -> no writing to file
@@ -219,9 +222,13 @@ public:
 	//************ Public class parameters ************//
 
 	bool in_pipe;			// status if agent is in pipe [TRUE = agent is in a pipe; FALSE = it's free!]
-
+	double test;
+	Controller* control;
 
 private:
+
+	//************ Class object ************//
+
 
 	//************ Kinematics parameters ************//
 
