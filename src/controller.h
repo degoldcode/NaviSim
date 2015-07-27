@@ -12,9 +12,9 @@
 #include <armadillo>
 #include <cmath>
 #include <vector>
-//#include "pin.h"
+#include "pin.h"
 //#include "map.h"
-//#include "goallearning.h"
+#include "goallearning.h"
 //#include "routelearning.h"
 using namespace std;
 using namespace arma;
@@ -56,7 +56,7 @@ public:
 	 *  @param (double) angle: input angle
 	 *  @return (double)
 	 */
-	//double bound(double angle);
+	double bound(double angle);
 
 	/**
 	 * Returns current goal vector angle of goal i
@@ -103,7 +103,7 @@ public:
 	 *
 	 *  @return (Pointer to CircArray)
 	 */
-	//PIN* HV();
+	PIN* HV();
 
 	/**
 	 * Returns inverted angle -> angle - PI (in rad)
@@ -111,7 +111,7 @@ public:
 	 *  @param (double) angle: input angle
 	 *  @return (double)
 	 */
-	//double inv_angle(double angle);
+	double inv_angle(double angle);
 
 	/**
 	 * Returns angle in degrees
@@ -166,7 +166,7 @@ public:
 	 *
 	 *  @return (void)
 	 */
-	//void reset();
+	void reset();
 
 	/**
 	 * Resets the state matrices
@@ -188,7 +188,7 @@ public:
 	 *	@param (int) in_mode: foraging state
 	 * 	@return (void)
 	 */
-	//void set_mode(int in_mode);
+	void set_inward(bool in_mode);
 
 	/**
 	 * Writes data into files
@@ -220,14 +220,15 @@ public:
 private:
 
 	//************ Navigation Modules & Controller Parameters ************//
-	//PIN* pin;
-	//vector<GoalLearning*> gvl;
+	PIN* pin;
+	vector<GoalLearning*> gvl;
 	//RouteLearning* lvl;
 	//Map* map;
-	double foraging_state;
+	bool inward;
 	double pi_command;
 	double gl_command;
 	double rl_command;
+	double output;
 	double goal_factor;
 
 	//************ Path Integration Parameters ************//

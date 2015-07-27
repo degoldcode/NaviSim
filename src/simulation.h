@@ -68,7 +68,11 @@ public:
 
 	Agent* a(int i);
 
+	Environment* e();
+
 	void init_controller(int num_neurons=360, double sensory_noise=0.0, double leakage=0.0);
+
+	void reset();
 
 	/**
 	 * Runs the simulation
@@ -107,8 +111,13 @@ private:
 	//************ Output file streams ************//
 
 	ofstream agent_str;
+	ofstream endpts_str;
 
 	//************ Evaluation parameters ************//
+
+	int count_home;
+	double avg_error;
+	double travg_error;
 
 
 	//************ Timing parameters ************//

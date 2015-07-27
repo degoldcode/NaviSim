@@ -7,13 +7,13 @@
 
 #include "controller.h"
 
-Controller::Controller(int num_neurons, double sensory_noise, double leakage) {
+Controller::Controller(int num_neurons, double sensory_noise, double leakage){
 	N = num_neurons;
-	//pin = new PIN(N, leakage, sensory_noise, 0.00);
-	//num_colors = 2;
-	//gvl.resize(num_colors);
-	//for(int i = 0; i < num_colors; i++)
-		//gvl.at(i) = new GoalLearning(N, 0.0);
+	pin = new PIN(N, leakage, sensory_noise, 0.00);
+	num_colors = 1;
+	gvl.resize(num_colors);
+	for(int i = 0; i < num_colors; i++)
+		gvl.at(i) = new GoalLearning(N, 0.0);
 
 	gl_array.resize(num_colors);
 	gv_weight.resize(num_colors);
@@ -21,7 +21,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage) {
 	pi_command = 0.0;
 	gl_command = 0.0;
 	rl_command = 0.0;
-	foraging_state = 1.0;
+	inward = false;
 	goal_factor = 0.0;
 
 	HV_angle = 0.0;
@@ -62,23 +62,23 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage) {
 	run = 0;
 }
 
-/*NaviControl::~NaviControl() {
+Controller::~Controller() {
 	delete pin;
 	for(int i = blue; i < gvl.size(); i++)
 		delete gvl.at(i);
 	stream.close();
 	r_stream.close();
 	lm_stream.close();
-}*/
+}
 
-/*double NaviControl::bound(double angle){
+double Controller::bound(double angle){
 	double rphi = angle;
 	while(rphi > M_PI)
 		rphi -= 2 * M_PI;
 	while(rphi < - M_PI)
 		rphi += 2 * M_PI;
 	return rphi;
-}*/
+}
 
 /*double NaviControl::cGV(int i){
 	if(i < cGV_angle.size())
@@ -110,9 +110,9 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage) {
 		return gvl.at(0);
 }*/
 
-/*PIN* NaviControl::HV(){
+PIN* Controller::HV(){
 	return pin;
-}*/
+}
 
 /*double NaviControl::in_degr(double angle) {
 	if (angle > 0.)
@@ -121,9 +121,9 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage) {
 		return 180. * (angle + 2 * M_PI) / M_PI;
 }*/
 
-/*double NaviControl::inv_angle(double angle) {
+double Controller::inv_angle(double angle) {
 	return bound(angle - M_PI);
-}*/
+}
 
 /*void NaviControl::no_write(){
 	write = false;
@@ -152,11 +152,11 @@ double Controller::randn(double mean, double stdev) {
 	return d(e);
 }*/
 
-/*void NaviControl::reset() {
+void Controller::reset() {
 	pin->reset();
 	trial_t = 0;
 	run++;
-}*/
+}
 
 /*void NaviControl::reset_matrices() {
 	pi_array.reset();
@@ -166,9 +166,9 @@ double Controller::randn(double mean, double stdev) {
 	}
 }*/
 
-/*void NaviControl::set_mode(int in_mode) {
-	foraging_state = ((in_mode == 0) ? 1.0 : 0.0);
-}*/
+void Controller::set_inward(bool in_mode) {
+	inward = in_mode;
+}
 
 
 /*void NaviControl::save_matrices() {
@@ -215,7 +215,44 @@ double Controller::randn(double mean, double stdev) {
 }*/
 
 double Controller::update(double angle, double speed, double inReward, int color) {
-	return randn();
+
+	/*** Path Integration Mechanism ***/
+	pin->update(angle, speed);
+	HV_angle = pin->avg();
+	HV_len = pin->len();
+	HV_x = pin->x();
+	HV_y = pin->y();
+	pi_command = 4. * sin(inv_angle(HV_angle) - angle);
+
+	/*** Global Vector Learning Circuits ***/
+	for(int i = 0; i < num_colors; i++){
+		if(i == color){
+			reward(i) = inReward;
+			value(i) = reward(i) + disc_factor * value(i);
+			expl_factor(i) = exp(-.5 * value(i));
+		}
+		else{
+			reward(i) = 0.0;
+		}
+		if(inward)
+			gvl.at(i)->set_mu(0.0);
+		gvl.at(i)->update(pin->get_output(), inReward, expl_factor(i));
+		GV_x.at(i) = gvl.at(i)->x();
+		GV_y.at(i) = gvl.at(i)->y();
+		cGV_angle.at(i) = atan2(GV_y.at(i) - HV_y, GV_x.at(i) - HV_x);
+	}
+	gl_command = 4.0*(1.-expl_factor(0))*sin(cGV_angle.at(0) - angle);
+
+
+
+	/*** Navigation Control Output ***/
+	if(!inward)
+		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
+	else
+		output = pi_command;
+	t++;
+
+	return output;
 }
 
 /*void NaviControl::update_matrices() {

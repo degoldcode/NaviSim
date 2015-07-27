@@ -32,36 +32,39 @@ using namespace std;
 Environment::Environment(int num_agents){
 	inv_sampling_rate = 1;
 	stream_h.open("./data/home.dat");
+	stream_g.open("./data/goals.dat");
 
+	(VERBOSE)?printf("\nCREATE ENVIRONMENT WITH %u AGENTS\n\n", num_agents):VERBOSE;
 	/*** SET UP AGENTS ***/
 	for(unsigned int i = 0; i < num_agents; i++){
-		Agent * const agent = new Agent(inv_sampling_rate);
+		Agent * const agent = new Agent(VERBOSE);
 		agent_list.push_back(agent);
 	}
 }
 
 Environment::Environment(int num_goals, int num_landmarks, double max_radius, int num_agents){
+	inv_sampling_rate = 1;
 	stream_h.open("./data/home.dat");
-/*	stream_g.open("./data/goals.dat");
-	stream_lm.open("./data/landmarks.dat");
+	stream_g.open("./data/goals.dat");
+/*	stream_lm.open("./data/landmarks.dat");
 	stream_p.open("./data/pipes.dat");
 	stream_food.open("./data/food.dat");*/
 
 	/*** SET UP AGENTS ***/
 	for(unsigned int i = 0; i < num_agents; i++){
-		Agent * const agent = new Agent(inv_sampling_rate);
+		Agent * const agent = new Agent(VERBOSE);
 		agent_list.push_back(agent);
 	}
 
-/*	** SET UP GOALS **
+	/** SET UP GOALS **/
 	for(unsigned int i = 0; i < num_goals; i++){
 		add_goal(max_radius);
 	}
 
-	** SET UP LANDMARKS **
+	/** SET UP LANDMARKS **/
 	for(unsigned int i = 0; i < num_landmarks; i++){
 		add_landmark(max_radius);
-	}*/
+	}
 }
 
 Environment::~Environment(){
@@ -69,15 +72,16 @@ Environment::~Environment(){
 	stream_h.close();
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		delete agent_list.at(i);
-	/*for(unsigned int i = 0; i < goal_list.size(); i++){
+	for(unsigned int i = 0; i < goal_list.size(); i++){
 		stream_g << goal_list.at(i)->x() << "\t"
 				 << goal_list.at(i)->y() << "\t"
-				 << goal_list.at(i)->total() << "\t"
+				 //<< goal_list.at(i)->total() << "\t"
 				 << goal_list.at(i)->color()
 				 << endl;
 		delete goal_list.at(i);
 	}
 	stream_g.close();
+	/*
 	for(unsigned int i = 0; i < landmark_list.size(); i++){
 		stream_lm << landmark_list.at(i)->x() << "\t"
 				  << landmark_list.at(i)->y() << "\t"
@@ -99,16 +103,29 @@ Environment::~Environment(){
 	stream_food.close();*/
 }
 
-/*void Environment::add_goal(double x, double y, int color){
-	Goal* goal = new Goal(x,y,color);
-	goal_list.push_back(goal);
-}*/
+Agent* Environment::a(int i){
+	return agent_list.at(i);
+}
 
-/*void Environment::add_goal(double max_radius){
+void Environment::a(double x, double y){
+	add_agent(x,y);
+}
+
+void Environment::add_agent(double x, double y){
+	Agent * const agent = new Agent(x,y);
+	agent_list.push_back(agent);
+}
+
+void Environment::add_goal(double x, double y, int color){
+	Goal* goal = new Goal(x,y,VERBOSE,color);
+	goal_list.push_back(goal);
+}
+
+void Environment::add_goal(double max_radius){
 	flag = false;
 	Goal* goal;
 	while(!flag){
-		goal = new Goal(max_radius);
+		goal = new Goal(max_radius,VERBOSE);
 		if(goal_list.size()==0)
 			flag = true;
 		count = 0;
@@ -120,23 +137,23 @@ Environment::~Environment(){
 		if(count==goal_list.size())
 			flag = true;
 		if(!flag){
-			//cout << "Warning: Goal too close to each other.\n";
+			(VERBOSE)?printf("\nWARNING: Goal too close to each other.\nGOAL DELETED\n\n"):VERBOSE;
 			delete goal;
 		}
 	}
 	goal_list.push_back(goal);
-}*/
+}
 
-/*void Environment::add_landmark(double x, double y){
-	Landmark* lm = new Landmark(x,y);
+void Environment::add_landmark(double x, double y){
+	Landmark* lm = new Landmark(x,y,VERBOSE);
 	landmark_list.push_back(lm);
-}*/
+}
 
-/*void Environment::add_landmark(double max_radius){
+void Environment::add_landmark(double max_radius){
 	Landmark* landmark;
 	flag = false;
 	while(!flag){
-		landmark = new Landmark(max_radius);
+		landmark = new Landmark(max_radius,VERBOSE);
 		if(landmark_list.size()==0)
 			flag = true;
 		count = 0;
@@ -153,21 +170,17 @@ Environment::~Environment(){
 		if(count==goal_list.size()+landmark_list.size())
 			flag = true;
 		if(!flag){
-			//cout << "Warning: Landmark too close to each other.\n";
+			(VERBOSE)?printf("\nWARNING: Landmark too close to each other.\nLANDMARK DELETED\n\n"):VERBOSE;
 			delete landmark;
 		}
 	}
 	landmark_list.push_back(landmark);
-}*/
+}
 
 /*void Environment::add_pipe(double x0, double x1, double y0, double y1){
 	Pipe* pipe = new Pipe(x0,x1,y0,y1);
 	pipe_list.push_back(pipe);
 }*/
-
-Agent* Environment::a(int i){
-	return agent_list.at(i);
-}
 
 /*int Environment::color(){
 	if(goal_list.size()>0){
@@ -179,21 +192,23 @@ Agent* Environment::a(int i){
 		return 0;
 }*/
 
-/*double Environment::d(Goal* g1, Goal* g2){
-	return sqrt(d(g1->x(),g2->x()) + d(g1->y(),g2->y()));
+double Environment::d(Object* o1, Object* o2){
+	double rxsqr = pow(o1->pos.x-o2->pos.x,2);
+	double rysqr = pow(o1->pos.y-o2->pos.y,2);
+	return sqrt(rxsqr+rysqr);
 }
 
-double Environment::d(Landmark* lm1, Goal* g2){
+/*double Environment::d(Landmark* lm1, Goal* g2){
 	return sqrt(d(lm1->x(),g2->x()) + d(lm1->y(),g2->y()));
 }
 
 double Environment::d(Landmark* lm1, Landmark* lm2){
 	return sqrt(d(lm1->x(),lm2->x()) + d(lm1->y(),lm2->y()));
-}
+}*/
 
 double Environment::d(double x0, double x1){
 	return pow(x0-x1,2);
-}*/
+}
 
 /*int Environment::get_hits(){
 	int sum = 0;
@@ -302,4 +317,10 @@ double Environment::x(int i){
 
 double Environment::y(int i){
 	return agent_list.at(i)->y();
+}
+
+Environment * env;
+
+int main(){
+	env = new Environment(10, 30, 10.);
 }

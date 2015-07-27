@@ -30,9 +30,9 @@
 #include "agent.h"
 using namespace std;
 
-Agent::Agent(double x, double y, bool in_verbose){
-	verbose = in_verbose;
-	if(verbose) cout << "Create AGENT" << endl;
+Agent::Agent(bool in_verbose, double x, double y){
+	VERBOSE = in_verbose;
+	(VERBOSE)?printf("\nCREATE AGENT at (%g, %g)\n\n", x, y):VERBOSE;
 
 	x_position = x;
 	y_position = y;
@@ -46,6 +46,7 @@ Agent::Agent(double x, double y, bool in_verbose){
 	distance = 0.0;
 	theta = 0.0;
 
+	inward = false;
 	in_pipe = false;
 }
 
@@ -69,9 +70,22 @@ double Agent::dphi(){
 	return diff_heading;
 }
 
-void Agent::init(Controller* control){
-	this->control = control;
+//double Agent::HV(int index){
+//	if(index==0)
+//		return control->HV()->x();
+//	if(index==1)
+//		return control->HV()->y();
+//	else
+//		return control->HV()->avg();
+//}
+
+bool Agent::in(){
+	return inward;
 }
+
+//void Agent::init(Controller* control){
+//	this->control = control;
+//}
 
 double Agent::phi(){
 	return heading;
@@ -87,6 +101,8 @@ void Agent::reset(){
 	x_position = 0.;
 	y_position = 0.;
 	heading = rand(-M_PI, M_PI);
+	inward = false;
+	//control->reset();
 }
 
 void Agent::set_dphi(double input){
@@ -97,8 +113,8 @@ void Agent::set_phi(double input){
 	heading = input;
 }
 
-void Agent::set_type(int input){
-	type = input;
+void Agent::set_inward(bool input){
+	inward = input;
 }
 
 void Agent::set_x(double input){
@@ -119,7 +135,8 @@ void Agent::to(double x_new, double y_new){
 }
 
 void Agent::update(){
-	control_output = control->update(heading, speed, 0.0, 0);
+	//control->set_inward(inward);
+	//control_output = control->update(heading, speed, 0.0, 0);
 	if(!in_pipe)
 		diff_heading = dt * k_phi * control_output + external;
 	else

@@ -30,7 +30,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "controller.h"
+//#include "controller.h"
 using namespace std;
 
 
@@ -51,10 +51,10 @@ public:
 	 *
 	 * @param (double) start_x: initial x position of agent (default: 0.0)
 	 * @param (double) start_y: initial y position of agent (default: 0.0)
-	 * @param (int) mySampling: sampling interval for writing data into file
+	 * @param (bool) in_verbose: debugging
 	 * @return (class object)
 	 */
-	Agent(double start_x=0.0, double start_y=0.0, bool in_verbose=false);
+	Agent(bool in_verbose=false, double start_x=0.0, double start_y=0.0);
 
 	/**
 	 * Destructor
@@ -86,7 +86,27 @@ public:
 	 */
 	double dphi();
 
-	void init(Controller* control);
+	/**
+	 * Returns estimated home vector of the agent (0 == x, 1 == y)
+	 *
+	 * @param (int) index of home vector
+	 * @return (bool)
+	 */
+	//double HV(int index);
+
+	/**
+	 * Returns the foraging state of the agent (TRUE, if inward)
+	 *
+	 * @return (bool)
+	 */
+	bool in();
+
+	/**
+	 * Initializes internal controller
+	 *
+	 *  @return (void)
+	 */
+	//void init(Controller* control);
 
 	/**
 	 * Sets write option to false -> no writing to file
@@ -137,10 +157,10 @@ public:
 	/**
 	 * Sets the foraging state of agent
 	 *
-	 * @param (int) input: foraging state
+	 * @param (bool) input: foraging state (TRUE, if inward)
 	 * @return (void)
 	 */
-	void set_type(int input);
+	void set_inward(bool input);
 
 	/**
 	 * Sets the x position of the agent
@@ -228,7 +248,7 @@ public:
 private:
 
 	//************ Class object ************//
-	Controller* control;
+	//Controller* control;
 
 	//************ Kinematics parameters ************//
 
@@ -246,9 +266,10 @@ private:
 	double distance;		// Distance to home position
 	const double dt = 0.1;	// Integration time
 	int type;               // Goal type
+	bool inward;			// State of foraging (TRUE = towards home)
 
-	//************ IO parameters ************//
-	bool verbose;
+	//************ debugging ************//
+	bool VERBOSE;
 };
 
 #endif /* AGENT_H_ */

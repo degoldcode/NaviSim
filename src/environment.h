@@ -29,8 +29,8 @@
 #define ENVIRONMENT_H_
 
 #include "agent.h"
-//#include "goal.h"
-//#include "landmark.h"
+#include "goal.h"
+#include "landmark.h"
 //#include "pipe.h"
 #include <algorithm>
 #include <vector>
@@ -83,6 +83,32 @@ public:
 	//************ Class functions ************//
 
 	/**
+	 * Returns agent pointer with given index
+	 *
+	 *	@param (int) i: index of agent (default: 0)
+	 *	@return (Agent*)
+	 */
+	Agent* a(int i=0);
+
+	/**
+	 * Adds an agent at position (x,y)
+	 *
+	 *	@param (double) x: x position of agent (default: 0)
+	 *	@param (double) y: y position of agent (default: 0)
+	 *	@return (void)
+	 */
+	void a(double x=0., double y=0.);
+
+	/**
+	 * Adds an agent at position (x,y)
+	 *
+	 *	@param (double) x: x position of agent
+	 *	@param (double) y: y position of agent
+	 *	@return (void)
+	 */
+	void add_agent(double x, double y);
+
+	/**
 	 * Adds a goal at position (x,y) with color
 	 *
 	 * 	@param (double) x: x postion of goal
@@ -90,7 +116,7 @@ public:
 	 * 	@param (int) color: color index of goal (default: 0)
 	 * 	@return (void)
 	 */
-	//void add_goal(double x, double y, int color = 0);
+	void add_goal(double x, double y, int color = 0);
 
 	/**
 	 * Adds a randomly placed goal
@@ -98,7 +124,7 @@ public:
 	 *	@param (double) max_radius: maximum radius of placement
 	 * 	@return (void)
 	 */
-	//void add_goal(double max_radius);
+	void add_goal(double max_radius);
 
 	/**
 	 * Adds a landmark at position (x,y)
@@ -107,7 +133,7 @@ public:
 	 * 	@param (double) y: y postion of goal
 	 * 	@return (void)
 	 */
-	//void add_landmark(double x, double y);
+	void add_landmark(double x, double y);
 
 	/**
 	 * Adds a randomly placed landmark
@@ -115,7 +141,7 @@ public:
 	 *	@param (double) max_radius: maximum radius of placement
 	 * 	@return (void)
 	 */
-	//void add_landmark(double max_radius);
+	void add_landmark(double max_radius);
 
 	/**
 	 * Adds a pipe from (x0,y0) to (x1,y1)
@@ -129,14 +155,6 @@ public:
 	//void add_pipe(double x0, double y0, double x1, double y1);
 
 	/**
-	 * Returns agent pointer with given index
-	 *
-	 *	@param (int) i: index of agent (default: 0)
-	 *	@return (Agent*)
-	 */
-	Agent* a(int i=0);
-
-	/**
 	 * Returns color index of nearest goal
 	 *
 	 *	@return (int)
@@ -144,34 +162,13 @@ public:
 	//int color();
 
 	/**
-	 * Returns the distance between two given goals
-	 * TODO: create abstract object class to reduce code
+	 * Returns the distance between two given objects
 	 *
-	 * 	@param (Goal*) g1: first goal
-	 * 	@param (Goal*) g2: second goal
+	 * 	@param (Object*) g1: first object
+	 * 	@param (Object*) g2: second object
 	 * 	@return (double)
 	 */
-	//double d(Goal* g1, Goal* g2);
-
-	/**
-	 * Returns the distance between a landmark and goal
-	 * TODO: create abstract object class to reduce code
-	 *
-	 * 	@param (Goal*) lm1: first landmark
-	 * 	@param (Goal*) g2: second goal
-	 * 	@return (double)
-	 */
-	//double d(Landmark* lm1, Goal* g2);
-
-	/**
-	 * Returns the distance between two given goals
-	 * TODO: create abstract object class to reduce code
-	 *
-	 * 	@param (Goal*) g1: first goal
-	 * 	@param (Goal*) g2: second goal
-	 * 	@return (double)
-	 */
-	//double d(Landmark* lm1, Landmark* lm2);
+	double d(Object* o1, Object* o2);
 
 	/**
 	 * Returns the distance between two points x0, x1 in 2D plane
@@ -324,8 +321,8 @@ private:
 
 	//************ Object containers ************//
 	vector<Agent*> agent_list;
-	//vector<Goal*> goal_list;
-	//vector<Landmark*> landmark_list;
+	vector<Goal*> goal_list;
+	vector<Landmark*> landmark_list;
 	//vector<Pipe*> pipe_list;
 
 	//************ output file streams ************//
@@ -334,6 +331,9 @@ private:
 	ofstream stream_p;		//pipe positions
 	ofstream stream_h;		//home positions
 	ofstream stream_food;	//amount of food at goals over time
+
+	//************ debugging ************//
+	const bool VERBOSE = false;
 };
 
 #endif /* ENVIRONMENT_H_ */
