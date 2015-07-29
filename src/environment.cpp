@@ -318,9 +318,3 @@ double Environment::x(int i){
 double Environment::y(int i){
 	return agent_list.at(i)->y();
 }
-
-Environment * env;
-
-int main(){
-	env = new Environment(10, 30, 10.);
-}

@@ -246,10 +246,11 @@ double Controller::update(double angle, double speed, double inReward, int color
 
 
 	/*** Navigation Control Output ***/
-	if(!inward)
-		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
-	else
-		output = pi_command;
+	output = 4.*randn(0.0, 0.15)*expl_factor(0);
+//	if(!inward)
+//		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
+//	else
+//		output = pi_command;
 	t++;
 
 	return output;

@@ -1,8 +1,8 @@
 /*
- * test_phase1.cpp
+ * test_random_foraging.cpp
  *
- *  Created on: Nov 18, 2014
- *      Author: degoldschmidt
+ *  Created on: 28.07.2015
+ *      Author: meicron
  */
 
 #include "../src/simulation.h"
@@ -15,19 +15,20 @@ using namespace std;
 
 Simulation* sim;
 const int numagents= 1;
-const int numtrials= 1;
+const int numtrials= 1000;
 const double T= 1000.;
 const double dt= 0.1;
-
 
 int main(){
 	Timer timer(true);
 
 	sim = new Simulation(numagents, true);
-	sim->init_controller(360, 0.00, 0.00);
+	sim->init_controller(16, 0.00, 0.00);
 	sim->run(numtrials, T, dt);
 	delete sim;
 	auto elapsed_secs_cl = timer.Elapsed();
 
 	printf("%4.3f s. Done.\n", elapsed_secs_cl.count()/1000.);
 }
+
+

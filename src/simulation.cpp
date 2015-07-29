@@ -33,8 +33,9 @@ Simulation::Simulation(int in_agents, bool random_env){
 
 	environment = (rand_env ? new Environment(ngs, nlms, m_rad, agents) : new Environment(agents));
 
-	global_time = 0.0;
-	trial_time = 0.0;
+	trial = 1;
+	global_t = 0.0;
+	trial_t = 0.0;
 	timestep = 0;
 	count_home = 0;
 	avg_error = 0.0;
@@ -73,41 +74,50 @@ void Simulation::reset(){
 void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 	T = in_duration;
 	dt = in_interval;
+	global_t = 0.0;
 
-	for(int trial_num= 0; trial_num < in_numtrials; trial_num++){
+	for(; trial < in_numtrials+1; trial++){
 		reset();
-		int tstep = 0;
+		timestep = 0;
+		trial_t = 0.;
 		avg_error = 0.;
-		while(tstep*dt< T){
-			agent_str << tstep*dt+trial_num*T;
-			if(tstep*dt > T/2)
-				a(0)->set_inward(true);
-			//printf("t = %4.2f s\tinward = %d\tdistance = %2.3f\t(x,y) = (%2.3f,%2.3f)\t(xHV,yHV) = (%2.3f,%2.3f)\n",tstep*dt,a(0)->in(),a(0)->d(),a(0)->x(),a(0)->y(),a(0)->HV(0),a(0)->HV(1));
-			if(a(0)->d()<0.2 && a(0)->in()){
-				count_home++;
-				break;
-			}
-			//double control_output =
+		while(trial_t < T){
+			writeTrialData();
+			timestep++;
+			trial_t += dt;
+			global_t += dt;
+
 			update();
+			//printf("t = %f\toutput = %f\n", timestep*dt, a(0)->dphi());
 			if(a(0)->in())
 				avg_error += abs(a(0)->HV(2)-a(0)->th());
-			tstep++;
 		}
-		avg_error /= (tstep-(T/(2*dt)));
+		writeSimData();
+		avg_error /= (timestep-(T/(2*dt)));
 		travg_error += avg_error;
-		printf("Trial = %u\tHoming success rate = %1.5f\tTotal error = %3.3f\tTrial error = %3.3f\n", trial_num+1, 1.0*count_home/(1.0*(trial_num+1)), 180.*(travg_error/(trial_num+1))/M_PI, 180.*avg_error/M_PI);
-		for(unsigned int i= 0; i< agents; i++){
-			endpts_str << "\t" << a(i)->x()<< "\t" << a(i)->y();
-		}
-		endpts_str << endl;
+		if(trial%100==0)
+			printf("Trial = %u\tHoming success rate = %1.5f\tTotal error = %3.3f\tTrial error = %3.3f\n", trial, 1.0*count_home/(1.0*(trial)), 180.*(travg_error/trial)/M_PI, 180.*avg_error/M_PI);
 	}
 	travg_error /= in_numtrials;
 }
 
 void Simulation::update(){
+	environment->update();
+}
+
+void Simulation::writeSimData(){
+	endpts_str << trial;
+	for(unsigned int i= 0; i< agents; i++){
+		endpts_str << "\t" << a(i)->x()<< "\t" << a(i)->y() << "\t" << a(i)->d();
+	}
+	endpts_str << endl;
+}
+
+void Simulation::writeTrialData(){
+	agent_str << trial << "\t" << trial_t;
 	for(unsigned int i= 0; i< agents; i++){
 		agent_str << "\t" << a(i)->x()<< "\t" << a(i)->y();
 	}
 	agent_str << endl;
-	environment->update();
 }
+

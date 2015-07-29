@@ -30,7 +30,7 @@
 
 #include <iostream>
 #include <fstream>
-//#include "controller.h"
+#include "controller.h"
 using namespace std;
 
 
@@ -92,7 +92,7 @@ public:
 	 * @param (int) index of home vector
 	 * @return (bool)
 	 */
-	//double HV(int index);
+	double HV(int index);
 
 	/**
 	 * Returns the foraging state of the agent (TRUE, if inward)
@@ -106,7 +106,7 @@ public:
 	 *
 	 *  @return (void)
 	 */
-	//void init(Controller* control);
+	void init(Controller* control);
 
 	/**
 	 * Sets write option to false -> no writing to file
@@ -248,7 +248,7 @@ public:
 private:
 
 	//************ Class object ************//
-	//Controller* control;
+	Controller* control;
 
 	//************ Kinematics parameters ************//
 

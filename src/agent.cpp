@@ -70,22 +70,22 @@ double Agent::dphi(){
 	return diff_heading;
 }
 
-//double Agent::HV(int index){
-//	if(index==0)
-//		return control->HV()->x();
-//	if(index==1)
-//		return control->HV()->y();
-//	else
-//		return control->HV()->avg();
-//}
+double Agent::HV(int index){
+	if(index==0)
+		return control->HV()->x();
+	if(index==1)
+		return control->HV()->y();
+	else
+		return control->HV()->avg();
+}
 
 bool Agent::in(){
 	return inward;
 }
 
-//void Agent::init(Controller* control){
-//	this->control = control;
-//}
+void Agent::init(Controller* control){
+	this->control = control;
+}
 
 double Agent::phi(){
 	return heading;
@@ -136,7 +136,7 @@ void Agent::to(double x_new, double y_new){
 
 void Agent::update(){
 	//control->set_inward(inward);
-	//control_output = control->update(heading, speed, 0.0, 0);
+	control_output = control->update(heading, speed, 0.0, 0);
 	if(!in_pipe)
 		diff_heading = dt * k_phi * control_output + external;
 	else

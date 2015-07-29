@@ -58,7 +58,7 @@ public:
 	Simulation(/*string in_param_type, */int in_agents, bool random_env);
 
 	/**
-	 * Destructor
+	 * Destructor. Closes IO file streams.
 	 *
 	 */
 	~Simulation();
@@ -84,7 +84,27 @@ public:
 	 */
 	void run(int in_numtrials, double in_duration, double in_interval);
 
+	/**
+	 * Updates simulation by one time step
+	 *
+	 * @return (void)
+	 */
 	void update();
+
+	/**
+	 * Writes global data into files (all trials)
+	 *
+	 * @return (void)
+	 */
+	void writeSimData();
+
+	/**
+	 * Writes trial data into files
+	 *
+	 * @return (void)
+	 */
+	void writeTrialData();
+
 
 private:
 
@@ -122,10 +142,11 @@ private:
 
 	//************ Timing parameters ************//
 
-	double global_time;		// continuous time during multiple cycles
-	double trial_time;		// continuous time for each trial
-	double dt;				// integration time
-	int timestep;			// discrete time steps
+	int trial;              // trial number
+	double global_t;        // continuous time during multiple cycles
+	double trial_t;         // continuous time for each trial
+	double dt;              // integration time
+	int timestep;           // discrete time steps
 };
 
 
