@@ -92,11 +92,15 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			if(a(0)->in())
 				avg_error += abs(a(0)->HV(2)-a(0)->th());
 		}
-		writeSimData();
-		avg_error /= (timestep-(T/(2*dt)));
-		travg_error += avg_error;
-		if(trial%100==0)
-			printf("Trial = %u\tHoming success rate = %1.5f\tTotal error = %3.3f\tTrial error = %3.3f\n", trial, 1.0*count_home/(1.0*(trial)), 180.*(travg_error/trial)/M_PI, 180.*avg_error/M_PI);
+		if(in_numtrials > 1){
+			avg_length(a(0)->d());
+			writeSimData();
+			avg_error /= (timestep-(T/(2*dt)));
+			travg_error += avg_error;
+			if(trial%(in_numtrials/10)==0)
+				printf("Trial = %u\tAvg Length = %1.5f\tVar Length = %3.3f\n", trial, avg_length.max(), avg_length.var());
+		}
+
 	}
 	travg_error /= in_numtrials;
 }
@@ -115,9 +119,7 @@ void Simulation::writeSimData(){
 
 void Simulation::writeTrialData(){
 	agent_str << trial << "\t" << trial_t;
-	for(unsigned int i= 0; i< agents; i++){
-		agent_str << "\t" << a(i)->x()<< "\t" << a(i)->y();
-	}
+	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y() << "\t" << a(0)->d() << "\t" << a(0)->dphi(); // TODO: different streams for different agents
 	agent_str << endl;
 }
 

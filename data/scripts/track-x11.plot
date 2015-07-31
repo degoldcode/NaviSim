@@ -27,7 +27,7 @@ col(x) = int(255*x)*65536 + int(68+170*x)*256 + int(255*(1-x))
 
 #plot for [cole=3:columns:2] '../agent.dat' \
 #	u cole:cole+1:2 \
-#	w p pt 7 ps 0.6 lc palette t "", "../goals.dat" u 1:2:(0.2):(col($4)) w circles fs solid border rgb "black" lc rgb var t "Goal", "../home.dat" u 1:2:(0.2) w circles fs solid border rgb "black" lc rgb "gray" t "Goal", '../endpoints.dat' w p pt 7 ps 0.6 lc rgb "red" t ""  
+#	w p pt 7 ps 0.6 lc palette t "", "../goals.dat" u 1:2:(1.):(col($4)) w circles fs solid border rgb "black" lc rgb var t "Goal", "../home.dat" u 1:2:(0.2) w circles fs solid border rgb "black" lc rgb "gray" t "Goal", '../endpoints.dat' w p pt 7 ps 0.6 lc rgb "red" t ""  
 plot '../endpoints.dat' u 2:3 w p pt 7 ps 1.5 lc rgb "red" t "" 
 set output
 

@@ -34,6 +34,7 @@
 #include <sstream>
 #include <cstdio>
 #include <cmath>
+#include <vector>
 #include "environment.h"
 #include "controller.h"
 
@@ -134,6 +135,10 @@ private:
 	ofstream endpts_str;
 
 	//************ Evaluation parameters ************//
+
+
+	/// Foraging parameters
+	running_stat<double> avg_length;
 
 	int count_home;
 	double avg_error;
