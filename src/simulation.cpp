@@ -33,13 +33,15 @@ Simulation::Simulation(int in_agents, bool random_env){
 
 	environment = (rand_env ? new Environment(ngs, nlms, m_rad, agents) : new Environment(agents));
 
+	T = 0.;
+	dt = 0.;
 	trial = 1;
-	global_t = 0.0;
-	trial_t = 0.0;
+	global_t = 0.;
+	trial_t = 0.;
 	timestep = 0;
 	count_home = 0;
-	avg_error = 0.0;
-	travg_error = 0.0;
+	avg_error = 0.;
+	travg_error = 0.;
 
 	agent_str.open("data/agent.dat");
 	endpts_str.open("data/endpoints.dat");
@@ -68,6 +70,9 @@ void Simulation::init_controller(int num_neurons, double sensory_noise, double l
 }
 
 void Simulation::reset(){
+	timestep = 0;
+	trial_t = 0.;
+	avg_error = 0.;
 	environment->reset();
 }
 
@@ -78,26 +83,20 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 
 	for(; trial < in_numtrials+1; trial++){
 		reset();
-		timestep = 0;
-		trial_t = 0.;
-		avg_error = 0.;
 		while(trial_t < T){
 			writeTrialData();
-			timestep++;
-			trial_t += dt;
-			global_t += dt;
-
 			update();
-			//printf("t = %f\toutput = %f\n", timestep*dt, a(0)->dphi());
+
 			if(a(0)->in())
 				avg_error += abs(a(0)->HV(2)-a(0)->th());
 		}
+
 		if(in_numtrials > 1){
 			avg_length(a(0)->d());
 			writeSimData();
 			avg_error /= (timestep-(T/(2*dt)));
 			travg_error += avg_error;
-			if(trial%(in_numtrials/10)==0)
+			if(in_numtrials > 9 && trial%(in_numtrials/10)==0)
 				printf("Trial = %u\tAvg Length = %1.5f\tVar Length = %3.3f\n", trial, avg_length.max(), avg_length.var());
 		}
 
@@ -106,6 +105,9 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 }
 
 void Simulation::update(){
+	timestep++;
+	trial_t += dt;
+	global_t += dt;
 	environment->update();
 }
 

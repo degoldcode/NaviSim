@@ -116,7 +116,6 @@ private:
 
 	//************ Simulation parameters ************//
 
-	int total_runs;
 	double T;						// maximum time for a trial
 
 	//************ Environment parameters ************//
