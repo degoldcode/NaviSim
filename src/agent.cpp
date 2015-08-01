@@ -30,12 +30,10 @@
 #include "agent.h"
 using namespace std;
 
-Agent::Agent(bool in_verbose, double x, double y){
+Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
 	VERBOSE = in_verbose;
 	(VERBOSE)?printf("\nCREATE AGENT at (%g, %g)\n\n", x, y):VERBOSE;
 
-	x_position = x;
-	y_position = y;
 	heading = rand(-M_PI, M_PI);		// random initial orientation
 	speed = 0.1;
 
@@ -43,8 +41,6 @@ Agent::Agent(bool in_verbose, double x, double y){
 	k_s = 0.01;
 	diff_heading = 0.0;
 	external = 0.0;
-	distance = 0.0;
-	theta = 0.0;
 
 	inward = false;
 	in_pipe = false;
@@ -53,20 +49,7 @@ Agent::Agent(bool in_verbose, double x, double y){
 Agent::~Agent(){
 }
 
-double Agent::bound(double angle){
-	double rphi = angle;
-	while(rphi > M_PI)
-		rphi -= 2 * M_PI;
-	while(rphi < - M_PI)
-		rphi += 2 * M_PI;
-	return rphi;
-}
-
-double Agent::d(){
-	return distance;
-}
-
-double Agent::dphi(){
+Angle Agent::dphi(){
 	return diff_heading;
 }
 
@@ -87,14 +70,8 @@ void Agent::init(Controller* control){
 	this->control = control;
 }
 
-double Agent::phi(){
+Angle Agent::phi(){
 	return heading;
-}
-
-double Agent::rand(double min, double max){
-	static random_device e{};
-	static uniform_real_distribution<double> d(min, max);
-	return d(e);
 }
 
 void Agent::reset(){
@@ -110,33 +87,21 @@ void Agent::set_dphi(double input){
 }
 
 void Agent::set_phi(double input){
-	heading = input;
+	heading.setTo(input);
 }
 
 void Agent::set_inward(bool input){
 	inward = input;
 }
 
-void Agent::set_x(double input){
-	x_position = input;
-}
-
-void Agent::set_y(double input){
-	y_position = input;
-}
-
-double Agent::th(){
-	return theta;
-}
-
 void Agent::to(double x_new, double y_new){
-	x_position = x_new;
-	y_position = y_new;
+	x(x_new);
+	y(y_new);
 }
 
 void Agent::update(){
 	//control->set_inward(inward);
-	control_output = control->update(heading, speed, 0.0, 0);
+	control_output = control->update(heading.rad(), speed, 0.0, 0);
 	if(!in_pipe)
 		diff_heading = dt * k_phi * control_output + external;
 	else
@@ -144,25 +109,14 @@ void Agent::update(){
 	external = 0.0;
 
 	heading += diff_heading;
-	heading = bound(heading);
 
 	diff_speed = dt * k_s * 0.0;
 	speed += diff_speed;
 
 	x_position += dt * speed * cos(heading);
 	y_position += dt * speed * sin(heading);
-	distance = sqrt(pow(x_position,2)+pow(y_position,2));
-	theta = bound(atan2(y_position,x_position));
 }
 
-double Agent::v(){
+double Agent::s(){
 	return speed;
-}
-
-double Agent::x(){
-	return x_position;
-}
-
-double Agent::y(){
-	return y_position;
 }

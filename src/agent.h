@@ -43,7 +43,7 @@ using namespace std;
  *
  */
 
-class Agent {
+class Agent : public Object {
 public:
 
 	/**
@@ -54,7 +54,7 @@ public:
 	 * @param (bool) in_verbose: debugging
 	 * @return (class object)
 	 */
-	Agent(bool in_verbose=false, double start_x=0.0, double start_y=0.0);
+	Agent(bool in_verbose = false, double x_0 = 0.0, double y_0 = 0.0);
 
 	/**
 	 * Destructor
@@ -65,34 +65,18 @@ public:
 	//************ Class functions ************//
 
 	/**
-	 * Returns angle within bounds [-PI,PI]
-	 *
-	 * @param (double) angle: input angle
-	 * @return (double)
-	 */
-	double bound(double angle);
-
-	/**
-	 * Returns distance to home
-	 *
-	 * @return (double)
-	 */
-	double d();
-
-	/**
 	 * Returns difference in heading direction of agent
 	 *
-	 * @return (double)
+	 * @return (Angle)
 	 */
-	double dphi();
+	Angle dphi();
 
 	/**
 	 * Returns estimated home vector of the agent (0 == x, 1 == y)
 	 *
-	 * @param (int) index of home vector
-	 * @return (bool)
+	 * @return (Vec)
 	 */
-	double HV(int index);
+	Vec HV();
 
 	/**
 	 * Returns the foraging state of the agent (TRUE, if inward)
@@ -118,18 +102,9 @@ public:
 	/**
 	 * Returns heading direction of agent
 	 *
-	 * @return (double)
+	 * @return (Angle)
 	 */
-	double phi();
-
-	/**
-	 * Returns a random number drawn from a uniform distribution
-	 *
-	 * @param (double) min: lower bound of the distribution (default: 0.0)
-	 * @param (double) max: upper bound of the distribution (default: 1.0)
-	 * @return (double)
-	 */
-	double rand(double min, double max);
+	Angle phi();
 
 	/**
 	 * Resets the agent to the home position at (0.,0.)
@@ -137,6 +112,13 @@ public:
 	 * @return (void)
 	 */
 	void reset();
+
+	/**
+	 * Returns the linear speed of the agent
+	 *
+	 * @return (double)
+	 */
+	double s();
 
 	/**
 	 * Sets the difference in heading direction of the agent
@@ -163,34 +145,11 @@ public:
 	void set_inward(bool input);
 
 	/**
-	 * Sets the x position of the agent
-	 *
-	 * @param (double) input: new x position
-	 * @return (void)
-	 */
-	void set_x(double input);
-
-	/**
-	 * Sets the y position of the agent
-	 *
-	 * @param (double) input: new y position
-	 * @return (void)
-	 */
-	void set_y(double input);
-
-	/**
 	 * Returns global time
 	 *
 	 * @return (double)
 	 */
 	double t();
-
-	/**
-	 * Returns angle of home vector w.r.t. x-axis
-	 *
-	 * @return (double)
-	 */
-	double th();
 
 	/**
 	 * Transposes the agent to a new position given by (x_new, y_new)
@@ -217,28 +176,6 @@ public:
 	 */
 	void update();
 
-	/**
-	 * Returns the linear speed of the agent
-	 *
-	 * @return (double)
-	 */
-	double v();
-
-	/**
-	 * Returns the x coordinate of the agent
-	 *
-	 * @return (double)
-	 */
-	double x();
-
-	/**
-	 * Returns the y coordinate of the agent
-	 *
-	 * @return (double)
-	 */
-	double y();
-
-
 	//************ Public class parameters ************//
 
 	bool in_pipe;			// status if agent is in pipe [TRUE = agent is in a pipe; FALSE = it's free!]
@@ -253,17 +190,13 @@ private:
 	//************ Kinematics parameters ************//
 
 	double control_output;
-	double x_position;      // X position of agent
-	double y_position;      // Y position of agent
-	double heading;         // Angle of heading direction (in rad; ccw from x-axis)
+	Angle heading;         // Angle of heading direction (in rad; ccw from x-axis)
 	double speed;           // Walking speed of agent
 	double k_phi;           // Steering constant
 	double k_s;             // Acceleration constant
-	double diff_heading;    // Change in heading direction (in rad)
+	Angle diff_heading;    // Change in heading direction (in rad)
 	double external;		// External change in heading direction (in rad)
 	double diff_speed;      // Change in walking speed of agent
-	double theta;			// Angle of direction to home position (in rad)
-	double distance;		// Distance to home position
 	const double dt = 0.1;	// Integration time
 	int type;               // Goal type
 	bool inward;			// State of foraging (TRUE = towards home)

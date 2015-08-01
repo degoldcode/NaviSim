@@ -192,7 +192,7 @@ public:
 	 *	@param (int) i: goal index
 	 * 	@return (int)
 	 */
-	//int get_hits(int i);
+	//void get_hits();
 
 	/**
 	 * Returns sum of reward given during the trial
@@ -289,6 +289,13 @@ public:
 	 *	@return (void)
 	 */
 	void update_agents();
+
+	/**
+	 * Updates any collisions between objects
+	 *
+	 *	@return (void)
+	 */
+	void update_collisions();
 
 	/**
 	 * Returns x position of agent i

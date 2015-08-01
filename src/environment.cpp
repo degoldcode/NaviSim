@@ -46,8 +46,8 @@ Environment::Environment(int num_goals, int num_landmarks, double max_radius, in
 	inv_sampling_rate = 1;
 	stream_h.open("./data/home.dat");
 	stream_g.open("./data/goals.dat");
-/*	stream_lm.open("./data/landmarks.dat");
-	stream_p.open("./data/pipes.dat");
+	stream_lm.open("./data/landmarks.dat");
+/*	stream_p.open("./data/pipes.dat");
 	stream_food.open("./data/food.dat");*/
 
 	/*** SET UP AGENTS ***/
@@ -308,6 +308,18 @@ void Environment::update_agents(){
 /*		for(unsigned int j = 0; j < pipe_list.size(); j++)
 			agent_list.at(i) = pipe_list.at(j)->set_agent_pipe(agent_list.at(i));*/
 		agent_list.at(i)->update();
+	}
+}
+
+void Environment::update_collisions(){
+//	for(vector<Agent*>::const_iterator it=agent_list.begin(); it!=agent_list.end(); it++){
+//		for(vector<Goal*>::const_iterator that=goal_list.begin(); that!=goal_list.end(); that++){
+	for(unsigned int i = 0; i < agent_list.size(); i++){
+		for(unsigned int j = 0; j < goal_list.size(); j++){
+			if(d(agent_list.at(i), goal_list.at(j)) < 0.2){
+
+			}
+		}
 	}
 }
 
