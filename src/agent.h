@@ -31,6 +31,7 @@
 #include <iostream>
 #include <fstream>
 #include "controller.h"
+#include "object.h"
 using namespace std;
 
 

@@ -68,14 +68,14 @@ public:
 	//************ Class functions ************//
 
 	/**
-	 * Returns the distance of the object to the origin
+	 * Return distance of the object to the origin
 	 *
 	 * @return (double)
 	 */
 	double d();
 
 	/**
-	 * Returns the distance of the object to given position
+	 * Return distance of the object to given position
 	 *
 	 * @param (double) _x: x position to be evaluated
 	 * @param (double) _y: y position to be evaluated
@@ -85,7 +85,17 @@ public:
 	double d(double _x, double _y, double _z = 0.);
 
 	/**
-	 * Returns a random number drawn from a uniform distribution
+	 * Move position of the object by (_dx, _dy, _dz)
+	 *
+	 * @param (double) _dx: x disposition of object
+	 * @param (double) _dy: y disposition of object
+	 * @param (double) _dz: z disposition of object (default: 0.)
+	 * @return (void)
+	 */
+	void move(double _dx, double _dy, double _dz = 0.0);
+
+	/**
+	 * Return random number drawn from a uniform distribution
 	 *
 	 * @param (double) min: lower bound of the distribution (default: 0.0)
 	 * @param (double) max: upper bound of the distribution (default: 1.0)
@@ -94,35 +104,45 @@ public:
 	double rand(double min, double max);
 
 	/**
-	 * Returns the azimuthal angle of the vector from origin to the object
+	 * Return azimuthal angle of the vector from origin to the object
 	 *
 	 * @return (double)
 	 */
 	Angle th();
 
 	/**
-	 * Returns the azimuthal angle of the vector from the object to a given position
+	 * Return azimuthal angle of the vector from the object to a given position
 	 *
 	 * @return (double)
 	 */
 	Angle th(double _x, double _y);
 
 	/**
-	 * Returns the vector of the object
+	 * Move position of the object to (_x, _y, _z)
+	 *
+	 * @param (double) _x: new x position of object
+	 * @param (double) _y: new y position of object
+	 * @param (double) _z: new z position of object (default: 0.)
+	 * @return (void)
+	 */
+	void to(double _x, double _y, double _z = 0.0);
+
+	/**
+	 * Return vector of the object
 	 *
 	 * @return (Vec)
 	 */
 	Vec v();
 
 	/**
-	 * Returns the x position of the object
+	 * Return x position of the object
 	 *
 	 * 	@return (double)
 	 */
 	double x();
 
 	/**
-	 * Sets the x position of the object to _x
+	 * Set x position of the object to _x
 	 *
 	 * @param (double) _x: new x position of object
 	 * @return (double)
@@ -130,14 +150,14 @@ public:
 	void x(double _x);
 
 	/**
-	 * Returns the y position of the object
+	 * Return y position of the object
 	 *
 	 * @return (double)
 	 */
 	double y();
 
 	/**
-	 * Sets the y position of the object to _y
+	 * Set y position of the object to _y
 	 *
 	 * @param (double) _y: new y position of object
 	 * @return (double)
@@ -145,14 +165,14 @@ public:
 	void y(double _y);
 
 	/**
-	 * Returns the z position of the object
+	 * Return z position of the object
 	 *
 	 * @return (double)
 	 */
 	double z();
 
 	/**
-	 * Sets the z position of the object to _z
+	 * Set z position of the object to _z
 	 *
 	 * @param (double) _z: new z position of object
 	 * @return (double)

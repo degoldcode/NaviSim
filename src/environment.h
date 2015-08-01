@@ -274,7 +274,7 @@ public:
 	 *	@param (int) i: agent index (default: 0)
 	 * 	@return (double)
 	 */
-	double th(int i=0);
+	Angle th(int i=0);
 
 	/**
 	 * Updates the environment with given motor command

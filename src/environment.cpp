@@ -285,7 +285,7 @@ void Environment::set_mode(int in_mode){
 		goal_list.at(i)->swap();
 }*/
 
-double Environment::th(int i){
+Angle Environment::th(int i){
 	return agent_list.at(i)->th();
 }
 

@@ -15,21 +15,6 @@
 using namespace std;
 
 /**
- * Namespace math
- *
- */
-
-namespace math {
-	double fmod(double _x, double _y){
-		if(_x > 0.)
-			return std::fmod(_x,_y);
-		else
-			return _y + std::fmod(_x,_y);
-	}
-}
-
-
-/**
  * Angle Class
  *
  * 	This class creates angles and handles angle-related functions
@@ -78,7 +63,7 @@ public:
 		deg_ = &val.at(inDeg);
 		gon_ = &val.at(inGon);
 
-		val.at(inRad) = math::fmod(_val,(vmax.at(inRad)));
+		val.at(inRad) = fmod(_val,(vmax.at(inRad)));
 		convertTo(val.at(inRad), inRad);
 	}
 	Angle(double _val, int _unit)
@@ -98,7 +83,7 @@ public:
 		deg_ = &val.at(inDeg);
 		gon_ = &val.at(inGon);
 
-		val.at(_unit) = math::fmod(_val,(vmax.at(_unit)));
+		val.at(_unit) = fmod(_val,(vmax.at(_unit)));
 		convertTo(val.at(_unit), _unit);
 	}
 
@@ -116,6 +101,13 @@ public:
 			val.at(inDeg) = _val*180./200.;
 
 		}
+	}
+
+	double fmod(double _x, double _y){
+		if(_x > 0.)
+			return std::fmod(_x,_y);
+		else
+			return _y + std::fmod(_x,_y);
 	}
 
 	friend Angle operator+(Angle lhs, Angle rhs)
@@ -142,6 +134,11 @@ public:
 		Angle ra(number);
 		return ra;
 	}
+	friend ostream& operator<<(ostream& out, const Angle& a) // output
+	{
+	    out << *(a.deg_) <<  "°";
+	    return out;
+	}
 
 	void setTo(double _val, int _unit = inRad){
 		val.at(_unit) = _val;
@@ -159,6 +156,12 @@ public:
 		}
 	}
 
+	double Sin(){return sin(rad());}
+	double Cos(){return cos(rad());}
+	double S(){return sin(rad());}
+	double C(){return cos(rad());}
+
+
 	double deg(){
 		return *deg_;
 	}
@@ -170,8 +173,6 @@ public:
 	double rad(){
 		return *rad_;
 	}
-
-
 
 private:
 	double* deg_;
@@ -197,6 +198,7 @@ public:
 	~Vec(){}
 
 	Angle azimuth() { return Angle(atan2(y,x)); }
+	Angle ang(){ return azimuth();}
 	Angle elevation() { return Angle(atan2(z, len())); }
 	double len() { return sqrt(x*x+y*y+z*z); }
 

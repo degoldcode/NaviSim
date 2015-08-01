@@ -57,6 +57,12 @@ double Object::d(double x, double y, double z){
 	return rdist;
 }
 
+void Object::move(double _dx, double _dy, double _dz){
+	pos.x += _dx;
+	pos.y += _dy;
+	pos.z += _dz;
+}
+
 double Object::rand(double min, double max){
 	static random_device e{};
 	static uniform_real_distribution<double> d(min, max);
@@ -68,7 +74,13 @@ Angle Object::th(){
 }
 
 Angle Object::th(double _x, double _y){
-	return (pos-Vec(_x,_y).azimuth());
+	return (pos-Vec(_x,_y)).azimuth();
+}
+
+void Object::to(double _x, double _y, double _z){
+	pos.x = _x;
+	pos.y = _y;
+	pos.z = _z;
 }
 
 Vec Object::v(){
