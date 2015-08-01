@@ -330,9 +330,11 @@ private:
 	vector<Agent*> agent_list;
 	vector<Goal*> goal_list;
 	vector<Landmark*> landmark_list;
-	//vector<Pipe*> pipe_list;
+	vector<Pipe*> pipe_list;
+	mat collisions;
 
 	//************ output file streams ************//
+	vector<ofstream> stream_a;		//agents
 	ofstream stream_g;		//goal positions
 	ofstream stream_lm;		//landmark positions
 	ofstream stream_p;		//pipe positions

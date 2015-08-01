@@ -28,6 +28,7 @@
 #ifndef OBJECT_H_
 #define OBJECT_H_
 
+#include <random>
 #include "geom.h"
 
 /**
@@ -101,7 +102,7 @@ public:
 	 * @param (double) max: upper bound of the distribution (default: 1.0)
 	 * @return (double)
 	 */
-	double rand(double min, double max);
+	double randuu(double min, double max);
 
 	/**
 	 * Return azimuthal angle of the vector from origin to the object

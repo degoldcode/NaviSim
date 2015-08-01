@@ -25,16 +25,16 @@
  *                                                                           *
  ****************************************************************************/
 
-#include <random>
 #include "object.h"
 using namespace std;
 
 Object::Object(double max_radius, double min_radius){
-	double distance_to_origin = (max_radius-min_radius) * sqrt(rand(0.0, 1.0)) + min_radius;
-	double angle_to_x_axis = 2 * M_PI * rand(0.0, 1.0);
+	double n1 = randuu(0.0, 1.0);
+	double distance_to_origin = (max_radius-min_radius) * sqrt(n1) + min_radius;
+	double n2 = randuu(0.0, 1.0);
+	double angle_to_x_axis = 2 * M_PI * n2;
 	double x_pos = distance_to_origin * cos(angle_to_x_axis);
 	double y_pos = distance_to_origin * sin(angle_to_x_axis);
-
 	pos.set(x_pos, y_pos);
 }
 
@@ -63,10 +63,11 @@ void Object::move(double _dx, double _dy, double _dz){
 	pos.z += _dz;
 }
 
-double Object::rand(double min, double max){
-	static random_device e{};
-	static uniform_real_distribution<double> d(min, max);
-	return d(e);
+double Object::randuu(double min, double max){
+	random_device rd{};
+	mt19937 gen{rd()};
+	uniform_real_distribution<> dis{min, max};
+	return dis(gen);
 }
 
 Angle Object::th(){

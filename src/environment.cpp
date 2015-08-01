@@ -34,7 +34,7 @@ Environment::Environment(int num_agents){
 	stream_h.open("./data/home.dat");
 	stream_g.open("./data/goals.dat");
 
-	(VERBOSE)?printf("\nCREATE ENVIRONMENT WITH %u AGENTS\n\n", num_agents):VERBOSE;
+	(VERBOSE)?printf("\nCREATE %u AGENTS\n\n", num_agents):VERBOSE;
 	/*** SET UP AGENTS ***/
 	for(unsigned int i = 0; i < num_agents; i++){
 		Agent * const agent = new Agent(VERBOSE);
@@ -50,21 +50,26 @@ Environment::Environment(int num_goals, int num_landmarks, double max_radius, in
 /*	stream_p.open("./data/pipes.dat");
 	stream_food.open("./data/food.dat");*/
 
+	(VERBOSE)?printf("\nCREATE %u AGENTS\n", num_agents):VERBOSE;
+
 	/*** SET UP AGENTS ***/
 	for(unsigned int i = 0; i < num_agents; i++){
 		Agent * const agent = new Agent(VERBOSE);
 		agent_list.push_back(agent);
 	}
-
+	(VERBOSE)?printf("\nAGENTS CREATED\n\n"):VERBOSE;
+	(VERBOSE)?printf("\nCREATE %u GOALS\n\n", num_goals):VERBOSE;
 	/** SET UP GOALS **/
 	for(unsigned int i = 0; i < num_goals; i++){
 		add_goal(max_radius);
 	}
-
+	(VERBOSE)?printf("\nGOALS CREATED\n\n"):VERBOSE;
+	(VERBOSE)?printf("\nCREATE %u LANDMARKS\n\n", num_landmarks):VERBOSE;
 	/** SET UP LANDMARKS **/
 	for(unsigned int i = 0; i < num_landmarks; i++){
 		add_landmark(max_radius);
 	}
+	(VERBOSE)?printf("\nLANDMARKS CREATED\n\n"):VERBOSE;
 }
 
 Environment::~Environment(){
@@ -133,6 +138,10 @@ void Environment::add_goal(double max_radius){
 			if(d(goal_list.at(j), goal) > 3.){
 				count++;
 			}
+			else
+			{
+				cout << "Too close = " << d(goal_list.at(j), goal) << endl;
+			}
 		}
 		if(count==goal_list.size())
 			flag = true;
@@ -193,9 +202,7 @@ void Environment::add_landmark(double max_radius){
 }*/
 
 double Environment::d(Object* o1, Object* o2){
-	double rxsqr = pow(o1->pos.x-o2->pos.x,2);
-	double rysqr = pow(o1->pos.y-o2->pos.y,2);
-	return sqrt(rxsqr+rysqr);
+	return (o1->v() - o2->v()).len();
 }
 
 /*double Environment::d(Landmark* lm1, Goal* g2){
@@ -317,7 +324,7 @@ void Environment::update_collisions(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < goal_list.size(); j++){
 			if(d(agent_list.at(i), goal_list.at(j)) < 0.2){
-
+				collisions(i,j) = 1;
 			}
 		}
 	}

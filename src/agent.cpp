@@ -34,7 +34,7 @@ Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
 	VERBOSE = in_verbose;
 	(VERBOSE)?printf("\nCREATE AGENT at (%g, %g)\n\n", x(), y()):VERBOSE;
 
-	heading.setTo(rand(-M_PI, M_PI));		// random initial orientation
+	heading.setTo(randuu(-M_PI, M_PI));		// random initial orientation
 	speed = 0.1;
 
 	k_phi = M_PI;
@@ -70,7 +70,7 @@ Angle Agent::phi(){
 }
 
 void Agent::reset(){
-	heading.setTo(rand(-M_PI, M_PI));
+	heading.setTo(randuu(-M_PI, M_PI));
 	inward = false;
 	control->reset();
 }

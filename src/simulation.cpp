@@ -30,8 +30,12 @@
 Simulation::Simulation(int in_agents, bool random_env){
 	agents = in_agents;
 	rand_env = random_env;
+	VERBOSE = true;
 
+	(VERBOSE)?printf("Building environment.\n"):VERBOSE;
+	//environment = (rand_env ? new Environment(10, 10, 25., 1) : new Environment(agents));
 	environment = (rand_env ? new Environment(ngs, nlms, m_rad, agents) : new Environment(agents));
+	(VERBOSE)?printf("Done.\n"):VERBOSE;
 
 	T = 0.;
 	dt = 0.;
@@ -106,6 +110,8 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 
 void Simulation::update(){
 	timestep++;
+	if(timestep%100==0)
+		cout << trial_t << endl;
 	trial_t += dt;
 	global_t += dt;
 	environment->update();

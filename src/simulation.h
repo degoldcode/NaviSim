@@ -151,6 +151,9 @@ private:
 	double trial_t;         // continuous time for each trial
 	double dt;              // integration time
 	int timestep;           // discrete time steps
+
+	//************ debugging ************//
+	bool VERBOSE;
 };
 
 
