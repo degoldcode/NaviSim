@@ -31,8 +31,7 @@ using namespace std;
 
 Environment::Environment(int num_agents){
 	inv_sampling_rate = 1;
-	stream_h.open("./data/home.dat");
-	stream_g.open("./data/goals.dat");
+
 
 	(VERBOSE)?printf("\nCREATE %u AGENTS\n\n", num_agents):VERBOSE;
 	/*** SET UP AGENTS ***/
@@ -40,15 +39,14 @@ Environment::Environment(int num_agents){
 		Agent * const agent = new Agent(VERBOSE);
 		agent_list.push_back(agent);
 	}
+
+	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
+	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
+	open_streams();
 }
 
 Environment::Environment(int num_goals, int num_landmarks, double max_radius, int num_agents){
 	inv_sampling_rate = 1;
-	stream_h.open("./data/home.dat");
-	stream_g.open("./data/goals.dat");
-	stream_lm.open("./data/landmarks.dat");
-/*	stream_p.open("./data/pipes.dat");
-	stream_food.open("./data/food.dat");*/
 
 	(VERBOSE)?printf("\nCREATE %u AGENTS\n", num_agents):VERBOSE;
 
@@ -70,6 +68,10 @@ Environment::Environment(int num_goals, int num_landmarks, double max_radius, in
 		add_landmark(max_radius);
 	}
 	(VERBOSE)?printf("\nLANDMARKS CREATED\n\n"):VERBOSE;
+
+	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
+	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
+	open_streams();
 }
 
 Environment::~Environment(){
@@ -80,32 +82,31 @@ Environment::~Environment(){
 	for(unsigned int i = 0; i < goal_list.size(); i++){
 		stream_g << goal_list.at(i)->x() << "\t"
 				 << goal_list.at(i)->y() << "\t"
-				 //<< goal_list.at(i)->total() << "\t"
+				 << g_stats.hits(0, i) << "\t"
 				 << goal_list.at(i)->color()
 				 << endl;
 		delete goal_list.at(i);
 	}
 	stream_g.close();
-	/*
-	for(unsigned int i = 0; i < landmark_list.size(); i++){
-		stream_lm << landmark_list.at(i)->x() << "\t"
-				  << landmark_list.at(i)->y() << "\t"
-				  << landmark_list.at(i)->total()
-				  << endl;
-		delete landmark_list.at(i);
-	}
+//	for(unsigned int i = 0; i < landmark_list.size(); i++){
+//		stream_lm << landmark_list.at(i)->x() << "\t"
+//				  << landmark_list.at(i)->y() << "\t"
+//				  << landmark_list.at(i)->total()
+//				  << endl;
+//		delete landmark_list.at(i);
+//	}
 	stream_lm.close();
-	for(unsigned int i = 0; i < pipe_list.size(); i++){
-		stream_p << pipe_list.at(i)->x0() << "\t"
-				 << pipe_list.at(i)->y0() << "\t"
-				 << pipe_list.at(i)->w() << "\n"
-				 << pipe_list.at(i)->x1() << "\t"
-				 << pipe_list.at(i)->y1()
-				 << endl;
-		delete pipe_list.at(i);
-	}
+//	for(unsigned int i = 0; i < pipe_list.size(); i++){
+//		stream_p << pipe_list.at(i)->x0() << "\t"
+//				 << pipe_list.at(i)->y0() << "\t"
+//				 << pipe_list.at(i)->w() << "\n"
+//				 << pipe_list.at(i)->x1() << "\t"
+//				 << pipe_list.at(i)->y1()
+//				 << endl;
+//		delete pipe_list.at(i);
+//	}
 	stream_p.close();
-	stream_food.close();*/
+	stream_food.close();
 }
 
 Agent* Environment::a(int i){
@@ -271,6 +272,20 @@ double Environment::d(double x0, double x1){
 	return goal_list.at(idx);
 }*/
 
+void Environment::open_streams(){
+//	stream_a.resize(agent_list.size());
+//	if(stream_a.size() > 1)
+//		for(unsigned int i = 0; i < agent_list.size(); i++)
+//			stream_a.at(i).open("TODO");
+//	else
+//		stream_a.at(0).open("agent.dat");
+	stream_h.open("./data/home.dat");
+	stream_g.open("./data/goals.dat");
+	stream_lm.open("./data/landmarks.dat");
+	stream_p.open("./data/pipes.dat");
+	stream_food.open("./data/food.dat");
+}
+
 /*double Environment::r(){
 	return reward;
 }*/
@@ -300,6 +315,7 @@ void Environment::update(){
 	reward = 0.0;
 	lm_recogn = 0.0;
 
+	update_collisions();
 	update_agents();
 
 //		for(unsigned int j = 0; j < goal_list.size(); j++)
@@ -324,8 +340,12 @@ void Environment::update_collisions(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < goal_list.size(); j++){
 			if(d(agent_list.at(i), goal_list.at(j)) < 0.2){
-				collisions(i,j) = 1;
+				if(g_stats.collisions(i,j) == 0)
+					g_stats.hits(i,j)++;
+				g_stats.collisions(i,j) = 1;
 			}
+			else
+				g_stats.collisions(i,j) = 0;
 		}
 	}
 }

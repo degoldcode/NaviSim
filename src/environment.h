@@ -41,6 +41,13 @@ using namespace std;
 /*** Foraging states ***/
 enum{outbound, inbound};
 
+struct ObjStats{
+	mat collisions;
+	mat hits;
+	mat visible;
+	mat seen;
+};
+
 
 /**
  * Environment Class
@@ -239,6 +246,13 @@ public:
 	 */
 	//Goal* nearest(double x=0.0, double y=0.0);
 
+	/*
+	 * Open IO streams for writing data
+	 *
+	 * @return (void)
+	 */
+	void open_streams();
+
 	/**
 	 * Returns reward signal
 	 *
@@ -330,11 +344,12 @@ private:
 	vector<Agent*> agent_list;
 	vector<Goal*> goal_list;
 	vector<Landmark*> landmark_list;
-	vector<Pipe*> pipe_list;
-	mat collisions;
+	//vector<Pipe*> pipe_list;
+	ObjStats g_stats;
+	ObjStats lm_stats;
 
 	//************ output file streams ************//
-	vector<ofstream> stream_a;		//agents
+	//vector<ofstream> stream_a;		//agents
 	ofstream stream_g;		//goal positions
 	ofstream stream_lm;		//landmark positions
 	ofstream stream_p;		//pipe positions

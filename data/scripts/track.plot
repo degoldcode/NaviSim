@@ -7,9 +7,10 @@ set ylabel "y"
 set cblabel "Trials" offset 1
 
 set size square
-SCALE = 40.
-OFFSETX = 0.0 ##-2.5
-OFFSETY = 0.0 ##-2.5
+SCALE = 5.
+OFFSETX = 9.42273 ##0.0 ##-2.5
+OFFSETY = -0.829998 ##0.0 ##-2.5
+	
 set xtics 5
 set ytics 5
 set xrange [-SCALE/2+OFFSETX:SCALE/2+OFFSETX]
@@ -22,6 +23,8 @@ set nokey
 ERASEFIRST = 0 ##18
 ERASELAST = 5000
 col(x) = int(255*x)*65536 + int(68+170*x)*256 + int(255*(1-x))
+blacktogreen(x) = int(255-100*x)*65536 + int(255)*256 + int(255-100*x) 
+rgb(r,g,b) = int(r)*65536 + int(g)*256 + int(b)
 
 
-plot "../agent.dat" u 3:4:2 w p pt 7 ps (10/SCALE)*0.3 lc palette t "", "../goals.dat" u 1:2:(0.2):(col($3)) w circles fs solid border rgb "black" lt -1 lw 0.2 lc rgb var t "Goal", "../home.dat" u 1:2:(0.2) w circles fs solid border rgb "black" lt -1 lw 0.2 lc rgb "gray" t "Goal"
+plot "../agent.dat" u 3:4:2 w p pt 7 ps (10/SCALE)*0.3 lc palette t "", "../goals.dat" u 1:2:(0.2):(blacktogreen($3)) w circles fs solid border rgb "black" lt -1 lw 0.2 lc rgb var t "Goal", "../home.dat" u 1:2:(0.2) w circles fs solid border rgb "black" lt -1 lw 0.2 lc rgb "gray" t "Goal"
