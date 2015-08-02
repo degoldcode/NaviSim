@@ -58,11 +58,12 @@ plot '../agent.dat' @hist ls 1
 unset table
 
 # fit Gaussian
-Gauss(x) = a/(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )
+Gauss(x) = a/(sigma*sqrt(2*PI)) * exp( -(x-mu)**2 / (2*sigma**2) )
 a = 30.
 mu = 3.
 sigma = 3.
-#fit Gauss(x) '../histogram_dphi.dat' u 1:2 via a,mu,sigma
+set fit quiet
+fit Gauss(x) '../histogram_dphi.dat' u 1:2 via a,mu,sigma
 
 
 set format x '%g'

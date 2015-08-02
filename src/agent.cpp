@@ -70,6 +70,8 @@ Angle Agent::phi(){
 }
 
 void Agent::reset(){
+	x(0.);
+	y(0.);
 	heading.setTo(randuu(-M_PI, M_PI));
 	inward = false;
 	control->reset();

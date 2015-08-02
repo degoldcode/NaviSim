@@ -40,6 +40,10 @@ Environment::Environment(int num_agents){
 		agent_list.push_back(agent);
 	}
 
+	reward.resize(agent_list.size());
+	trial_reward.resize(agent_list.size());
+	total_reward.resize(agent_list.size());
+	lm_recogn.resize(agent_list.size());
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 	open_streams();
@@ -69,6 +73,10 @@ Environment::Environment(int num_goals, int num_landmarks, double max_radius, in
 	}
 	(VERBOSE)?printf("\nLANDMARKS CREATED\n\n"):VERBOSE;
 
+	reward.resize(agent_list.size());
+	trial_reward.resize(agent_list.size());
+	total_reward.resize(agent_list.size());
+	lm_recogn.resize(agent_list.size());
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 	open_streams();
@@ -141,7 +149,7 @@ void Environment::add_goal(double max_radius){
 			}
 			else
 			{
-				cout << "Too close = " << d(goal_list.at(j), goal) << endl;
+				(VERBOSE)?printf("Too close = %g\n", d(goal_list.at(j), goal)):VERBOSE;
 			}
 		}
 		if(count==goal_list.size())
@@ -234,13 +242,13 @@ double Environment::d(double x0, double x1){
 	return sum;
 }*/
 
-/*double Environment::get_sum_reward(){
-	return sum_reward;
-}*/
+double Environment::get_trial_r(int index){
+	return trial_reward.at(index);
+}
 
-/*double Environment::get_total_reward(){
-	return total_reward;
-}*/
+double Environment::get_total_r(int index){
+	return total_reward.at(index);
+}
 
 /*Goal* Environment::goal(int i){
 	return goal_list.at(i);
@@ -291,7 +299,7 @@ void Environment::open_streams(){
 }*/
 
 void Environment::reset(){
-	sum_reward = 0.0;
+	std::fill(trial_reward.begin(), trial_reward.end(), 0.);
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		agent_list.at(i)->reset();
 /*	for(unsigned int j = 0; j < goal_list.size(); j++)
@@ -312,18 +320,9 @@ Angle Environment::th(int i){
 }
 
 void Environment::update(){
-	reward = 0.0;
-	lm_recogn = 0.0;
-
+	update_rewards();
 	update_collisions();
 	update_agents();
-
-//		for(unsigned int j = 0; j < goal_list.size(); j++)
-//			reward += goal_list.at(j)->r(agent_list.at(i)->x(), agent_list.at(i)->y(), mode);
-//		for(unsigned int j = 0; j < landmark_list.size(); j++)
-//			lm_recogn += landmark_list.at(j)->pod(agent_list.at(i)->x(), agent_list.at(i)->y());
-	sum_reward += reward;
-	total_reward += reward;
 }
 
 void Environment::update_agents(){
@@ -335,8 +334,6 @@ void Environment::update_agents(){
 }
 
 void Environment::update_collisions(){
-//	for(vector<Agent*>::const_iterator it=agent_list.begin(); it!=agent_list.end(); it++){
-//		for(vector<Goal*>::const_iterator that=goal_list.begin(); that!=goal_list.end(); that++){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < goal_list.size(); j++){
 			if(d(agent_list.at(i), goal_list.at(j)) < 0.2){
@@ -346,6 +343,20 @@ void Environment::update_collisions(){
 			}
 			else
 				g_stats.collisions(i,j) = 0;
+		}
+	}
+}
+
+void Environment::update_rewards(){
+	std::fill(reward.begin(), reward.end(), 0.);
+	std::fill(lm_recogn.begin(), lm_recogn.end(), 0.);
+	for(unsigned int i = 0; i < agent_list.size(); i++){
+		for(unsigned int j = 0; j < goal_list.size(); j++){
+			if(d(agent_list.at(i), goal_list.at(j)) < 0.2){
+				reward.at(i) += 5.*(0.2-d(agent_list.at(i), goal_list.at(j)));
+				trial_reward.at(i) += reward.at(i);
+				total_reward.at(i) += reward.at(i);
+			}
 		}
 	}
 }

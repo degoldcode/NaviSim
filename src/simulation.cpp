@@ -30,7 +30,7 @@
 Simulation::Simulation(int in_agents, bool random_env){
 	agents = in_agents;
 	rand_env = random_env;
-	VERBOSE = true;
+	VERBOSE = false;
 
 	(VERBOSE)?printf("Building environment.\n"):VERBOSE;
 	//environment = (rand_env ? new Environment(10, 10, 25., 1) : new Environment(agents));
@@ -101,7 +101,8 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			avg_error /= (timestep-(T/(2*dt)));
 			travg_error += avg_error;
 			if(in_numtrials > 9 && trial%(in_numtrials/10)==0)
-				printf("Trial = %u\tAvg Length = %1.5f\tVar Length = %3.3f\n", trial, avg_length.max(), avg_length.var());
+				printf("Trial = %u\tTrial R = %g\tTotal R = %g\n", trial, e()->get_trial_r(), e()->get_total_r());
+				//printf("Trial = %u\tAvg Length = %1.5f\tVar Length = %3.3f\n", trial, avg_length.max(), avg_length.var());
 		}
 
 	}
@@ -110,8 +111,6 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 
 void Simulation::update(){
 	timestep++;
-	if(timestep%100==0)
-		cout << trial_t << endl;
 	trial_t += dt;
 	global_t += dt;
 	environment->update();

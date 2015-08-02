@@ -204,16 +204,18 @@ public:
 	/**
 	 * Returns sum of reward given during the trial
 	 *
+	 *	@param (int) index: index of agent (default: 0)
 	 * 	@return (double)
 	 */
-	//double get_sum_reward();
+	double get_trial_r(int index=0);
 
 	/**
 	 * Returns total amount of reward given
 	 *
+	 *  @param (int) index: index of agent (default: 0)
 	 * 	@return (double)
 	 */
-	//double get_total_reward();
+	double get_total_r(int index=0);
 
 	/**
 	 * Returns goal pointer with given index
@@ -312,6 +314,13 @@ public:
 	void update_collisions();
 
 	/**
+	 * Updates any rewards
+	 *
+	 *	@return (void)
+	 */
+	void update_rewards();
+
+	/**
 	 * Returns x position of agent i
 	 *
 	 *	@param (int) i: agent index (default: 0)
@@ -331,10 +340,10 @@ public:
 private:
 
 	//************ Reward parameters ************//
-	double reward = 0.0;
-	double sum_reward = 0.0;			// sum of reward during trial
-	double total_reward = 0.0;			// total reward of cycle
-	double lm_recogn = 0.0;
+	vector<double> reward;
+	vector<double> trial_reward;			// sum of reward during trial
+	vector<double> total_reward;			// total reward of cycle
+	vector<double> lm_recogn;
 	bool flag = 0;
 	int count = 0;
 	int mode = 0; 						// 0 = outb, 1 = inb

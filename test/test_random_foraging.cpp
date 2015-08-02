@@ -15,8 +15,8 @@ using namespace std;
 
 Simulation* sim;
 const int numagents= 1;
-const int numtrials= 1;
-const double T= 5000.;
+const int numtrials= 100;
+const double T= 1000.;
 const double dt= 0.1;
 
 int main(){
