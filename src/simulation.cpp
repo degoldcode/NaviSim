@@ -92,7 +92,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			update();
 
 			if(a(0)->in())
-				avg_error += abs((a(0)->HV().ang()-a(0)->th()).rad());
+				avg_error += abs( (a(0)->HV().ang()-a(0)->th()).rad() );
 		}
 
 		if(in_numtrials > 1){

@@ -87,6 +87,8 @@ public:
 		convertTo(val.at(_unit), _unit);
 	}
 
+	double C(){return cos(rad());}
+
 	void convertTo(double _val, int _unit){
 		if(_unit == inRad){
 			val.at(inDeg) = _val*180./M_PI;
@@ -103,12 +105,22 @@ public:
 		}
 	}
 
+	double Cos(){return cos(rad());}
+
+	double deg(){return *deg_;}
+
 	double fmod(double _x, double _y){
 		if(_x > 0.)
 			return std::fmod(_x,_y);
 		else
 			return _y + std::fmod(_x,_y);
 	}
+
+	double gon(){return *gon_;}
+
+	Angle i(){return Angle(this->rad() + M_PI);}
+
+	Angle inv(){return Angle(this->rad() + M_PI);}
 
 	friend Angle operator+(Angle lhs, Angle rhs)
 	{
@@ -136,11 +148,15 @@ public:
 	}
 	friend ostream& operator<<(ostream& out, const Angle& a) // output
 	{
-	    out << *(a.deg_) <<  "°";
+	    out << *(a.deg_);
 	    return out;
 	}
 
-	void setTo(double _val, int _unit = inRad){
+	double rad(){return *rad_;}
+
+	double S(){return sin(rad());}
+
+	void to(double _val, int _unit = inRad){
 		val.at(_unit) = _val;
 		if(_unit == inRad){
 			val.at(inDeg) = _val*180./M_PI;
@@ -157,22 +173,6 @@ public:
 	}
 
 	double Sin(){return sin(rad());}
-	double Cos(){return cos(rad());}
-	double S(){return sin(rad());}
-	double C(){return cos(rad());}
-
-
-	double deg(){
-		return *deg_;
-	}
-
-	double gon(){
-		return *gon_;
-	}
-
-	double rad(){
-		return *rad_;
-	}
 
 private:
 	double* deg_;
@@ -193,14 +193,16 @@ private:
 class Vec {
 public:
 	Vec(){ x=y=z=0.; array[0]=array[1]=array[2]=0.;}
-	Vec(double x_, double y_){	x=x_; y=y_; z=0.; array[0]=array[1]=array[2]=0.;}
-	Vec(double x_, double y_, double z_){	x=x_; y=y_; z=z_; array[0]=array[1]=array[2]=0.;}
+	Vec(double _x, double _y){	x=_x; y=_y; z=0.; array[0]=array[1]=array[2]=0.;}
+	Vec(double _x, double _y, double _z){	x=_x; y=_y; z=_z; array[0]=array[1]=array[2]=0.;}
 	~Vec(){}
 
-	Angle azimuth() { return Angle(atan2(y,x)); }
 	Angle ang(){ return azimuth();}
+	Angle azimuth() { return Angle(atan2(y,x)); }
 	Angle elevation() { return Angle(atan2(z, len())); }
 	double len() { return sqrt(x*x+y*y+z*z); }
+
+	void move(double _dx, double _dy, double _dz=0) { x+=_dx; y+=_dy; z+=_dz; }
 
 	Vec operator+(const Vec& sum) const
 	{ Vec rv(x+sum.x, y+sum.y, z+sum.z); return rv; }
@@ -214,7 +216,7 @@ public:
 	}
 
     void print() const { printf("(%g, %g, %g)\n", x, y, z); }
-    void set(double x_, double y_, double z_=0) { x=x_; y=y_; z=z_; }
+    void to(double _x, double _y, double _z=0) { x=_x; y=_y; z=_z; }
     const double* toArray(){ array[0]=x;array[1]=y; array[2]=z; return array; }
 
 	double x;

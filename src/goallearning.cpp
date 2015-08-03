@@ -57,8 +57,8 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	vec input = foraging_state*ones<vec>(K);
 	update_rate(input_conns*input);
 	update_weights(pi_input);
-	GV_x = len()*cos(avg());
-	GV_y = len()*sin(avg());
+	GV_x = len()*avg().C();
+	GV_y = len()*avg().S();
 }
 
 void GoalLearning::update_weights(vec pi_input){

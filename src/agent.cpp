@@ -34,12 +34,12 @@ Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
 	VERBOSE = in_verbose;
 	(VERBOSE)?printf("\nCREATE AGENT at (%g, %g)\n\n", x(), y()):VERBOSE;
 
-	heading.setTo(randuu(-M_PI, M_PI));		// random initial orientation
+	heading.to(randuu(-M_PI, M_PI));		// random initial orientation
 	speed = 0.1;
 
 	k_phi = M_PI;
 	k_s = 0.01;
-	diff_heading.setTo(0.0);
+	diff_heading.to(0.0);
 	external = 0.0;
 
 	inward = false;
@@ -54,7 +54,7 @@ Angle Agent::dphi(){
 }
 
 Vec Agent::HV(){
-	return Vec(control->HV()->x(), control->HV()->y());
+	return Vec(control->HV().x, control->HV().y);
 }
 
 bool Agent::in(){
@@ -72,7 +72,7 @@ Angle Agent::phi(){
 void Agent::reset(){
 	x(0.);
 	y(0.);
-	heading.setTo(randuu(-M_PI, M_PI));
+	heading.to(randuu(-M_PI, M_PI));
 	inward = false;
 	control->reset();
 }
@@ -82,7 +82,7 @@ void Agent::set_dphi(double input){
 }
 
 void Agent::set_phi(double input){
-	heading.setTo(input);
+	heading.to(input);
 }
 
 void Agent::set_inward(bool input){
@@ -98,9 +98,9 @@ void Agent::update(){
 	//control->set_inward(inward);
 	control_output = control->update(heading.rad(), speed, 0.0, 0);
 	if(!in_pipe)
-		diff_heading.setTo(dt * k_phi * control_output + external);
+		diff_heading.to(dt * k_phi * control_output + external);
 	else
-		diff_heading.setTo(external);
+		diff_heading.to(external);
 	external = 0.0;
 
 	heading = heading + diff_heading;

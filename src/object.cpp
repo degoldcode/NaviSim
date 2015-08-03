@@ -35,11 +35,11 @@ Object::Object(double max_radius, double min_radius){
 	double angle_to_x_axis = 2 * M_PI * n2;
 	double x_pos = distance_to_origin * cos(angle_to_x_axis);
 	double y_pos = distance_to_origin * sin(angle_to_x_axis);
-	pos.set(x_pos, y_pos);
+	pos.to(x_pos, y_pos);
 }
 
 Object::Object(double x, double y, double z){
-	pos.set(x, y, z);
+	pos.to(x, y, z);
 }
 
 Object::~Object(){

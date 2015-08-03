@@ -30,6 +30,7 @@
 
 #include <cmath>
 #include <armadillo>
+#include "geom.h"
 using namespace arma;
 using namespace std;
 
@@ -58,9 +59,7 @@ public:
 		for(unsigned int i = 0; i < N; i++)
 			preferred_angle(i) = 2. * M_PI * i / N; // Preferred angle of neurons
 		//cout << preferred_angle << endl;
-		max_angle = 0.0;
 		max_rate = 0.0;
-		avg_angle = 0.0;
 		length = 0.0;
 		type = 0;
 
@@ -80,25 +79,10 @@ public:
 	/**
 	 * Returns average angle of maximum firing in the array
 	 *
-	 *  @return (double)
+	 *  @return (Angle)
 	 */
-	double avg(){
+	Angle avg(){
 		return avg_angle;
-	};
-
-	/**
-	 * Returns angle within bounds [-PI,PI]
-	 *
-	 *  @param (double) angle: input angle
-	 *  @return (double)
-	 */
-	double bound(double angle){
-		double rphi = angle;
-		while(rphi > M_PI)
-			rphi -= 2 * M_PI;
-		while(rphi < - M_PI)
-			rphi += 2 * M_PI;
-		return rphi;
 	};
 
 	/**
@@ -133,9 +117,9 @@ public:
 	/**
 	 * Returns the preferred angle of the neuron with maximum firing
 	 *
-	 *  @return (double)
+	 *  @return (Angle)
 	 */
-	double max(){
+	Angle max(){
 		return max_angle;
 	};
 
@@ -231,14 +215,14 @@ public:
 		else{
 			for(int i = 0; i < N; i++){
 				if(input(i) > 0.0){
-					output += bound(preferred_angle(i))*input(i);
+					output += preferred_angle(i)*input(i);
 					sum_act += input(i);
 				}
 			}
 			if(sum_act>0.0)
 				output /= sum_act;
 		}
-		avg_angle = bound(output);
+		avg_angle = Angle(output);
 	};
 
 	/**
@@ -259,7 +243,7 @@ public:
 	void update_max(vec input){
 		uword index;
 		max_rate = input.max(index);
-		max_angle = bound(preferred_angle(index));
+		max_angle = Angle(preferred_angle(index));
 	};
 
 	/**
@@ -320,9 +304,9 @@ protected:
 
 private:
 
-	double max_angle;                               // Angle of the maximum-firing neuron
+	Angle max_angle;                                // Angle of the maximum-firing neuron
 	double max_rate;                                // Maximum rate of neuron array
-	double avg_angle;                               // Average position of the maximum firing rate
+	Angle avg_angle;                                // Average position of the maximum firing rate
 	double length;                                  // Length of vector = (some scaling factor)*(sum of activities)/N
 	const double scale_factor = 2.41474212;         // Scaling factor
 

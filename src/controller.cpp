@@ -18,16 +18,12 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage){
 	gl_array.resize(num_colors);
 	gv_weight.resize(num_colors);
 
-	pi_command = 0.0;
-	gl_command = 0.0;
-	rl_command = 0.0;
+	pi_m = 0.0;
+	gl_m = 0.0;
+	rl_m = 0.0;
 	inward = false;
 	goal_factor = 0.0;
 
-	HV_angle = 0.0;
-	HV_len = 0.0;
-	HV_x = 0.0;
-	HV_y = 0.0;
 
 	GV_angle.resize(num_colors);
 	GV_len.resize(num_colors);
@@ -64,8 +60,8 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage){
 
 Controller::~Controller() {
 	delete pin;
-	for(int i = blue; i < gvl.size(); i++)
-		delete gvl.at(i);
+//	for(int i = blue; i < gvl.size(); i++)
+//		delete gvl.at(i);
 	stream.close();
 	r_stream.close();
 	lm_stream.close();
@@ -110,8 +106,8 @@ double Controller::bound(double angle){
 		return gvl.at(0);
 }*/
 
-PIN* Controller::HV(){
-	return pin;
+Vec Controller::HV(){
+	return pin->HV();
 }
 
 /*double NaviControl::in_degr(double angle) {
@@ -214,34 +210,30 @@ void Controller::set_inward(bool in_mode) {
 	}
 }*/
 
-double Controller::update(double angle, double speed, double inReward, int color) {
+double Controller::update(Angle angle, double speed, double inReward, int color) {
 
 	/*** Path Integration Mechanism ***/
 	pin->update(angle, speed);
-	HV_angle = pin->avg();
-	HV_len = pin->len();
-	HV_x = pin->x();
-	HV_y = pin->y();
-	pi_command = 4. * sin(inv_angle(HV_angle) - angle);
+	pi_m = 4. * ((HV().ang()).i() - angle).S();
 
 	/*** Global Vector Learning Circuits ***/
-	for(int i = 0; i < num_colors; i++){
-		if(i == color){
-			reward(i) = inReward;
-			value(i) = reward(i) + disc_factor * value(i);
-			expl_factor(i) = exp(-.5 * value(i));
-		}
-		else{
-			reward(i) = 0.0;
-		}
-		if(inward)
-			gvl.at(i)->set_mu(0.0);
-		gvl.at(i)->update(pin->get_output(), inReward, expl_factor(i));
-		GV_x.at(i) = gvl.at(i)->x();
-		GV_y.at(i) = gvl.at(i)->y();
-		cGV_angle.at(i) = atan2(GV_y.at(i) - HV_y, GV_x.at(i) - HV_x);
-	}
-	gl_command = 4.0*(1.-expl_factor(0))*sin(cGV_angle.at(0) - angle);
+//	for(int i = 0; i < num_colors; i++){
+//		if(i == color){
+//			reward(i) = inReward;
+//			value(i) = reward(i) + disc_factor * value(i);
+//			expl_factor(i) = exp(-.5 * value(i));
+//		}
+//		else{
+//			reward(i) = 0.0;
+//		}
+//		if(inward)
+//			gvl.at(i)->set_mu(0.0);
+//		gvl.at(i)->update(pin->get_output(), inReward, expl_factor(i));
+//		GV_x.at(i) = gvl.at(i)->x();
+//		GV_y.at(i) = gvl.at(i)->y();
+//		cGV_angle.at(i) = atan2(GV_y.at(i) - HV()->y, GV_x.at(i) - HV()->x);
+//	}
+//	gl_m = 4.0*(1.-expl_factor(0))*sin(cGV_angle.at(0) - angle);
 
 
 

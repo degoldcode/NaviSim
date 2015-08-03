@@ -31,16 +31,15 @@ PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise) : C
 	leak_rate = leak;
 	snoise = sens_noise;
 	nnoise = neur_noise;
-	HV_x = 0.0;
-	HV_y = 0.0;
+
 
 	CircArray* in_array = new CircArray(N);
 	ar.push_back(in_array);
-	for(int i = HD+1; i <= HV; i++){
+	for(int i = HD+1; i <= PI; i++){
 		CircArray* array = new CircArray(N,N);
 		ar.push_back(array);
 	}
-	w_cos = ar.at(HV)->cos_kernel();
+	w_cos = ar.at(PI)->cos_kernel();
 }
 
 PIN::~PIN(){
@@ -53,7 +52,11 @@ CircArray* PIN::array(int i){
 }
 
 vec PIN::get_output(){
-	return ar.at(HV)->rate();
+	return ar.at(PI)->rate();
+}
+
+Vec PIN::HV(){
+	return home_vector;
 }
 
 void PIN::reset(){
@@ -61,32 +64,33 @@ void PIN::reset(){
 		ar.at(i)->reset();
 }
 
-void PIN::update(double angle, double speed){
+void PIN::update(Angle angle, double speed){
 	//---Sensory Noise
-	double noisy_angle = angle + 2.*M_PI*noise(snoise);
+	Angle noisy_angle = angle + Angle(2.*M_PI*noise(snoise));
 	double noisy_speed = speed + noise(snoise);
 
 	//---Layer 1 -> Head Direction Layer
-	vec input = cos(noisy_angle*ones<vec>(N) - preferred_angle)*(-0.5) + 0.5*ones<vec>(N) + vnoise(N,nnoise);
+	vec input = cos(noisy_angle.rad()*ones<vec>(N) - preferred_angle)*(-0.5) + 0.5*ones<vec>(N) + vnoise(N,nnoise);
 	ar.at(HD)->update_rate(input);
 	//---Layer 2 -> Gater Layer
 	ar.at(G)->update_rate(lin_rect(-eye<mat>(N,N)*ar.at(HD)->rate()+(noisy_speed)*ones<vec>(N)) + vnoise(N,nnoise));
 	//---Layer 3 -> Memory Layer
 	ar.at(M)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(G)->rate() + (1.0-leak_rate)*eye<mat>(N,N)*ar.at(M)->rate()) + vnoise(N,nnoise));
 	//---Layer 4 -> Vector Decoding Layer
-	ar.at(HV)->update_rate(lin_rect(w_cos * ar.at(M)->rate()) + vnoise(N,nnoise));
-	output_rate = ar.at(HV)->rate();
+	ar.at(PI)->update_rate(lin_rect(w_cos * ar.at(M)->rate()) + vnoise(N,nnoise));
+
+	//Output parameters
+	output_rate = ar.at(PI)->rate();
 	update_avg(output_rate);
 	update_len(output_rate);
 	update_max(output_rate);
-	HV_x = len()*cos(avg());
-	HV_y = len()*sin(avg());
+	home_vector.to(len()*avg().C(), len()*avg().S());
 }
 
 double PIN::x(){
-	return HV_x;
+	return home_vector.x;
 }
 
 double PIN::y(){
-	return HV_y;
+	return home_vector.y;
 }

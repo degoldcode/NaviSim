@@ -29,6 +29,7 @@
 #define PIN_H_
 
 #include "circulararray.h"
+#include "geom.h"
 #include <armadillo>
 #include <vector>
 using namespace std;
@@ -36,7 +37,7 @@ using namespace arma;
 
 
 
-enum{HD, G, M, HV};    	//HD = Head Direction; G = Gater; M = Memory; HV = Home vector
+enum{HD, G, M, PI};    	//HD = Head Direction; G = Gater; M = Memory; PI = Home vector output
 
 
 /**
@@ -58,7 +59,7 @@ public:
 	 *  @param (int) num_neurons: number of neurons in this array (default: 360)
 	 *  @param (int) input_dim: number of incoming signals (default: 0)
 	 */
-	PIN(int num_neurons, double leak, double sens_noise, double neur_noise);
+	PIN(int num_neurons = 36, double leak = 0.0, double sens_noise = 0.0, double neur_noise = 0.0);
 
 	/**
 	 * Destructor
@@ -71,6 +72,13 @@ public:
 	vec get_output();
 
 	/**
+	 * Return the home vector
+	 *
+	 * @return (Vec)
+	 */
+	Vec HV();
+
+	/**
 	 * Resets the activities of the path integration network
 	 *
 	 *  @return (void)
@@ -80,11 +88,11 @@ public:
 	/**
 	 * Updates the path integration network
 	 *
-	 *  @param (double) angle: Input angle from compass
+	 *  @param (Angle) angle: Input angle from compass
 	 *  @param (double) speed: Input walking speed from odometry (legged: "differential step counter")
 	 *  @return (void)
 	 */
-	void update(double angle, double speed);
+	void update(Angle angle, double speed);
 
 	/**
 	 * Returns the PI x coordinate
@@ -103,8 +111,7 @@ public:
 private:
 	vector<CircArray*> ar;
 
-	double HV_x;
-	double HV_y;
+	Vec home_vector;
 
 	mat w_cos;
 	double leak_rate;

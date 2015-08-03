@@ -13,7 +13,7 @@
 #include <cmath>
 #include <vector>
 #include "pin.h"
-//#include "map.h"
+#include "geom.h"
 #include "goallearning.h"
 //#include "routelearning.h"
 using namespace std;
@@ -101,9 +101,9 @@ public:
 	/**
 	 * Returns home vector
 	 *
-	 *  @return (Pointer to CircArray)
+	 *  @return (Pointer to Vector)
 	 */
-	PIN* HV();
+	Vec HV();
 
 	/**
 	 * Returns inverted angle -> angle - PI (in rad)
@@ -206,7 +206,7 @@ public:
 	 *  @param (int) inReward: Color of nearest goal
 	 *  @return (void)
 	 */
-	double update(double angle, double speed, double inReward, int color);
+	double update(Angle angle, double speed, double inReward, int color);
 
 	/**
 	 * Updates the state matrices
@@ -225,18 +225,14 @@ private:
 	//RouteLearning* lvl;
 	//Map* map;
 	bool inward;
-	double pi_command;
-	double gl_command;
-	double rl_command;
+	double pi_m;
+	double gl_m;
+	double rl_m;
 	double output;
 	double goal_factor;
 
 	//************ Path Integration Parameters ************//
 	mat pi_array;
-	double HV_angle;
-	double HV_len;
-	double HV_x;
-	double HV_y;
 
 	//************ Goal Learning Parameters ************//
 	vector<mat> gl_array;
