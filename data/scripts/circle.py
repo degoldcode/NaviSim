@@ -90,20 +90,19 @@ for i in range(int(plot_fake_min),int(plot_fake_max)+int(rad_tick_increment),int
 ax2, aux_ax2 = setup_arc_radial_axes(fig, 111, angle_ticks_for_plot, radius_ticks, plot_real_min, plot_real_max)
 
 values = np.loadtxt("../mat/pi_activity.mat", usecols=xrange(1, 1000, 10)) 
+print values.shape
 azimuths = np.radians(np.linspace(0, 360, 18))
 #azimuths_adjusted = [ (x + math.pi) for x in azimuths ]
 zeniths = np.arange(0, 1000, 10)
 zeniths_adjusted = [((x-plot_fake_min)/(plot_fake_max-plot_fake_min))*(plot_real_max-plot_real_min)+plot_real_min for x in zeniths]
 #values = 90.0+5.0*np.random.random((len(azimuths), len(zeniths))) #
-print values.shape
 r, theta = np.meshgrid(zeniths_adjusted, azimuths)
-
 
 ctf = aux_ax2.contourf(theta, r, values, cmap='hot', levels=np.linspace(values.min(),values.max(),50))
 
 cbar = plt.colorbar(ctf, orientation='vertical')
 #cbar = plt.colorbar(aux_ax2.contourf(theta, r, values), orientation='vertical')
-#cbar.ax.set_ylabel('Contour Value [Unit]', fontsize = 16)
+cbar.ax.set_ylabel('Firing rate [Hz]', fontsize = 14, labelpad=20)
 
 plt.legend(loc=3,prop={'size':20})
 plt.xlabel('Angle [$^\circ$]', fontsize=20, labelpad=2000)
