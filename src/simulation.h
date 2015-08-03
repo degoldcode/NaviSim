@@ -132,16 +132,18 @@ private:
 
 	ofstream agent_str;
 	ofstream endpts_str;
+	ofstream homevector_str;
 
 	//************ Evaluation parameters ************//
 
 
-	/// Foraging parameters
+	/// Foraging
 	running_stat<double> avg_length;
 
-	int count_home;
-	double avg_error;
-	double travg_error;
+	/// Path integration
+	running_stat<int> is_home;					// homing success
+	running_stat<double> pi_error;              // distance between estimated and actual position of agent per timestep (reset each trial)
+	running_stat<double> total_pi_error;		// distance between estimated and actual position of agent per timestep per trial
 
 
 	//************ Timing parameters ************//

@@ -99,11 +99,18 @@ public:
 	//GoalLearning* GV(int i);
 
 	/**
-	 * Returns home vector
+	 * Returns home vector using average
 	 *
 	 *  @return (Pointer to Vector)
 	 */
 	Vec HV();
+
+	/**
+	 * Returns home vector using maximum
+	 *
+	 *  @return (Pointer to Vector)
+	 */
+	Vec HVm();
 
 	/**
 	 * Returns inverted angle -> angle - PI (in rad)
@@ -176,11 +183,11 @@ public:
 	//void reset_matrices();
 
 	/**
-	 * Saves the state matrices
+	 * Save activity/weight matrices
 	 *
 	 *  @return (void)
 	 */
-	//void save_matrices();
+	void save_matrices();
 
 	/**
 	 * Sets the foraging state
@@ -196,6 +203,15 @@ public:
 	 *  @return (void)
 	 */
 	//void stream_write();
+
+
+	/**
+	 * Set sample interval for how often activity data gets sampled
+	 *
+	 *  @param (int) _val: sample interval
+	 *  @return (void)
+	 */
+	void set_sample_int(int _val);
 
 	/**
 	 * Updates the Navigation Controller
@@ -262,6 +278,7 @@ private:
 
 	//************ Recording Parameters ************//
 	ofstream stream;
+	ofstream pi_stream;
 	ofstream r_stream;
 	ofstream lm_stream;
 

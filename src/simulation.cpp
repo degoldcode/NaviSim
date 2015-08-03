@@ -43,17 +43,16 @@ Simulation::Simulation(int in_agents, bool random_env){
 	global_t = 0.;
 	trial_t = 0.;
 	timestep = 0;
-	count_home = 0;
-	avg_error = 0.;
-	travg_error = 0.;
 
 	agent_str.open("data/agent.dat");
 	endpts_str.open("data/endpoints.dat");
+	homevector_str.open("data/homevector.dat");
 }
 
 Simulation::~Simulation(){
 	agent_str.close();
 	endpts_str.close();
+	homevector_str.close();
 	delete environment;
 }
 
@@ -68,6 +67,7 @@ Environment* Simulation::e(){
 void Simulation::init_controller(int num_neurons, double sensory_noise, double leakage){
 	for(unsigned int i= 0; i< agents; i++){
 		Controller* control = new Controller(num_neurons, sensory_noise, leakage);
+		control->set_sample_int(10);      // sample activity data every 10 time steps
 		a(i)->init(control);
 		controllers.push_back(control);
 	}
@@ -76,7 +76,6 @@ void Simulation::init_controller(int num_neurons, double sensory_noise, double l
 void Simulation::reset(){
 	timestep = 0;
 	trial_t = 0.;
-	avg_error = 0.;
 	environment->reset();
 }
 
@@ -91,25 +90,25 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			writeTrialData();
 			update();
 
-			if(a(0)->in())
-				avg_error += abs( (a(0)->HV().ang()-a(0)->th()).rad() );
+			//if(a(0)->in())
+				pi_error( (a(0)->HV()-a(0)->v()).len() );
 		}
 
 		if(in_numtrials > 1){
+			total_pi_error( pi_error.mean() );
 			avg_length(a(0)->d());
 			writeSimData();
-			avg_error /= (timestep-(T/(2*dt)));
-			travg_error += avg_error;
 			if(in_numtrials > 9 && trial%(in_numtrials/10)==0)
 				printf("Trial = %u\tTrial R = %g\tTotal R = %g\n", trial, e()->get_trial_r(), e()->get_total_r());
 				//printf("Trial = %u\tAvg Length = %1.5f\tVar Length = %3.3f\n", trial, avg_length.max(), avg_length.var());
 		}
 
 	}
-	travg_error /= in_numtrials;
 }
 
 void Simulation::update(){
+	if(timestep%1000==0)
+		printf("time = %g\tError = %g\n", trial_t, pi_error.mean());
 	timestep++;
 	trial_t += dt;
 	global_t += dt;
@@ -126,7 +125,9 @@ void Simulation::writeSimData(){
 
 void Simulation::writeTrialData(){
 	agent_str << trial << "\t" << trial_t;
-	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y() << "\t" << a(0)->d() << "\t" << a(0)->dphi(); // TODO: different streams for different agents
+	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y() << "\t" << a(0)->d() << "\t" << a(0)->dphi()<< "\t" << a(0)->v().ang() ; // TODO: different streams for different agents
 	agent_str << endl;
+	homevector_str << trial << "\t" << trial_t;
+	homevector_str << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << endl;
 }
 

@@ -113,7 +113,7 @@ public:
 		if(_x > 0.)
 			return std::fmod(_x,_y);
 		else
-			return _y + std::fmod(_x,_y);
+			return std::fmod(_x,_y) + _y;
 	}
 
 	double gon(){return *gon_;}

@@ -72,11 +72,18 @@ public:
 	vec get_output();
 
 	/**
-	 * Return the home vector
+	 * Return the home vector using average
 	 *
 	 * @return (Vec)
 	 */
 	Vec HV();
+
+	/**
+	 * Return the home vector using maximum
+	 *
+	 * @return (Vec)
+	 */
+	Vec HVm();
 
 	/**
 	 * Resets the activities of the path integration network
@@ -112,6 +119,7 @@ private:
 	vector<CircArray*> ar;
 
 	Vec home_vector;
+	Vec home_vector_max;
 
 	mat w_cos;
 	double leak_rate;

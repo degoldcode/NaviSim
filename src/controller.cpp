@@ -49,6 +49,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage){
 	stream.open("./data/control.dat");
 	r_stream.open("./data/reward.dat");
 	lm_stream.open("./data/lm_rec.dat");
+	pi_stream.open("./data/pi_activity.dat");
 
 	rx = 0.0;
 	ry = 0.0;
@@ -59,12 +60,14 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage){
 }
 
 Controller::~Controller() {
+	save_matrices();
 	delete pin;
 //	for(int i = blue; i < gvl.size(); i++)
 //		delete gvl.at(i);
 	stream.close();
 	r_stream.close();
 	lm_stream.close();
+	pi_stream.close();
 }
 
 double Controller::bound(double angle){
@@ -108,6 +111,10 @@ double Controller::bound(double angle){
 
 Vec Controller::HV(){
 	return pin->HV();
+}
+
+Vec Controller::HVm(){
+	return pin->HVm();
 }
 
 /*double NaviControl::in_degr(double angle) {
@@ -167,13 +174,18 @@ void Controller::set_inward(bool in_mode) {
 }
 
 
-/*void NaviControl::save_matrices() {
-	pi_array.save("./data/out.mat", raw_ascii);
-	for(int i = blue; i < num_colors; i++){
-		gl_array.at(i).save("./data/gv.mat", raw_ascii);
-		gv_weight.at(i).save("./data/gv_w.mat", raw_ascii);
-	}
-}*/
+void Controller::save_matrices() {
+	printf("Save data.\n");
+	pi_array.save("./data/mat/pi_activity.mat", raw_ascii);
+//	for(int i = blue; i < num_colors; i++){
+//		gl_array.at(i).save("./data/gv.mat", raw_ascii);
+//		gv_weight.at(i).save("./data/gv_w.mat", raw_ascii);
+//	}
+}
+
+void Controller::set_sample_int(int _val){
+	inv_sampling_rate = _val;
+}
 
 /*void NaviControl::stream_write() {
 
@@ -211,6 +223,12 @@ void Controller::set_inward(bool in_mode) {
 }*/
 
 double Controller::update(Angle angle, double speed, double inReward, int color) {
+	if(t%inv_sampling_rate == 0){
+		pi_array = join_rows(pi_array, pin->get_output());
+		for(unsigned int index = 0; index < pin->get_output().n_rows; index++)
+			pi_stream << t*0.1 << " " << index << " " << pin->get_output()(index) << endl;
+	}
+	t++;
 
 	/*** Path Integration Mechanism ***/
 	pin->update(angle, speed);
@@ -243,7 +261,7 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 //		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
 //	else
 //		output = pi_command;
-	t++;
+
 
 	return output;
 }

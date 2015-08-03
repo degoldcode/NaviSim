@@ -58,6 +58,9 @@ vec PIN::get_output(){
 Vec PIN::HV(){
 	return home_vector;
 }
+Vec PIN::HVm(){
+	return home_vector_max;
+}
 
 void PIN::reset(){
 	for(int i = 0; i < ar.size(); i++)
@@ -85,6 +88,7 @@ void PIN::update(Angle angle, double speed){
 	update_len(output_rate);
 	update_max(output_rate);
 	home_vector.to(len()*avg().C(), len()*avg().S());
+	home_vector_max.to(len()*max().C(), len()*max().S());
 }
 
 double PIN::x(){

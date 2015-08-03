@@ -73,11 +73,18 @@ public:
 	Angle dphi();
 
 	/**
-	 * Returns estimated home vector of the agent (0 == x, 1 == y)
+	 * Returns estimated home vector of the agent using average
 	 *
 	 * @return (Vec)
 	 */
 	Vec HV();
+
+	/**
+	 * Returns estimated home vector of the agent using maximum
+	 *
+	 * @return (Vec)
+	 */
+	Vec HVm();
 
 	/**
 	 * Returns the foraging state of the agent (TRUE, if inward)

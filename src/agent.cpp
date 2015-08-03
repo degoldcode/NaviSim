@@ -47,6 +47,7 @@ Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
 }
 
 Agent::~Agent(){
+	delete control;
 }
 
 Angle Agent::dphi(){
@@ -55,6 +56,10 @@ Angle Agent::dphi(){
 
 Vec Agent::HV(){
 	return Vec(control->HV().x, control->HV().y);
+}
+
+Vec Agent::HVm(){
+	return control->HVm();
 }
 
 bool Agent::in(){
