@@ -30,6 +30,8 @@
 
 #include <cmath>
 #include <armadillo>
+#include <boost/random.hpp>
+#include <boost/random/normal_distribution.hpp>
 #include "geom.h"
 using namespace arma;
 using namespace std;
@@ -106,13 +108,21 @@ public:
 	 */
 	double noise(double width){
 		if(width > 0.0){
-			static random_device e{};
+		    std::random_device rd;
+		    std::mt19937 gen(rd());
 			static normal_distribution<double> d(0., width);
-			return d(e);
+			return d(rd);
 		}
 		else
 			return 0.;
 	};
+	double boost_noise(double width){
+		boost::mt19937 rng; // I don't seed it on purpouse (it's not relevant)
+		boost::normal_distribution<> nd(0.0, width);
+		boost::variate_generator<boost::mt19937&,
+		boost::normal_distribution<> > var_nor(rng, nd);
+		return var_nor();
+	}
 
 	/**
 	 * Returns the preferred angle of the neuron with maximum firing
@@ -365,7 +375,7 @@ private:
 	double max_rate;                                // Maximum rate of neuron array
 	Angle avg_angle;                                // Average position of the maximum firing rate
 	double length;                                  // Length of vector = (some scaling factor)*(sum of activities)/N
-	const double scale_factor = 2.41474212;         // Scaling factor
+	const double scale_factor = 2.41456;			// Scaling factor (2.41456; 2.41474212)
 
 	vec input_rate;                                 // Input activity rate to the array
 	vec bias;										// Bias vector

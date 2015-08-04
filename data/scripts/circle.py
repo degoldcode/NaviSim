@@ -91,9 +91,12 @@ for i in range(int(plot_fake_min),int(plot_fake_max)+int(rad_tick_increment),int
 
 ax2, aux_ax2 = setup_arc_radial_axes(fig, 111, angle_ticks_for_plot, radius_ticks, plot_real_min, plot_real_max)
 
+config = np.loadtxt("../sim.cfg", skiprows=1)
+#print config.shape
+#print config[1]
 values = np.loadtxt("../mat/pi_activity.mat", usecols=xrange(1, 1000, 10)) 
 print values.shape
-azimuths = np.radians(np.linspace(0, 360, 360))
+azimuths = np.radians(np.linspace(0, 360, config[1]))
 #azimuths_adjusted = [ (x + math.pi) for x in azimuths ]
 zeniths = np.arange(0, 1000, 10)
 zeniths_adjusted = [((x-plot_fake_min)/(plot_fake_max-plot_fake_min))*(plot_real_max-plot_real_min)+plot_real_min for x in zeniths]

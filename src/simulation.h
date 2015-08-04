@@ -56,7 +56,7 @@ public:
 	 *	@param (string) in_param_type: string of parameter specification (for parameter scan)
 	 *	@param (int) in_num_trials: number of subsequent trials
 	 */
-	Simulation(/*string in_param_type, */int in_agents, bool random_env);
+	Simulation(int in_numtrials, int in_agents, bool random_env);
 
 	/**
 	 * Destructor. Closes IO file streams.
@@ -117,6 +117,7 @@ private:
 	//************ Simulation parameters ************//
 
 	double T;						// maximum time for a trial
+	int N;							// number of trials
 
 	//************ Environment parameters ************//
 
@@ -133,9 +134,20 @@ private:
 	ofstream agent_str;
 	ofstream endpts_str;
 	ofstream homevector_str;
+	ofstream length_scaling;
+	ofstream sim_cfg;
 
+
+	//************ Timing parameters ************//
+
+	int trial;              // trial number
+	double global_t;        // continuous time during multiple cycles
+	double trial_t;         // continuous time for each trial
+	double dt;              // integration time
+	int timestep;           // discrete time steps
+
+public:
 	//************ Evaluation parameters ************//
-
 
 	/// Foraging
 	running_stat<double> avg_length;
@@ -147,16 +159,9 @@ private:
 	running_stat<double> total_pi_error;		// distance between estimated and actual position of agent per timestep per trial
 
 
-	//************ Timing parameters ************//
-
-	int trial;              // trial number
-	double global_t;        // continuous time during multiple cycles
-	double trial_t;         // continuous time for each trial
-	double dt;              // integration time
-	int timestep;           // discrete time steps
-
 	//************ debugging ************//
 	bool VERBOSE;
+	bool SILENT;
 };
 
 

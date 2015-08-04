@@ -50,12 +50,16 @@ Agent::~Agent(){
 	delete control;
 }
 
+Controller* Agent::c(){
+	return control;
+}
+
 Angle Agent::dphi(){
 	return diff_heading;
 }
 
 Vec Agent::HV(){
-	return Vec(control->HV().x, control->HV().y);
+	return control->HV();
 }
 
 Vec Agent::HVm(){
@@ -72,6 +76,10 @@ void Agent::init(Controller* control){
 
 Angle Agent::phi(){
 	return heading;
+}
+
+PIN* Agent::pi(){
+	return control->pi();
 }
 
 void Agent::reset(){

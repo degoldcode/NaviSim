@@ -22,12 +22,12 @@ const double dt= 0.1;
 int main(){
 	Timer timer(true);
 
-	sim = new Simulation(numagents, true);
-	sim->init_controller(360, 0.00, 0.00);
+	sim = new Simulation(numtrials, numagents, true);
+	sim->init_controller(18, 0.01, 0.00);
 	sim->run(numtrials, T, dt);
 	delete sim;
-	auto elapsed_secs_cl = timer.Elapsed();
 
+	auto elapsed_secs_cl = timer.Elapsed();
 	printf("%4.3f s. Done.\n", elapsed_secs_cl.count()/1000.);
 }
 

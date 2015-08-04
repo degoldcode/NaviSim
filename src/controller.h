@@ -40,9 +40,10 @@ public:
 	 *	@param (int) num_neurons: number of neurons
 	 *	@param (double) sensory_noise: sensory noise to PI
 	 *	@param (double) leakage: leakage of PI memory
+	 *	@param (double) uncorr_noise: uncorrelated noise at input layer (default: 0.)
 	 *
 	 */
-	Controller(int num_neurons, double sensory_noise, double leakage);
+	Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise= 0.);
 
 	/**
 	 * Destructor
@@ -128,6 +129,14 @@ public:
 	 */
 	//double in_degr(double angle);
 
+
+	/**
+	 * Return number of neurons per circular array
+	 *
+	 * return (int)
+	 */
+	int N();
+
 	/**
 	 * Sets write option to false -> no writing to file
 	 *
@@ -149,6 +158,14 @@ public:
 	 *  @return (double)
 	 */
 	//double p(int i);
+
+
+	/**
+	 * Return PI module
+	 *
+	 * @return (PIN*)
+	 */
+	PIN* pi();
 
 	/**
 	 * Returns a random number drawn from a Gaussian distribution
@@ -282,16 +299,18 @@ private:
 	ofstream r_stream;
 	ofstream lm_stream;
 
-	bool write;
-	bool state_matrc;
-	int inv_sampling_rate;	//for activations stored in matrix ([s])
-
 	//************ Global Parameters ************//
-	int N;
+	int numneurons;
 	double rx;
 	double ry;
 	int t;
 	int trial_t;
 	int run;
+
+public:
+	bool write;
+	bool SILENT;			// no activity matrices sampling
+	bool state_matrc;
+	int inv_sampling_rate;	//for activations stored in matrix ([s])
 };
 #endif /* NAVICONTROL_H_ */

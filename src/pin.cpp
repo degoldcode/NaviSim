@@ -68,19 +68,21 @@ void PIN::reset(){
 }
 
 void PIN::update(Angle angle, double speed){
+
 	//---Sensory Noise
-	Angle noisy_angle = angle + Angle(2.*M_PI*noise(snoise));
-	double noisy_speed = speed + noise(snoise);
+	Angle noisy_angle = angle + Angle(2.*M_PI*snoise*noise(1.0));
+	double noisy_speed = speed + 0.1*snoise*noise(1.);
 
 	//---Layer 1 -> Head Direction Layer
 	vec input = cos(noisy_angle.rad()*ones<vec>(N) - preferred_angle)*(-0.5) + 0.5*ones<vec>(N) + vnoise(N,nnoise);
 	ar.at(HD)->update_rate(input);
 	//---Layer 2 -> Gater Layer
-	ar.at(G)->update_rate(lin_rect(-eye<mat>(N,N)*ar.at(HD)->rate()+(noisy_speed)*ones<vec>(N)) + vnoise(N,nnoise));
+	ar.at(G)->update_rate(lin_rect(-eye<mat>(N,N)*ar.at(HD)->rate()+(noisy_speed)*ones<vec>(N)) /*+ vnoise(N,nnoise)*/);
+	// Multiplicative modulation: ar.at(G)->update_rate(lin_rect(-(noisy_speed)*eye<mat>(N,N)*ar.at(HD)->rate()) );
 	//---Layer 3 -> Memory Layer
-	ar.at(M)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(G)->rate() + (1.0-leak_rate)*eye<mat>(N,N)*ar.at(M)->rate()) + vnoise(N,nnoise));
+	ar.at(M)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(G)->rate() + (1.0-leak_rate)*eye<mat>(N,N)*ar.at(M)->rate()) /*+ vnoise(N,nnoise)*/);
 	//---Layer 4 -> Vector Decoding Layer
-	ar.at(PI)->update_rate(lin_rect(w_cos * ar.at(M)->rate()) + vnoise(N,nnoise));
+	ar.at(PI)->update_rate(lin_rect(w_cos * ar.at(M)->rate()) /*+ vnoise(N,nnoise)*/);
 
 	//Output parameters
 	output_rate = ar.at(PI)->rate();
@@ -88,6 +90,12 @@ void PIN::update(Angle angle, double speed){
 	update_len(output_rate);
 	update_max(output_rate);
 	home_vector.to(len()*avg().C(), len()*avg().S());
+	double checklen = len();
+	if(!std::isfinite(checklen))
+		printf("Length is non-finite: %g\n", checklen);
+	double checkrad = avg().rad();
+	if(!std::isfinite(checkrad))
+		printf("Length is non-finite: %g\n", checkrad);
 	home_vector_max.to(len()*max().C(), len()*max().S());
 }
 

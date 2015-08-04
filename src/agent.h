@@ -73,6 +73,13 @@ public:
 	Angle dphi();
 
 	/**
+	 * Return controller
+	 *
+	 * @return (Controller)
+	 */
+	Controller* c();
+
+	/**
 	 * Returns estimated home vector of the agent using average
 	 *
 	 * @return (Vec)
@@ -113,6 +120,13 @@ public:
 	 * @return (Angle)
 	 */
 	Angle phi();
+
+	/**
+	 * Return PI module
+	 *
+	 * @return (PIN*)
+	 */
+	PIN* pi();
 
 	/**
 	 * Resets the agent to the home position at (0.,0.)

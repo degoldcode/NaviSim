@@ -7,13 +7,13 @@
 
 #include "controller.h"
 
-Controller::Controller(int num_neurons, double sensory_noise, double leakage){
-	N = num_neurons;
-	pin = new PIN(N, leakage, sensory_noise, 0.00);
+Controller::Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise){
+	numneurons = num_neurons;
+	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise);
 	num_colors = 1;
 	gvl.resize(num_colors);
 	for(int i = 0; i < num_colors; i++)
-		gvl.at(i) = new GoalLearning(N, 0.0);
+		gvl.at(i) = new GoalLearning(numneurons, 0.0);
 
 	gl_array.resize(num_colors);
 	gv_weight.resize(num_colors);
@@ -44,6 +44,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage){
 	val_discount = 0.99;
 	expl_factor = ones(num_colors);
 
+	SILENT = false;
 	write = true;
 	state_matrc = true;
 	stream.open("./data/control.dat");
@@ -128,6 +129,10 @@ double Controller::inv_angle(double angle) {
 	return bound(angle - M_PI);
 }
 
+int Controller::N(){
+	return numneurons;
+}
+
 /*void NaviControl::no_write(){
 	write = false;
 }*/
@@ -142,6 +147,10 @@ double Controller::inv_angle(double angle) {
 	else
 		return prob(0);
 }*/
+
+PIN* Controller::pi(){
+	return pin;
+}
 
 double Controller::randn(double mean, double stdev) {
 	static random_device e { };
@@ -223,7 +232,7 @@ void Controller::set_sample_int(int _val){
 }*/
 
 double Controller::update(Angle angle, double speed, double inReward, int color) {
-	if(t%inv_sampling_rate == 0){
+	if(t%inv_sampling_rate == 0 && !SILENT){
 		pi_array = join_rows(pi_array, pin->get_output());
 		for(unsigned int index = 0; index < pin->get_output().n_rows; index++)
 			pi_stream << t*0.1 << " " << index << " " << pin->get_output()(index) << endl;
