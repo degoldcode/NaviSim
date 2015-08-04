@@ -34,6 +34,7 @@ def setup_arc_radial_axes(fig, rect, angle_ticks, radius_ticks, min_rad, max_rad
                                 )
 
     ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
+    ax1.grid(color='w', linestyle='--', linewidth=1.5)
     fig.add_subplot(ax1)
 
     ax1.grid(True)
@@ -59,7 +60,8 @@ for mic_num in range(38):
 ### these are merely the ticks that appear on the plot axis
 ### these don't actually get plotted
 
-angle_ticks = range(0,390,10)
+angle_ticks = range(0,360,20)##(64,85,106,127,148,169,190,211,232,253,274,295,316,337,358)##range(0,390,24)
+angle_ticks_norm = range(0,390,24)
 angle_ticks_rads = [(a%360)*math.pi/180.0 for a in angle_ticks]
 angle_ticks_for_plot = []
 for i in range(len(angle_ticks)):
@@ -91,7 +93,7 @@ ax2, aux_ax2 = setup_arc_radial_axes(fig, 111, angle_ticks_for_plot, radius_tick
 
 values = np.loadtxt("../mat/pi_activity.mat", usecols=xrange(1, 1000, 10)) 
 print values.shape
-azimuths = np.radians(np.linspace(0, 360, 18))
+azimuths = np.radians(np.linspace(0, 360, 360))
 #azimuths_adjusted = [ (x + math.pi) for x in azimuths ]
 zeniths = np.arange(0, 1000, 10)
 zeniths_adjusted = [((x-plot_fake_min)/(plot_fake_max-plot_fake_min))*(plot_real_max-plot_real_min)+plot_real_min for x in zeniths]
@@ -105,7 +107,7 @@ cbar = plt.colorbar(ctf, orientation='vertical')
 cbar.ax.set_ylabel('Firing rate [Hz]', fontsize = 14, labelpad=20)
 
 plt.legend(loc=3,prop={'size':20})
-plt.xlabel('Angle [$^\circ$]', fontsize=20, labelpad=2000)
+plt.xlabel('Angle [$^\circ$]', fontsize=20)
 plt.ylabel('Time [s]', fontsize=20)
 
 # plt.show()

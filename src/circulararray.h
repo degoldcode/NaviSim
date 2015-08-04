@@ -202,27 +202,84 @@ public:
 	void update_avg(vec input){
 		double sum_act = 0.0;
 		double output = 0.0;
-		if(input(0) == 0.0){
-			for(int i = 0; i < N; i++){
-				if(input(i) > 0.0){
-					output += preferred_angle(i)*input(i);
-					sum_act += input(i);
-				}
-			}
-			if(sum_act>0.0)
-				output /= sum_act;
+		int _start = 0;
+		int _end = 0;
+
+		for(int i = 0; i < N; i++){
+			if(input(i%N) > 0. && input((i+1)%N) == 0.)
+				_end = (i+1)%N;
+			if(input(i%N) == 0. && input((i+1)%N) > 0.)
+				_start = (i+1)%N;
 		}
+
+		int factor = 1;
+
+		double sins = 0.;
+		double coss = 0.;
+
+
+		uword index;
+		double maxmax = input.max(index);
+
+		if(_start > _end)
+			_end+=N;
+
+
+		for(int i = _start; i < _end; i++){
+			//cout << i << " " << i%N << endl;
+			output += (2*M_PI*i/N)*input(i%N);
+			sum_act += input(i%N);
+//			if(input(0) != 0.0){
+//				continue;
+//			}
+//			else{
+//				offset_i = i;
+//				offset = preferred_angle(i);
+//				break;
+//			}
+		}
+		output /= sum_act;
+
+		if(output > 0.)
+			avg_angle = Angle(fmod(output, 2*M_PI));
 		else{
-			for(int i = 0; i < N; i++){
-				if(input(i) > 0.0){
-					output += preferred_angle(i)*input(i);
-					sum_act += input(i);
-				}
-			}
-			if(sum_act>0.0)
-				output /= sum_act;
+			//printf("%f\n", output);
+			avg_angle = Angle(2*M_PI+fmod(output, 2*M_PI));
 		}
-		avg_angle = Angle(output);
+
+
+//		for(int i = 0; i < N; i++){
+//			output += preferred_angle((i+offset_i)%N)*input((i+offset_i)%N);
+//			sum_act += input((i+offset_i)%N);
+//		}
+//		output /= sum_act;
+//
+//		if(output+offset > 0.)
+//			avg_angle = Angle(fmod(output+offset, 2*M_PI));
+//		else{
+//			printf("%f\n", output+offset);
+//			avg_angle = Angle(2*M_PI+fmod(output+offset, 2*M_PI));
+//		}
+//		if(input(0) == 0.0){
+//			for(int i = 0; i < N; i++){
+//				if(input(i) > 0.0){
+//					output += preferred_angle(i)*input(i);
+//					sum_act += input(i);
+//				}
+//			}
+//			if(sum_act>0.0)
+//				output /= sum_act;
+//		}
+//		else{
+//			for(int i = 0; i < N; i++){
+//				if(input(i) > 0.0){
+//					output += preferred_angle(i)*input(i);
+//					sum_act += input(i);
+//				}
+//			}
+//			if(sum_act>0.0)
+//				output /= sum_act;
+//		}
 	};
 
 	/**
@@ -256,16 +313,16 @@ public:
 		if(rate.n_elem != output_rate.n_elem)
 			printf("WARNING: Dimension has been changed.\n");
 		output_rate = rate;
-		if(type == 0){
-			update_avg(output_rate);
-			update_len(output_rate);
-			update_max(output_rate);
-		}
-		else{
-			update_avg(input_conns.col(0));
-			update_len(input_conns.col(0));
-			update_max(input_conns.col(0));
-		}
+//		if(type == 0){
+//			update_avg(output_rate);
+//			update_len(output_rate);
+//			update_max(output_rate);
+//		}
+//		else{
+//			update_avg(input_conns.col(0));
+//			update_len(input_conns.col(0));
+//			update_max(input_conns.col(0));
+//		}
 	};
 
 	/**

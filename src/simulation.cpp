@@ -76,6 +76,8 @@ void Simulation::init_controller(int num_neurons, double sensory_noise, double l
 void Simulation::reset(){
 	timestep = 0;
 	trial_t = 0.;
+	pi_error.reset();
+	pi_error_max.reset();
 	environment->reset();
 }
 
@@ -92,6 +94,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 
 			//if(a(0)->in())
 				pi_error( (a(0)->HV()-a(0)->v()).len() );
+				pi_error_max( (a(0)->HVm()-a(0)->v()).len() );
 		}
 
 		if(in_numtrials > 1){
@@ -108,7 +111,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 
 void Simulation::update(){
 	if(timestep%1000==0)
-		printf("time = %g\tError = %g\n", trial_t, pi_error.mean());
+		printf("time = %g\te = %g\te_max = %g\n", trial_t, pi_error.mean(), pi_error_max.mean());
 	timestep++;
 	trial_t += dt;
 	global_t += dt;

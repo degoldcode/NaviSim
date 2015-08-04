@@ -101,7 +101,6 @@ void Agent::to(double x_new, double y_new){
 
 void Agent::update(){
 	//control->set_inward(inward);
-	control_output = control->update(heading.rad(), speed, 0.0, 0);
 	if(!in_pipe)
 		diff_heading.to(dt * k_phi * control_output + external);
 	else
@@ -114,6 +113,8 @@ void Agent::update(){
 	speed += diff_speed;
 
 	move(dt * speed * heading.C(), dt * speed * heading.S(), 0.0);
+
+	control_output = control->update(heading.rad(), speed, 0.0, 0);
 }
 
 double Agent::s(){

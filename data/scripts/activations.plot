@@ -22,11 +22,11 @@ set cblabel "State"
 
 set pm3d map
 unset key
-#set palette rgb 21,22,23 ## hot
-set pal gray
-set palette negative
+set palette rgb 21,22,23 ## hot
+#set pal gray
+#set palette negative
 
 ##### Reservoir activations
 set output "../../figs/pi_activity.eps"
-plot "../mat/pi_activity.mat" matrix with image, "../homevector.dat" u 2:5 w l lt -1 lc rgb "green", "../homevector.dat" u 2:6 w l lt 1 lc rgb "blue", "../agent.dat" u 2:7 w l lt -1 lc rgb "red"
+plot "../mat/pi_activity.mat" matrix with image, "../homevector.dat" u 2:(rows*$5/360) w l lt -1 lc rgb "green" t "avg", "../homevector.dat" u 2:(rows*$6/360) w l lt 1 lc rgb "blue" t "max", "../agent.dat" u 2:(rows*$7/360) w l lt -1 lc rgb "violet"  t "real"
 set output
