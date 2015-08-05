@@ -23,7 +23,7 @@ int main(){
 	Timer timer(true);
 
 	sim = new Simulation(numtrials, numagents, true);
-	sim->init_controller(18, 0.01, 0.00);
+	sim->init_controller(18, 0.02, 0.00);
 	sim->run(numtrials, T, dt);
 	delete sim;
 

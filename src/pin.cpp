@@ -28,9 +28,13 @@
 #include "pin.h"
 
 PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise) : CircArray(num_neurons) {
+	printf("Neurons: %u\n", N);
 	leak_rate = leak;
+	printf("Leak: %g\n", leak_rate);
 	snoise = sens_noise;
+	printf("Sensory noise: %g\n", snoise);
 	nnoise = neur_noise;
+	printf("Uncorrelated noise: %g\n", nnoise);
 
 
 	CircArray* in_array = new CircArray(N);
@@ -68,17 +72,25 @@ void PIN::reset(){
 }
 
 void PIN::update(Angle angle, double speed){
-
 	//---Sensory Noise
-	Angle noisy_angle = angle + Angle(2.*M_PI*snoise*noise(1.0));
-	double noisy_speed = speed + 0.1*snoise*noise(1.);
+	Angle noisy_angle = angle + Angle(2.*M_PI*snoise*boost_noise(1.));
+	double noisy_speed = speed + 0.1*snoise*boost_noise(1.);
+	if(noisy_speed < 0.0)
+		noisy_speed = 0.0;
 
 	//---Layer 1 -> Head Direction Layer
 	vec input = cos(noisy_angle.rad()*ones<vec>(N) - preferred_angle)*(-0.5) + 0.5*ones<vec>(N) + vnoise(N,nnoise);
+	// Multiplicative modulation:
+	//vec input = cos(noisy_angle.rad()*ones<vec>(N) - preferred_angle) + vnoise(N,nnoise);
+
 	ar.at(HD)->update_rate(input);
+
 	//---Layer 2 -> Gater Layer
 	ar.at(G)->update_rate(lin_rect(-eye<mat>(N,N)*ar.at(HD)->rate()+(noisy_speed)*ones<vec>(N)) /*+ vnoise(N,nnoise)*/);
-	// Multiplicative modulation: ar.at(G)->update_rate(lin_rect(-(noisy_speed)*eye<mat>(N,N)*ar.at(HD)->rate()) );
+	// Multiplicative modulation:
+	//vec gater_input = eye<mat>(N,N)*ar.at(HD)->rate();
+	//ar.at(G)->update_rate( lin_rect(gater_input*noisy_speed) );
+
 	//---Layer 3 -> Memory Layer
 	ar.at(M)->update_rate(lin_rect(eye<mat>(N,N)*ar.at(G)->rate() + (1.0-leak_rate)*eye<mat>(N,N)*ar.at(M)->rate()) /*+ vnoise(N,nnoise)*/);
 	//---Layer 4 -> Vector Decoding Layer
@@ -95,7 +107,7 @@ void PIN::update(Angle angle, double speed){
 		printf("Length is non-finite: %g\n", checklen);
 	double checkrad = avg().rad();
 	if(!std::isfinite(checkrad))
-		printf("Length is non-finite: %g\n", checkrad);
+		printf("Rad is non-finite: %g\n", checkrad);
 	home_vector_max.to(len()*max().C(), len()*max().S());
 }
 

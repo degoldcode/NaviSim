@@ -64,6 +64,7 @@ public:
 		max_rate = 0.0;
 		length = 0.0;
 		type = 0;
+		seed = 0;
 
 		output_rate.zeros(N);
 		input_rate.zeros(K);
@@ -118,6 +119,8 @@ public:
 	};
 	double boost_noise(double width){
 		boost::mt19937 rng; // I don't seed it on purpouse (it's not relevant)
+
+		rng.seed((++seed) + time(NULL));
 		boost::normal_distribution<> nd(0.0, width);
 		boost::variate_generator<boost::mt19937&,
 		boost::normal_distribution<> > var_nor(rng, nd);
@@ -375,11 +378,11 @@ private:
 	double max_rate;                                // Maximum rate of neuron array
 	Angle avg_angle;                                // Average position of the maximum firing rate
 	double length;                                  // Length of vector = (some scaling factor)*(sum of activities)/N
-	const double scale_factor = 2.41456;			// Scaling factor (2.41456; 2.41474212)
+	const double scale_factor = 2.41456;			// Scaling factor (1.25597(fit_mult); 2.41456(fit_add); 2.41474212(manual_add))
 
 	vec input_rate;                                 // Input activity rate to the array
 	vec bias;										// Bias vector
-
+	unsigned int seed;
 };
 
 

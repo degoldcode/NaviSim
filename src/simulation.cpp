@@ -52,7 +52,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	sim_cfg.open("data/sim.cfg");
 	sim_cfg << "# Na\t# Nn\t# Sno\t# Leak\t# Uncno" << endl;
 	sim_cfg << agents << "\t";
-	//length_scaling.open("data/l_scale.dat");
+	length_scaling.open("data/l_scale.dat");
 }
 
 Simulation::~Simulation(){
@@ -61,7 +61,7 @@ Simulation::~Simulation(){
 	endpts_str.close();
 	homevector_str.close();
 	sim_cfg.close();
-	//length_scaling.close();
+	length_scaling.close();
 	delete environment;
 }
 
@@ -159,8 +159,8 @@ void Simulation::writeTrialData(){
 	agent_str << trial << "\t" << trial_t;
 	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y() << "\t" << a(0)->d() << "\t" << a(0)->dphi()<< "\t" << a(0)->v().ang() << "\t" << global_t ; // TODO: different streams for different agents
 	agent_str << endl;
-	homevector_str << trial << "\t" << global_t;
-	homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << endl;
-	//length_scaling << a(0)->v().len() << "\t" << sum(a(0)->pi()->get_output()) << "\t" << a(0)->c()->N() << endl;
+	homevector_str << trial_t << "\t" << global_t;
+	homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;
+	length_scaling << a(0)->v().len() << "\t" << sum(a(0)->pi()->get_output()) << "\t" << a(0)->c()->N() << endl;
 }
 
