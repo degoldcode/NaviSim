@@ -20,21 +20,20 @@ const int numtrials= 1000;
 const double T= 1000.;
 const double dt= 0.1;
 
-
-vector<int> neurons = {6, 9, 18, 36, 90, 180, 360}; // 0.5, 1.};
+vector<double> noise = {0.0, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.4}; // 0.5, 1.};
 ofstream nrmse;
 
 int main(){
 	Timer timer(true);
 
-	nrmse.open("data/nrmse_neuron.dat");
-	for(int i = 0; i < neurons.size(); i++){
-		printf("Start simulation with %u neurons.\n", neurons[i]);
+	nrmse.open("data/nrmse_noise.dat");
+	for(int i = 0; i < noise.size(); i++){
+		printf("Start simulation with %g %% sensory noise.\n", noise[i]*100);
 		sim = new Simulation(numtrials, numagents, true);
-		sim->SILENT = true;
-		sim->init_controller(neurons[i], 0.02, 0.00);
+		sim->SILENT=true;
+		sim->init_controller(18, noise[i], 0.00);
 		sim->run(numtrials, T, dt);
-		nrmse << neurons[i] << "\t" << sim->total_pi_error.mean() << "\t" << sim->total_pi_error.stddev()  << endl;
+		nrmse << noise[i] << "\t" << sim->total_pi_error.mean() << "\t" << sim->total_pi_error.stddev()  << endl;
 		delete sim;
 	}
 	nrmse.close();

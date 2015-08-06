@@ -27,6 +27,7 @@ echo "Backup data."
 cd ..
 timestamp=$( date +"%y%m%d-%T")
 mkdir ../data_container/pi_neurons/$timestamp/
-cp {nrmse_neuron.dat, sim.cfg}  ../data_container/pi_neurons/$timestamp/
+cp nrmse_neuron.dat ../data_container/pi_neurons/$timestamp/
+cp sim.cfg  ../data_container/pi_neurons/$timestamp/
 
 echo "Done."

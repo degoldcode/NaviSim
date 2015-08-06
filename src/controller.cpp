@@ -234,8 +234,6 @@ void Controller::set_sample_int(int _val){
 double Controller::update(Angle angle, double speed, double inReward, int color) {
 	if(t%inv_sampling_rate == 0 && !SILENT){
 		pi_array = join_rows(pi_array, pin->get_output());
-		for(unsigned int index = 0; index < pin->get_output().n_rows; index++)
-			pi_stream << t*0.1 << " " << index << " " << pin->get_output()(index) << endl;
 	}
 	t++;
 

@@ -33,7 +33,7 @@ gnuplot nrmse.plot
 echo "Backup data."
 cd ..
 timestamp=$( date +"%y%m%d-%T")
-mkdir ../data_container/$timestamp/
-cp *.dat ../data_container/$timestamp/
+mkdir ../data_container/pi_noise/$timestamp/
+cp *.dat ../data_container/pi_noise/$timestamp/
 
 echo "Done."
