@@ -60,6 +60,14 @@ public:
 	~GoalLearning();
 
 	/**
+	 * Get global vector
+	 *
+	 * @param (int) index: index of synaptic weights
+	 * @return (Vec)
+	 */
+	Vec GV(int index = 0);
+
+	/**
 	 * Sets the foraging state
 	 *
 	 *	@param (double) state: foraging state
@@ -101,8 +109,7 @@ public:
 	double y();
 
 private:
-	double GV_x;
-	double GV_y;
+	vector<Vec> global_vector;                   // Global vectors
 
 	double foraging_state;
 	double learn_rate;

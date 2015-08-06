@@ -7,7 +7,7 @@ set ylabel "y"
 set cblabel "Trials" offset 1
 
 set size square
-SCALE = 50.
+SCALE = 30.
 OFFSETX = 0.0 ##-2.5
 OFFSETY = 0.0 ##-2.5
 	
