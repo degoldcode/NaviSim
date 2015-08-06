@@ -347,7 +347,7 @@ public:
 	 */
 	vec vnoise(int dim, double width){
 		if(width > 0.0){
-			return width*randn<vec>(dim);
+			return randn<vec>(dim)*width;
 		}
 		else
 			return zeros<vec>(dim);

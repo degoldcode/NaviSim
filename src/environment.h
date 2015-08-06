@@ -339,6 +339,9 @@ public:
 
 private:
 
+	//************ Environment parameters **********//
+	const double home_radius = 0.2;
+
 	//************ Reward parameters ************//
 	vector<double> reward;
 	vector<double> trial_reward;			// sum of reward during trial
@@ -367,6 +370,9 @@ private:
 
 	//************ debugging ************//
 	const bool VERBOSE = false;
+
+public:
+	bool stop_trial;	//stops the trial
 };
 
 #endif /* ENVIRONMENT_H_ */

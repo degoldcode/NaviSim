@@ -83,13 +83,11 @@ public:
 	//double expl(int i);
 
 	/**
-	 * Sets real position of agent
+	 * Get foraging state of controller
 	 *
-	 *  @param (double) x: x position of agent
-	 *  @param (double) y: y position of agent
-	 *  @return (void)
+	 *  @return (bool)
 	 */
-	//void get_pos(double x, double y);
+	bool get_state();
 
 	/**
 	 * Returns global vector of goal i
@@ -207,12 +205,12 @@ public:
 	void save_matrices();
 
 	/**
-	 * Sets the foraging state
+	 * Set time for inward switch
 	 *
-	 *	@param (int) in_mode: foraging state
+	 *	@param (int) _time: time steps when agent goes inward
 	 * 	@return (void)
 	 */
-	void set_inward(bool in_mode);
+	void set_inward(int _time);
 
 	/**
 	 * Writes data into files
@@ -258,6 +256,7 @@ private:
 	//RouteLearning* lvl;
 	//Map* map;
 	bool inward;
+	double rand_m;
 	double pi_m;
 	double gl_m;
 	double rl_m;
@@ -305,9 +304,14 @@ private:
 	double ry;
 	int t;
 	int trial_t;
+	int t_home;
 	int run;
 
 public:
+	bool pin_on;
+	bool homing_on;
+	bool gv_learn_on;
+	bool gv_nav_on;
 	bool write;
 	bool SILENT;			// no activity matrices sampling
 	bool state_matrc;

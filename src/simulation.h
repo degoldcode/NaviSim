@@ -69,10 +69,51 @@ public:
 
 	Agent* a(int i);
 
+	Controller* c(int i=0);
+
 	Environment* e();
 
-	void init_controller(int num_neurons=360, double sensory_noise=0.0, double leakage=0.0);
 
+	/**
+	 * Set global vector learning controller option to _opt
+	 *
+	 * @param (bool) _opt: true, if homing on
+	 * @return (void)
+	 */
+	void gv_learn(bool _opt);
+
+	/**
+	 * Set global vector navigation controller option to _opt (also changes gv_learn)
+	 *
+	 * @param (bool) _opt: true, if homing on
+	 * @return (void)
+	 */
+	void gv_nav(bool _opt);
+
+	/**
+	 * Set homing controller option to _opt
+	 *
+	 * @param (bool) _opt: true, if homing on
+	 * @return (void)
+	 */
+	void homing(bool _opt);
+
+	/**
+	 * Initialize controller with parameters
+	 *
+	 * @param (int) num_neurons: number of neurons per layer (default: 18)
+	 * @param (double) sensory_noise: sensory noise level (default: 0.0)
+	 * @param (double) uncor_noise: uncorrelated noise level (default: 0.0)
+	 * @param (double) leakage: leakage term for systematic errors (default: 0.0)
+	 * @return (void)
+	 */
+	void init_controller(int num_neurons=18, double sensory_noise=0.0, double uncor_noise = 0.0, double leakage=0.0);
+
+	/**
+	 * Reset simulation
+	 *
+	 * @return (void)
+	 */
 	void reset();
 
 	/**
@@ -84,6 +125,14 @@ public:
 	 *	@return (void)
 	 */
 	void run(int in_numtrials, double in_duration, double in_interval);
+
+	/**
+	 * Set inward time step
+	 *
+	 * @param (int) _time: timesteps after agent goes inward
+	 * @return (void)
+	 */
+	void set_inward(int _time);
 
 	/**
 	 * Updates simulation by one time step
@@ -136,6 +185,11 @@ private:
 	ofstream homevector_str;
 	ofstream length_scaling;
 	ofstream sim_cfg;
+
+	//************ Controller options *************//
+	bool homing_on;         // true, if agent does homing after certain time
+	bool gv_learning_on;    // true, if agent learns global vectors
+	bool gv_navigation_on;  // true, if agent navigates global vectors
 
 
 	//************ Timing parameters ************//

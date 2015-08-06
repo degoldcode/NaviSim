@@ -31,6 +31,7 @@ using namespace std;
 
 Environment::Environment(int num_agents){
 	inv_sampling_rate = 1;
+	stop_trial = false;
 
 
 	(VERBOSE)?printf("\nCREATE %u AGENTS\n\n", num_agents):VERBOSE;
@@ -299,6 +300,7 @@ void Environment::open_streams(){
 }*/
 
 void Environment::reset(){
+	stop_trial = false;
 	std::fill(trial_reward.begin(), trial_reward.end(), 0.);
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		agent_list.at(i)->reset();
@@ -330,7 +332,11 @@ void Environment::update_agents(){
 /*		for(unsigned int j = 0; j < pipe_list.size(); j++)
 			agent_list.at(i) = pipe_list.at(j)->set_agent_pipe(agent_list.at(i));*/
 		agent_list.at(i)->update();
+		if(agent_list.at(i)->d() < home_radius && agent_list.at(i)->c()->get_state()){
+			stop_trial = true;
+		}
 	}
+
 }
 
 void Environment::update_collisions(){

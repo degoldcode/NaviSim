@@ -34,6 +34,10 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	VERBOSE = false;
 	SILENT = false;
 
+	homing_on = false;
+	gv_learning_on = false;
+	gv_navigation_on = false;
+
 	(VERBOSE)?printf("Building environment.\n"):VERBOSE;
 	//environment = (rand_env ? new Environment(10, 10, 25., 1) : new Environment(agents));
 	environment = (rand_env ? new Environment(ngs, nlms, m_rad, agents) : new Environment(agents));
@@ -69,19 +73,24 @@ Agent* Simulation::a(int i){
 	return environment->a(i);
 }
 
+Controller* Simulation::c(int i){
+	return controllers.at(i);
+}
+
 Environment* Simulation::e(){
 	return environment;
 }
 
-void Simulation::init_controller(int num_neurons, double sensory_noise, double leakage){
-	sim_cfg << num_neurons << "\t" << sensory_noise << "\t" << leakage << "\t" << leakage << endl;
-	for(unsigned int i= 0; i< agents; i++){
-		Controller* control = new Controller(num_neurons, sensory_noise, leakage);
-		if(SILENT)
-			control->SILENT = true;
-		else
-			control->SILENT = false;
+void Simulation::homing(bool _opt){
+	homing_on = _opt;
+	c()->homing_on = _opt;
+}
 
+void Simulation::init_controller(int num_neurons, double sensory_noise, double uncor_noise, double leakage){
+	sim_cfg << num_neurons << "\t" << sensory_noise << "\t" << uncor_noise << "\t" << leakage << endl;
+	for(unsigned int i= 0; i< agents; i++){
+		Controller* control = new Controller(num_neurons, sensory_noise, leakage, uncor_noise);
+		control->SILENT = SILENT;
 		int size = N*pow( 10, int(log10( double( num_neurons ) ) ) );
 		control->set_sample_int(size);      // sample activity data every 10 time steps
 
@@ -113,7 +122,6 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 				pi_error( (a(0)->HV()-a(0)->v()).len() );
 			else
 				printf("pi_e is non-finite -> (%g, %g) - (%g, %g)\n", a(0)->HV().x, a(0)->HV().y, a(0)->v().x, a(0)->v().y);
-			//pi_error_max( (a(0)->HVm()-a(0)->v()).len() );
 		}
 
 		if(N > 1){
@@ -138,6 +146,10 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 	}
 }
 
+void Simulation::set_inward(int _time){
+	c()->set_inward(_time);
+}
+
 void Simulation::update(){
 	if(timestep%1000==0 && N == 1)
 		printf("Time = %g\te = %g\te_max = %g\n", trial_t, pi_error.mean(), pi_error_max.mean());
@@ -145,6 +157,13 @@ void Simulation::update(){
 	trial_t += dt;
 	global_t += dt;
 	environment->update();
+	if(environment->stop_trial){
+		if(N < 10)
+			printf("Homing success at %g s\n", trial_t);
+		trial_t = T;
+
+	}
+
 }
 
 void Simulation::writeSimData(){

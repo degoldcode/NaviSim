@@ -20,18 +20,18 @@ const int numtrials= 1000;
 const double T= 1000.;
 const double dt= 0.1;
 
-vector<double> noise = {0.0, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.4}; // 0.5, 1.};
+vector<double> noise = {0.0, 0.005, 0.01, 0.02, 0.04, 0.08, 0.12, 0.16, 0.2}; // 0.5, 1.};
 ofstream nrmse;
 
 int main(){
 	Timer timer(true);
 
-	nrmse.open("data/nrmse_noise.dat");
+	nrmse.open("data/nrmse_uncor.dat");
 	for(int i = 0; i < noise.size(); i++){
-		printf("Start simulation with %g %% sensory noise.\n", noise[i]*100);
+		printf("Start simulation with %g %% uncorrelated noise.\n", noise[i]*100);
 		sim = new Simulation(numtrials, numagents, true);
 		sim->SILENT=true;
-		sim->init_controller(18, noise[i], 0.00);
+		sim->init_controller(18, 0.0, noise[i], 0.0);
 		sim->run(numtrials, T, dt);
 		nrmse << noise[i] << "\t" << sim->total_pi_error.mean() << "\t" << sim->total_pi_error.stddev()  << endl;
 		delete sim;

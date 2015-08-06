@@ -18,12 +18,13 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	gl_array.resize(num_colors);
 	gv_weight.resize(num_colors);
 
+	rand_m = 0.0;
 	pi_m = 0.0;
 	gl_m = 0.0;
 	rl_m = 0.0;
+	output = 0.0;
 	inward = false;
 	goal_factor = 0.0;
-
 
 	GV_angle.resize(num_colors);
 	GV_len.resize(num_colors);
@@ -44,6 +45,12 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	val_discount = 0.99;
 	expl_factor = ones(num_colors);
 
+	pin_on = true;
+	homing_on = false;
+	gv_learn_on = false;
+	gv_nav_on = false;
+
+
 	SILENT = false;
 	write = true;
 	state_matrc = true;
@@ -54,10 +61,13 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 
 	rx = 0.0;
 	ry = 0.0;
+
+
 	inv_sampling_rate = 1;
 	t = 0;
 	trial_t = 0;
 	run = 0;
+	t_home = 0;
 }
 
 Controller::~Controller() {
@@ -98,10 +108,9 @@ double Controller::bound(double angle){
 		return expl_factor(0);
 }*/
 
-/*void NaviControl::get_pos(double x, double y) {
-	rx = x;
-	ry = y;
-}*/
+bool Controller::get_state() {
+	return inward;
+}
 
 /*GoalLearning* NaviControl::GV(int i){
 	if(i < gvl.size())
@@ -178,8 +187,8 @@ void Controller::reset() {
 	}
 }*/
 
-void Controller::set_inward(bool in_mode) {
-	inward = in_mode;
+void Controller::set_inward(int _time) {
+	t_home = _time;
 }
 
 
@@ -237,9 +246,24 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 	}
 	t++;
 
+	/*** Check, if inward ***/
+	if(t > t_home)
+		inward = true;
+
+	/*** Random foraging ***/
+	rand_m = 4.*randn(0.0, 0.15)*expl_factor(0);
+
 	/*** Path Integration Mechanism ***/
-	pin->update(angle, speed);
-	pi_m = 4. * ((HV().ang()).i() - angle).S();
+	if(pin_on)
+		pin->update(angle, speed);
+
+	if(homing_on && inward){
+		pi_m = 0.5 * ((HV().ang()).i() - angle).S();
+		rand_m = 0.;
+	}
+	else{
+		pi_m = 0.;
+	}
 
 	/*** Global Vector Learning Circuits ***/
 //	for(int i = 0; i < num_colors; i++){
@@ -263,7 +287,7 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 
 
 	/*** Navigation Control Output ***/
-	output = 4.*randn(0.0, 0.15)*expl_factor(0);
+	output = rand_m + pi_m;
 //	if(!inward)
 //		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
 //	else
