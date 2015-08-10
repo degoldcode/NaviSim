@@ -83,8 +83,7 @@ PIN* Agent::pi(){
 }
 
 void Agent::reset(){
-	x(0.);
-	y(0.);
+	to(0.,0.);
 	heading.to(randuu(-M_PI, M_PI));
 	inward = false;
 	control->reset();

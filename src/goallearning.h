@@ -50,8 +50,10 @@ public:
 	 *
 	 *  @param (int) num_neurons: number of neurons in this array (default: 360)
 	 *  @param (int) input_dim: number of incoming signals (default: 0)
+	 *  @param (double*) forage: pointer to agent's foraging state
+	 *  @param (bool) opt_load: true, if loading learned weights from file
 	 */
-	GoalLearning(int num_neurons, double nnoise, bool opt_load=false);
+	GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load=false);
 
 	/**
 	 * Destructor
@@ -70,10 +72,10 @@ public:
 	/**
 	 * Sets the foraging state
 	 *
-	 *	@param (double) state: foraging state
+	 *	@param (double*) state: foraging state
 	 * 	@return (void)
 	 */
-	void set_mu(double state);
+	void set_mu(double* state);
 
 	/**
 	 * Updates the goal learning circuit
@@ -111,7 +113,7 @@ public:
 private:
 	vector<Vec> global_vector;                   // Global vectors
 
-	double foraging_state;
+	double* foraging_state;
 	double learn_rate;
 	double reward;
 	double expl_rate;

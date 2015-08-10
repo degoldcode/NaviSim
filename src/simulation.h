@@ -69,6 +69,24 @@ public:
 
 	Agent* a(int i);
 
+	/**
+	 * Adds a goal at position (x,y) with color
+	 *
+	 * 	@param (double) x: x postion of goal
+	 * 	@param (double) y: y postion of goal
+	 * 	@param (int) color: color index of goal (default: 0)
+	 * 	@return (void)
+	 */
+	void add_goal(double x, double y, int color = 0);
+
+	/**
+	 * Adds a randomly placed goal
+	 *
+	 *	@param (double) max_radius: maximum radius of placement
+	 * 	@return (void)
+	 */
+	void add_goal(double max_radius);
+
 	Controller* c(int i=0);
 
 	Environment* e();
@@ -80,7 +98,7 @@ public:
 	 * @param (bool) _opt: true, if homing on
 	 * @return (void)
 	 */
-	void gv_learn(bool _opt);
+	void gvlearn(bool _opt);
 
 	/**
 	 * Set global vector navigation controller option to _opt (also changes gv_learn)
@@ -88,7 +106,7 @@ public:
 	 * @param (bool) _opt: true, if homing on
 	 * @return (void)
 	 */
-	void gv_nav(bool _opt);
+	void gvnav(bool _opt);
 
 	/**
 	 * Set homing controller option to _opt
@@ -187,9 +205,10 @@ private:
 	ofstream sim_cfg;
 
 	//************ Controller options *************//
+	bool pin_on;			// true, if agent does PI
 	bool homing_on;         // true, if agent does homing after certain time
-	bool gv_learning_on;    // true, if agent learns global vectors
-	bool gv_navigation_on;  // true, if agent navigates global vectors
+	bool gvlearn_on;        // true, if agent learns global vectors
+	bool gvnavi_on;         // true, if agent navigates global vectors
 
 
 	//************ Timing parameters ************//
@@ -207,7 +226,7 @@ public:
 	running_stat<double> avg_length;
 
 	/// Path integration
-	running_stat<int> is_home;					// homing success
+	running_stat<double> is_home;					// homing success
 	running_stat<double> pi_error;              // distance between estimated and actual position of agent per timestep (reset each trial)
 	running_stat<double> pi_error_max;              // distance between estimated and actual position of agent per timestep (reset each trial)
 	running_stat<double> total_pi_error;		// distance between estimated and actual position of agent per timestep per trial

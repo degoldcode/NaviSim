@@ -87,15 +87,15 @@ public:
 	 *
 	 *  @return (bool)
 	 */
-	bool get_state();
+	double get_state();
 
 	/**
 	 * Returns global vector of goal i
 	 *
-	 *  @param (int) i: goal index
-	 *  @return (Pointer to CircArray)
+	 *  @param (int) i: goal index (default: 0)
+	 *  @return (Vec)
 	 */
-	//GoalLearning* GV(int i);
+	Vec GV(int i=0);
 
 	/**
 	 * Returns home vector using average
@@ -252,15 +252,24 @@ private:
 
 	//************ Navigation Modules & Controller Parameters ************//
 	PIN* pin;
-	vector<GoalLearning*> gvl;
+	GoalLearning* gvl;
 	//RouteLearning* lvl;
 	//Map* map;
-	bool inward;
+	double inward;                        // foraging state
+
+	// motor commands
 	double rand_m;
 	double pi_m;
 	double gl_m;
 	double rl_m;
 	double output;
+
+	// command weights
+	double rand_w;
+	double pi_w;
+	double gl_w;
+	double rl_w;
+
 	double goal_factor;
 
 	//************ Path Integration Parameters ************//
@@ -269,11 +278,9 @@ private:
 	//************ Goal Learning Parameters ************//
 	vector<mat> gl_array;
 	vector<mat> gv_weight;
-	vector<double> GV_angle;
-	vector<double> GV_len;
-	vector<double> GV_x;
-	vector<double> GV_y;
-	vector<double> cGV_angle;
+
+
+	vector<Angle> cGV_angle;
 	vec reward;
 	vec td_error;
 	vec value;
@@ -310,8 +317,8 @@ private:
 public:
 	bool pin_on;
 	bool homing_on;
-	bool gv_learn_on;
-	bool gv_nav_on;
+	bool gvlearn_on;
+	bool gvnavi_on;
 	bool write;
 	bool SILENT;			// no activity matrices sampling
 	bool state_matrc;

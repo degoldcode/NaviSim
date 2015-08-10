@@ -29,9 +29,17 @@
 using namespace std;
 
 
-GoalLearning::GoalLearning(int num_neurons, double nnoise, bool opt_load) : CircArray(num_neurons,1) {
+GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load) : CircArray(num_neurons,1) {
+	printf("=== GV learning parameters ===\n");
+	printf("Neurons: %u\n", num_neurons);
+	printf("Goal types: %u\n", K);
+	printf("Uncorrelated noise: %g\n", nnoise);
+	printf("Loading weights from file: %u\n", opt_load);
+	printf("==============================\n\n");
+
 	type = 1;
-	foraging_state = 1.0;
+	global_vector.resize(1);
+	foraging_state = forage;
 	learn_rate = 5.;
 	reward = 0.0;
 	expl_rate =  0.0;
@@ -48,7 +56,7 @@ Vec GoalLearning::GV(int index){
 	return global_vector.at(index);
 }
 
-void GoalLearning::set_mu(double state){
+void GoalLearning::set_mu(double* state){
 	foraging_state = state;
 }
 
@@ -56,14 +64,15 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	reward = in_reward;
 	expl_rate = in_expl;
 
-	vec input = foraging_state*ones<vec>(K);
+	//printf("foraging state = %g\n", *foraging_state);
+	vec input = (*foraging_state)*ones<vec>(K);
 	update_rate(input_conns*input);
 	update_weights(pi_input);
 	GV(0).to(len()*avg().C(), len()*avg().S());	//TODO
 }
 
 void GoalLearning::update_weights(vec pi_input){
-	weight_change = learn_rate * reward * expl_rate * foraging_state * (pi_input-input_conns);
+	weight_change = learn_rate * reward * expl_rate * (*foraging_state) * (pi_input-input_conns);
 	input_conns += weight_change;
 }
 

@@ -11,10 +11,8 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	numneurons = num_neurons;
 	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise);
 	num_colors = 1;
-	gvl.resize(num_colors);
-	for(int i = 0; i < num_colors; i++)
-		gvl.at(i) = new GoalLearning(numneurons, 0.0);
 
+	gvl = new GoalLearning(numneurons, 0.0, &inward, false);
 	gl_array.resize(num_colors);
 	gv_weight.resize(num_colors);
 
@@ -22,14 +20,14 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	pi_m = 0.0;
 	gl_m = 0.0;
 	rl_m = 0.0;
+	rand_w= 1.0;
+	pi_w = 1.0;
+	gl_w = 1.0;
+	rl_w = 1.0;
 	output = 0.0;
-	inward = false;
+	inward = 0.0;
 	goal_factor = 0.0;
 
-	GV_angle.resize(num_colors);
-	GV_len.resize(num_colors);
-	GV_x.resize(num_colors);
-	GV_y.resize(num_colors);
 	cGV_angle.resize(num_colors);
 	reward = zeros(num_colors);
 	value = zeros(num_colors);
@@ -47,8 +45,8 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 
 	pin_on = true;
 	homing_on = false;
-	gv_learn_on = false;
-	gv_nav_on = false;
+	gvlearn_on = false;
+	gvnavi_on = false;
 
 
 	SILENT = false;
@@ -65,7 +63,6 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 
 	inv_sampling_rate = 1;
 	t = 0;
-	trial_t = 0;
 	run = 0;
 	t_home = 0;
 }
@@ -73,8 +70,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 Controller::~Controller() {
 	save_matrices();
 	delete pin;
-//	for(int i = blue; i < gvl.size(); i++)
-//		delete gvl.at(i);
+	delete gvl;
 	stream.close();
 	r_stream.close();
 	lm_stream.close();
@@ -108,16 +104,16 @@ double Controller::bound(double angle){
 		return expl_factor(0);
 }*/
 
-bool Controller::get_state() {
+double Controller::get_state() {
 	return inward;
 }
 
-/*GoalLearning* NaviControl::GV(int i){
-	if(i < gvl.size())
-		return gvl.at(i);
+Vec Controller::GV(int i){
+	if(i < num_colors)
+		return gvl->GV(i);
 	else
-		return gvl.at(0);
-}*/
+		return gvl->GV(0);
+}
 
 Vec Controller::HV(){
 	return pin->HV();
@@ -175,7 +171,8 @@ double Controller::randn(double mean, double stdev) {
 
 void Controller::reset() {
 	pin->reset();
-	trial_t = 0;
+	t = 0;
+	inward = false;
 	run++;
 }
 
@@ -248,7 +245,7 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 
 	/*** Check, if inward ***/
 	if(t > t_home)
-		inward = true;
+		inward = 1.;
 
 	/*** Random foraging ***/
 	rand_m = 4.*randn(0.0, 0.15)*expl_factor(0);
@@ -257,37 +254,43 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 	if(pin_on)
 		pin->update(angle, speed);
 
-	if(homing_on && inward){
+	if(homing_on && inward!=0.){
 		pi_m = 0.5 * ((HV().ang()).i() - angle).S();
-		rand_m = 0.;
+		rand_w = 0.0;//0.25;
 	}
 	else{
 		pi_m = 0.;
 	}
-
-	/*** Global Vector Learning Circuits ***/
-//	for(int i = 0; i < num_colors; i++){
-//		if(i == color){
-//			reward(i) = inReward;
-//			value(i) = reward(i) + disc_factor * value(i);
-//			expl_factor(i) = exp(-.5 * value(i));
-//		}
-//		else{
-//			reward(i) = 0.0;
-//		}
-//		if(inward)
-//			gvl.at(i)->set_mu(0.0);
-//		gvl.at(i)->update(pin->get_output(), inReward, expl_factor(i));
-//		GV_x.at(i) = gvl.at(i)->x();
-//		GV_y.at(i) = gvl.at(i)->y();
-//		cGV_angle.at(i) = atan2(GV_y.at(i) - HV()->y, GV_x.at(i) - HV()->x);
+//	if(HV().len() < 0.2){
+//		pi_w -= 0.0001;
+//		printf("PI_w = %g\n", pi_w);
 //	}
-//	gl_m = 4.0*(1.-expl_factor(0))*sin(cGV_angle.at(0) - angle);
+
+	if(pi_w < 0.)
+		pi_w = 0.;
+
+	/*** Global Vector Learning Circuits TODO ***/
+	if(gvlearn_on){
+		for(int i = 0; i < num_colors; i++){
+			if(i == color){
+				reward(i) = inReward;
+				value(i) = reward(i) + disc_factor * value(i);
+				expl_factor(i) = exp(-.5 * value(i));
+			}
+			else{
+				reward(i) = 0.0;
+			}
+			gvl->update(pin->get_output(), inReward, expl_factor(i));
+
+			cGV_angle.at(i) = (HV() - GV(i)).ang();
+		}
+	}
+	//gl_m = 4.0*(1.-expl_factor(0))*sin(cGV_angle.at(0) - angle);
 
 
 
 	/*** Navigation Control Output ***/
-	output = rand_m + pi_m;
+	output = rand_w*rand_m + pi_w*pi_m;
 //	if(!inward)
 //		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
 //	else

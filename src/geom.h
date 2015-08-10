@@ -198,7 +198,12 @@ public:
 	~Vec(){}
 
 	Angle ang(){ return azimuth();}
-	Angle azimuth() { return Angle(atan2(y,x)); }
+	Angle azimuth() {
+		if(isfinite(atan2(y,x)))
+			return Angle(atan2(y,x));
+		else
+			return Angle(0.0);
+	}
 	Angle elevation() { return Angle(atan2(z, len())); }
 	double len() { return sqrt(x*x+y*y+z*z); }
 

@@ -34,9 +34,10 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	VERBOSE = false;
 	SILENT = false;
 
+	pin_on = true;
 	homing_on = false;
-	gv_learning_on = false;
-	gv_navigation_on = false;
+	gvlearn_on = false;
+	gvnavi_on = false;
 
 	(VERBOSE)?printf("Building environment.\n"):VERBOSE;
 	//environment = (rand_env ? new Environment(10, 10, 25., 1) : new Environment(agents));
@@ -73,12 +74,25 @@ Agent* Simulation::a(int i){
 	return environment->a(i);
 }
 
+void Simulation::add_goal(double x, double y, int color){
+	environment->add_goal(x, y, color);
+}
+
+void Simulation::add_goal(double max_radius){
+	environment->add_goal(max_radius);
+}
+
 Controller* Simulation::c(int i){
 	return controllers.at(i);
 }
 
 Environment* Simulation::e(){
 	return environment;
+}
+
+void Simulation::gvlearn(bool _opt){
+	gvlearn_on = _opt;
+	c()->gvlearn_on = _opt;
 }
 
 void Simulation::homing(bool _opt){
@@ -118,27 +132,33 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 		while(trial_t < T){
 			writeTrialData();
 			update();
-			if(std::isfinite( (a(0)->HV()-a(0)->v()).len() ))
-				pi_error( (a(0)->HV()-a(0)->v()).len() );
-			else
-				printf("pi_e is non-finite -> (%g, %g) - (%g, %g)\n", a(0)->HV().x, a(0)->HV().y, a(0)->v().x, a(0)->v().y);
+			pi_error( (a(0)->HV()-a(0)->v()).len() );
 		}
+		if(trial_t == T)
+			is_home(0);
 
 		if(N > 1){
-			if(std::isfinite( pi_error.mean() ))
-				total_pi_error( pi_error.mean() );
-			else
-				printf("pi_e_mean is non-finite\n");
-
-			if( std::isfinite( a(0)->d() ) )
-				avg_length(a(0)->d());
-			else
-				printf("a->d is non-finite\n");
+			total_pi_error( pi_error.mean() );
+			avg_length(a(0)->d());
 			writeSimData();
-			if(N > 9 && trial%(in_numtrials/10)==0)
-				printf("Trial = %u\te = %g\t<e> = %g\n", trial, pi_error.mean(), total_pi_error.mean());
-			if(N <= 9)
-				printf("Trial = %u\te = %g\t<e> = %g\n", trial, pi_error.mean(), total_pi_error.mean());
+			if(N > 9 && trial%(in_numtrials/10)==0){
+				if(pin_on)
+					printf("Trial = %u\te = %g\t<e> = %g\t", trial, pi_error.mean(), total_pi_error.mean());
+				if(homing_on)
+					printf("<Homing> = %g\t", is_home.mean());
+				//if(gvlearn_on)
+					//printf("Trial = %u\te = %g\t<e> = %g", trial, pi_error.mean(), total_pi_error.mean());
+			}
+
+			if(N <= 9){
+				if(pin_on)
+					printf("Trial = %u\te = %g\t<e> = %g", trial, pi_error.mean(), total_pi_error.mean());
+				if(homing_on)
+					printf("<Homing> = %g\t", is_home.mean());
+				//if(gvlearn_on)
+					//printf("Trial = %u\te = %g\t<e> = %g", trial, pi_error.mean(), total_pi_error.mean());
+			}
+			printf("\n");
 //				printf("Trial = %u\tTrial R = %g\tTotal R = %g\n", trial, e()->get_trial_r(), e()->get_total_r());
 				//printf("Trial = %u\tAvg Length = %1.5f\tVar Length = %3.3f\n", trial, avg_length.max(), avg_length.var());
 		}
@@ -160,10 +180,9 @@ void Simulation::update(){
 	if(environment->stop_trial){
 		if(N < 10)
 			printf("Homing success at %g s\n", trial_t);
-		trial_t = T;
-
+		trial_t = T+1.;
+		is_home(1);
 	}
-
 }
 
 void Simulation::writeSimData(){

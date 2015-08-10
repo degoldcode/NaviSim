@@ -129,11 +129,15 @@ void Environment::a(double x, double y){
 void Environment::add_agent(double x, double y){
 	Agent * const agent = new Agent(x,y);
 	agent_list.push_back(agent);
+	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
+	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 }
 
 void Environment::add_goal(double x, double y, int color){
 	Goal* goal = new Goal(x,y,VERBOSE,color);
 	goal_list.push_back(goal);
+	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
+	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 }
 
 void Environment::add_goal(double max_radius){
@@ -161,6 +165,8 @@ void Environment::add_goal(double max_radius){
 		}
 	}
 	goal_list.push_back(goal);
+	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
+	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 }
 
 void Environment::add_landmark(double x, double y){
