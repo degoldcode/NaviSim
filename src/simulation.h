@@ -227,6 +227,7 @@ public:
 
 	/// Path integration
 	running_stat<double> is_home;					// homing success
+	int count_home;
 	running_stat<double> pi_error;              // distance between estimated and actual position of agent per timestep (reset each trial)
 	running_stat<double> pi_error_max;              // distance between estimated and actual position of agent per timestep (reset each trial)
 	running_stat<double> total_pi_error;		// distance between estimated and actual position of agent per timestep per trial

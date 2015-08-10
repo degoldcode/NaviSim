@@ -256,7 +256,7 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 
 	if(homing_on && inward!=0.){
 		pi_m = 0.5 * ((HV().ang()).i() - angle).S();
-		rand_w = 0.0;//0.25;
+		rand_m = 0.0;//0.25;
 	}
 	else{
 		pi_m = 0.;

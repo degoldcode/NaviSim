@@ -50,6 +50,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	global_t = 0.;
 	trial_t = 0.;
 	timestep = 0;
+	count_home = 0;
 
 	agent_str.open("data/agent.dat");
 	endpts_str.open("data/endpoints.dat");
@@ -134,7 +135,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			update();
 			pi_error( (a(0)->HV()-a(0)->v()).len() );
 		}
-		if(trial_t == T)
+		if(trial_t <= T + 0.5)
 			is_home(0);
 
 		if(N > 1){
@@ -145,9 +146,10 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 				if(pin_on)
 					printf("Trial = %u\te = %g\t<e> = %g\t", trial, pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
-					printf("<Homing> = %g\t", is_home.mean());
+					printf("<Homing> = %g\tCountHome = %u\t", is_home.mean(), count_home);
 				//if(gvlearn_on)
 					//printf("Trial = %u\te = %g\t<e> = %g", trial, pi_error.mean(), total_pi_error.mean());
+				printf("\n");
 			}
 
 			if(N <= 9){
@@ -157,8 +159,9 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("<Homing> = %g\t", is_home.mean());
 				//if(gvlearn_on)
 					//printf("Trial = %u\te = %g\t<e> = %g", trial, pi_error.mean(), total_pi_error.mean());
+				printf("\n");
 			}
-			printf("\n");
+
 //				printf("Trial = %u\tTrial R = %g\tTotal R = %g\n", trial, e()->get_trial_r(), e()->get_total_r());
 				//printf("Trial = %u\tAvg Length = %1.5f\tVar Length = %3.3f\n", trial, avg_length.max(), avg_length.var());
 		}
@@ -181,6 +184,7 @@ void Simulation::update(){
 		if(N < 10)
 			printf("Homing success at %g s\n", trial_t);
 		trial_t = T+1.;
+		count_home++;
 		is_home(1);
 	}
 }
