@@ -205,6 +205,7 @@ public:
 			return Angle(0.0);
 	}
 	Angle elevation() { return Angle(atan2(z, len())); }
+	Vec i(){return Vec(-x,-y);}
 	double len() { return sqrt(x*x+y*y+z*z); }
 
 	void move(double _dx, double _dy, double _dz=0) { x+=_dx; y+=_dy; z+=_dz; }

@@ -240,14 +240,13 @@ double Environment::d(double x0, double x1){
 	return sum;
 }*/
 
-/*int Environment::get_hits(int i){
+int Environment::get_hits(int i){
 	int sum = 0;
 	for(unsigned int j = 0; j < goal_list.size(); j++){
-		if(goal_list.at(j)->color()==i)
-			sum += goal_list.at(j)->hits();
+		sum += g_stats.hits(i, j);
 	}
 	return sum;
-}*/
+}
 
 double Environment::get_trial_r(int index){
 	return trial_reward.at(index);
@@ -307,6 +306,8 @@ void Environment::open_streams(){
 
 void Environment::reset(){
 	stop_trial = false;
+	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
+	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 	std::fill(trial_reward.begin(), trial_reward.end(), 0.);
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		agent_list.at(i)->reset();
@@ -337,8 +338,8 @@ void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 /*		for(unsigned int j = 0; j < pipe_list.size(); j++)
 			agent_list.at(i) = pipe_list.at(j)->set_agent_pipe(agent_list.at(i));*/
-		agent_list.at(i)->update();
-		if(agent_list.at(i)->d() < home_radius && agent_list.at(i)->c()->get_state()){
+		agent_list.at(i)->update(reward.at(i));
+		if(/*agent_list.at(i)->d() < home_radius &&*/ agent_list.at(i)->c()->get_state()){
 			stop_trial = true;
 		}
 	}

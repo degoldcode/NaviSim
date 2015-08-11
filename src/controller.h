@@ -52,14 +52,6 @@ public:
 	~Controller();
 
 	/**
-	 * Returns angle within bounds [-PI,PI]
-	 *
-	 *  @param (double) angle: input angle
-	 *  @return (double)
-	 */
-	double bound(double angle);
-
-	/**
 	 * Returns current goal vector angle of goal i
 	 *
 	 *  @param (int) i: goal index
@@ -80,7 +72,7 @@ public:
 	 *  @param (double) i: goal index
 	 *  @return (double)
 	 */
-	//double expl(int i);
+	double expl(int i);
 
 	/**
 	 * Get foraging state of controller
@@ -98,6 +90,14 @@ public:
 	Vec GV(int i=0);
 
 	/**
+	 * Returns corrected global vector of goal i
+	 *
+	 *  @param (int) i: goal index (default: 0)
+	 *  @return (Vec)
+	 */
+	Vec GVc(int i=0);
+
+	/**
 	 * Returns home vector using average
 	 *
 	 *  @return (Pointer to Vector)
@@ -110,14 +110,6 @@ public:
 	 *  @return (Pointer to Vector)
 	 */
 	Vec HVm();
-
-	/**
-	 * Returns inverted angle -> angle - PI (in rad)
-	 *
-	 *  @param (double) angle: input angle
-	 *  @return (double)
-	 */
-	double inv_angle(double angle);
 
 	/**
 	 * Returns angle in degrees
@@ -164,6 +156,14 @@ public:
 	 * @return (PIN*)
 	 */
 	PIN* pi();
+
+	/**
+	 * Returns ith's agent received reward
+	 *
+	 *  @param (int) index: agent index
+	 *  @return (double)
+	 */
+	double R(int index=0);
 
 	/**
 	 * Returns a random number drawn from a Gaussian distribution
@@ -246,6 +246,14 @@ public:
 	 */
 	//void update_matrices();
 
+	/**
+	 * Returns ith's agent value
+	 *
+	 *  @param (int) index: agent index
+	 *  @return (double)
+	 */
+	double v(int index=0);
+
 
 
 private:
@@ -277,10 +285,11 @@ private:
 
 	//************ Goal Learning Parameters ************//
 	vector<mat> gl_array;
-	vector<mat> gv_weight;
+	mat gv_array;
 
 
-	vector<Angle> cGV_angle;
+	vector<Vec> cGV;
+	vec accum_reward;
 	vec reward;
 	vec td_error;
 	vec value;

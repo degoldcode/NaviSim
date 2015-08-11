@@ -89,6 +89,16 @@ public:
 	};
 
 	/**
+	 * Returns average angle of maximum weight in the array
+	 *
+	 *  @param (int) index: global vector index
+	 *  @return (Angle)
+	 */
+	Angle avgw(int index){
+		return avgw_angle;
+	};
+
+	/**
 	 * Returns cosine kernel
 	 *
 	 *  @return (mat)
@@ -362,6 +372,16 @@ public:
 		return input_conns;
 	};
 
+	/**
+	 * Returns the weight vector of the array
+	 *
+	 *  @param (int) index: index of global vector
+	 *  @return (vec)
+	 */
+	vec w(int index){
+		return input_conns.col(index);
+	};
+
 	int type;                                       // 0 = rate, 1 = weight
 
 protected:
@@ -377,6 +397,7 @@ private:
 	Angle max_angle;                                // Angle of the maximum-firing neuron
 	double max_rate;                                // Maximum rate of neuron array
 	Angle avg_angle;                                // Average position of the maximum firing rate
+	Angle avgw_angle;                               // Average position of the maximum weight
 	double length;                                  // Length of vector = (some scaling factor)*(sum of activities)/N
 	const double scale_factor = 2.41456;			// Scaling factor (1.25597(fit_mult); 2.41456(fit_add); 2.41474212(manual_add))
 

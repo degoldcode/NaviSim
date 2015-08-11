@@ -51,10 +51,13 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	trial_t = 0.;
 	timestep = 0;
 	count_home = 0;
+	count_goal = 0;
 
 	agent_str.open("data/agent.dat");
 	endpts_str.open("data/endpoints.dat");
 	homevector_str.open("data/homevector.dat");
+	globalvector_str.open("data/globalvector.dat");
+	reward_str.open("data/reward.dat");
 	sim_cfg.open("data/sim.cfg");
 	sim_cfg << "# Na\t# Nn\t# Sno\t# Leak\t# Uncno" << endl;
 	sim_cfg << agents << "\t";
@@ -66,6 +69,8 @@ Simulation::~Simulation(){
 	agent_str.close();
 	endpts_str.close();
 	homevector_str.close();
+	globalvector_str.close();
+	reward_str.close();
 	sim_cfg.close();
 	length_scaling.close();
 	delete environment;
@@ -142,23 +147,23 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			total_pi_error( pi_error.mean() );
 			avg_length(a(0)->d());
 			writeSimData();
-			if(N > 9 && trial%(in_numtrials/10)==0){
+			if(N > 19 && trial%(in_numtrials/20)==0){
 				if(pin_on)
-					printf("Trial = %u\te = %g\t<e> = %g\t", trial, pi_error.mean(), total_pi_error.mean());
+					printf("#%u\te=%2.3f\t<e>=%2.3f\t", trial, pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
-					printf("<Homing> = %g\tCountHome = %u\t", is_home.mean(), count_home);
-				//if(gvlearn_on)
-					//printf("Trial = %u\te = %g\t<e> = %g", trial, pi_error.mean(), total_pi_error.mean());
+					printf("<Home>=%3.1f%%\t<Goal>=%2.4f\t", 100.*is_home.mean(), 1.0*count_goal);
+				if(gvlearn_on)
+					printf("Expl = %1.5f\tGV(ang, r) = (%3.2f, %2.3f)\tGVC(ang, r) = (%3.2f, %2.3f)", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
 				printf("\n");
 			}
 
-			if(N <= 9){
+			if(N <= 19){
 				if(pin_on)
-					printf("Trial = %u\te = %g\t<e> = %g", trial, pi_error.mean(), total_pi_error.mean());
+					printf("#%u\te=%2.3f\t<e>=%2.3f\t", trial, pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
-					printf("<Homing> = %g\t", is_home.mean());
-				//if(gvlearn_on)
-					//printf("Trial = %u\te = %g\t<e> = %g", trial, pi_error.mean(), total_pi_error.mean());
+					printf("<Home>=%3.1f%%\t<Goal>=%2.4f\t", 100.*is_home.mean(), is_goal.mean());
+				if(gvlearn_on)
+					printf("Expl=%1.5f\tGV(ang,r)=(%3.2f,%2.3f)\tGVC(ang,r)=(%3.2f,%2.3f)", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
 				printf("\n");
 			}
 
@@ -180,6 +185,8 @@ void Simulation::update(){
 	trial_t += dt;
 	global_t += dt;
 	environment->update();
+	is_goal(environment->get_hits(0));
+	count_goal += environment->get_hits(0);
 	if(environment->stop_trial){
 		if(N < 10)
 			printf("Homing success at %g s\n", trial_t);
@@ -203,6 +210,10 @@ void Simulation::writeTrialData(){
 	agent_str << endl;
 	homevector_str << trial_t << "\t" << global_t;
 	homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;
+	globalvector_str << trial_t << "\t" << global_t;
+	globalvector_str << "\t" << a(0)->GV().x << "\t" << a(0)->GV().y << "\t" << a(0)->GV().ang() << "\t" << a(0)->GV().len() << "\t" << c()->expl(0) << "\t" << 1.0*count_goal << endl;
+	reward_str << trial_t << "\t" << global_t;
+	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;
 	length_scaling << a(0)->v().len() << "\t" << sum(a(0)->pi()->get_output()) << "\t" << a(0)->c()->N() << endl;
 }
 

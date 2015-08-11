@@ -80,6 +80,14 @@ public:
 	Controller* c();
 
 	/**
+	 * Returns ith global vector of the agent using average
+	 *
+	 * @param (int) index: index of global vector (default: 0)
+	 * @return (Vec)
+	 */
+	Vec GV(int index = 0);
+
+	/**
 	 * Returns estimated home vector of the agent using average
 	 *
 	 * @return (Vec)
@@ -192,11 +200,10 @@ public:
 	/**
 	 * Updates the kinematics of agent based on the motor command from the controller
 	 *
-	 * @param (double) command: motor command
-	 * @param (double) speed_command: motor speed command
+	 * @param (double) _reward: reward from environment
 	 * @return (void)
 	 */
-	void update();
+	void update(double _reward);
 
 	//************ Public class parameters ************//
 

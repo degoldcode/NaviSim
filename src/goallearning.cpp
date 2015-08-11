@@ -30,13 +30,6 @@ using namespace std;
 
 
 GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load) : CircArray(num_neurons,1) {
-	printf("=== GV learning parameters ===\n");
-	printf("Neurons: %u\n", num_neurons);
-	printf("Goal types: %u\n", K);
-	printf("Uncorrelated noise: %g\n", nnoise);
-	printf("Loading weights from file: %u\n", opt_load);
-	printf("==============================\n\n");
-
 	type = 1;
 	global_vector.resize(1);
 	foraging_state = forage;
@@ -46,6 +39,14 @@ GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool 
 	load_weights = opt_load;
 	if(load_weights)
 		w().load("./save/goalweights.mat", raw_ascii);
+
+	printf("=== GV learning parameters ===\n");
+	printf("Neurons: %u\n", num_neurons);
+	printf("Goal types: %u\n", K);
+	printf("Learning rate: %g\n", learn_rate);
+	printf("Uncorrelated noise: %g\n", nnoise);
+	printf("Loading weights from file: %u\n", opt_load);
+	printf("==============================\n\n");
 }
 
 GoalLearning::~GoalLearning(){
@@ -64,15 +65,24 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	reward = in_reward;
 	expl_rate = in_expl;
 
-	//printf("foraging state = %g\n", *foraging_state);
-	vec input = (*foraging_state)*ones<vec>(K);
+//	if(reward > 0.0)
+//		printf("foraging state = %g\n", *foraging_state);
+	vec input = (1. - *foraging_state)*ones<vec>(K);
 	update_rate(input_conns*input);
 	update_weights(pi_input);
-	GV(0).to(len()*avg().C(), len()*avg().S());	//TODO
+	update_avg(input_conns.col(0));
+	update_len(input_conns.col(0));
+	update_max(input_conns.col(0));
+
+	if(input_conns.max() > 10000 || input_conns.min() < 0)
+		printf("Eta = %g\tR = %g\texp = %g\n", 1.-*foraging_state, reward, expl_rate);
+
+	global_vector.at(0).to(len()*avg().C(), len()*avg().S());
+	//printf("(x,y) = (%g,%g)\tlen = %g\tavg = %g\n", GV(0).x, GV(0).y, len(), avg().deg());
 }
 
 void GoalLearning::update_weights(vec pi_input){
-	weight_change = learn_rate * reward * expl_rate * (*foraging_state) * (pi_input-input_conns);
+	weight_change = learn_rate * reward /* expl_rate*/ * (1. - *foraging_state) * (pi_input-input_conns) - 0.0000004*input_conns;
 	input_conns += weight_change;
 }
 

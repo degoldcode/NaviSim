@@ -58,6 +58,10 @@ Angle Agent::dphi(){
 	return diff_heading;
 }
 
+Vec Agent::GV(int i){
+	return control->GV(i);
+}
+
 Vec Agent::HV(){
 	return control->HV();
 }
@@ -106,7 +110,7 @@ void Agent::to(double x_new, double y_new){
 	y(y_new);
 }
 
-void Agent::update(){
+void Agent::update(double _reward){
 	//control->set_inward(inward);
 	if(!in_pipe)
 		diff_heading.to(dt * k_phi * control_output + external);
@@ -121,7 +125,7 @@ void Agent::update(){
 
 	move(dt * speed * heading.C(), dt * speed * heading.S(), 0.0);
 
-	control_output = control->update(heading.rad(), speed, 0.0, 0);
+	control_output = control->update(heading.rad(), speed, _reward, 0);
 }
 
 double Agent::s(){

@@ -14,7 +14,6 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 
 	gvl = new GoalLearning(numneurons, 0.0, &inward, false);
 	gl_array.resize(num_colors);
-	gv_weight.resize(num_colors);
 
 	rand_m = 0.0;
 	pi_m = 0.0;
@@ -28,7 +27,8 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	inward = 0.0;
 	goal_factor = 0.0;
 
-	cGV_angle.resize(num_colors);
+	cGV.resize(num_colors);
+	accum_reward = zeros(num_colors);
 	reward = zeros(num_colors);
 	value = zeros(num_colors);
 	dvalue = zeros(num_colors);
@@ -77,15 +77,6 @@ Controller::~Controller() {
 	pi_stream.close();
 }
 
-double Controller::bound(double angle){
-	double rphi = angle;
-	while(rphi > M_PI)
-		rphi -= 2 * M_PI;
-	while(rphi < - M_PI)
-		rphi += 2 * M_PI;
-	return rphi;
-}
-
 /*double NaviControl::cGV(int i){
 	if(i < cGV_angle.size())
 		return cGV_angle.at(i);
@@ -97,12 +88,12 @@ double Controller::bound(double angle){
 	return expl_factor(choice);
 }*/
 
-/*double NaviControl::expl(int i){
+double Controller::expl(int i){
 	if(i < expl_factor.n_elem)
 		return expl_factor(i);
 	else
 		return expl_factor(0);
-}*/
+}
 
 double Controller::get_state() {
 	return inward;
@@ -113,6 +104,13 @@ Vec Controller::GV(int i){
 		return gvl->GV(i);
 	else
 		return gvl->GV(0);
+}
+
+Vec Controller::GVc(int i){
+	if(i < num_colors)
+		return cGV.at(i);
+	else
+		return cGV.at(0);
 }
 
 Vec Controller::HV(){
@@ -129,10 +127,6 @@ Vec Controller::HVm(){
 	else
 		return 180. * (angle + 2 * M_PI) / M_PI;
 }*/
-
-double Controller::inv_angle(double angle) {
-	return bound(angle - M_PI);
-}
 
 int Controller::N(){
 	return numneurons;
@@ -157,6 +151,10 @@ PIN* Controller::pi(){
 	return pin;
 }
 
+double Controller::R(int index){
+	return accum_reward(index);
+}
+
 double Controller::randn(double mean, double stdev) {
 	static random_device e { };
 	static normal_distribution<double> d(mean, stdev);
@@ -171,6 +169,7 @@ double Controller::randn(double mean, double stdev) {
 
 void Controller::reset() {
 	pin->reset();
+	accum_reward = zeros(num_colors);
 	t = 0;
 	inward = false;
 	run++;
@@ -192,6 +191,7 @@ void Controller::set_inward(int _time) {
 void Controller::save_matrices() {
 	printf("Save data.\n");
 	pi_array.save("./data/mat/pi_activity.mat", raw_ascii);
+	gv_array.save("./data/mat/gv_activity.mat", raw_ascii);
 //	for(int i = blue; i < num_colors; i++){
 //		gl_array.at(i).save("./data/gv.mat", raw_ascii);
 //		gv_weight.at(i).save("./data/gv_w.mat", raw_ascii);
@@ -240,11 +240,12 @@ void Controller::set_sample_int(int _val){
 double Controller::update(Angle angle, double speed, double inReward, int color) {
 	if(t%inv_sampling_rate == 0 && !SILENT){
 		pi_array = join_rows(pi_array, pin->get_output());
+		gv_array = join_rows(gv_array, gvl->w(0));
 	}
 	t++;
 
 	/*** Check, if inward ***/
-	if(t > t_home)
+	if(t > t_home || accum_reward(0) > 3.)
 		inward = 1.;
 
 	/*** Random foraging ***/
@@ -282,15 +283,20 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 			}
 			gvl->update(pin->get_output(), inReward, expl_factor(i));
 
-			cGV_angle.at(i) = (HV() - GV(i)).ang();
+			cGV.at(i) = (GV(i) - HV());
 		}
+		if(inward == 0.)
+			gl_m = 4.0*(1.-expl_factor(0))*(cGV.at(0).ang() - angle).S();
+		else
+			gl_m = 0.0;
 	}
-	//gl_m = 4.0*(1.-expl_factor(0))*sin(cGV_angle.at(0) - angle);
+	accum_reward += reward;
+
 
 
 
 	/*** Navigation Control Output ***/
-	output = rand_w*rand_m + pi_w*pi_m;
+	output = rand_w*rand_m + pi_w*pi_m + gl_m;
 //	if(!inward)
 //		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
 //	else
@@ -307,3 +313,7 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 		gv_weight.at(i) = join_rows(gv_weight.at(i), gvl.at(i)->w());
 	}
 }*/
+
+double Controller::v(int index){
+	return value(index);
+}

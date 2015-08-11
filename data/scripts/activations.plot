@@ -14,11 +14,12 @@ set yrange [-0.5:rows-0.5]
 ## Tics
 set xtics autofreq
 set ytics rows/6
+set ytics ("0" 0, "60" 3, "120" 6, "180" 9, "240" 12, "300" 15)
 set cbtics autofreq
 
 ## Labels
 set xlabel "Time {/Helvetica-Oblique t} [s]"
-set ylabel "Unit index"
+set ylabel "Angle [{/Symbol \260}]" #"Unit index"
 set cblabel "Firing rate [Hz]"
 
 set pm3d map
@@ -29,5 +30,5 @@ set palette rgb 21,22,23 ## hot
 
 ##### Reservoir activations
 set output "../../figs/pi_activity.eps"
-plot "../mat/pi_activity.mat" matrix with image, "../homevector.dat" u ($2*columns/(rowss/10)):(rows*$7/360) w l lt -1 lc rgb "green" t "avg", "../homevector.dat" u ($2*columns/(rowss/10)):(rows*$8/360) w l lt 1 lc rgb "blue" t "max", "../agent.dat" u ($8*columns/(rowss/10)):(rows*$7/360) w l lt -1 lc rgb "violet"  t "real"
+plot "../mat/pi_activity.mat" matrix with image, "../homevector.dat" u ($2*columns/(rowss/10)):(rows*$7/360 - 0.5) w l lt -1 lw 0.1 lc rgb "green" t "avg", "../homevector.dat" u ($2*columns/(rowss/10)):(rows*$8/360 - 1.0) w l lt 1 lw 0.1 lc rgb "blue" t "max", "../agent.dat" u ($8*columns/(rowss/10)):(rows*$7/360 - 0.5) w l lt -1 lw 0.1 lc rgb "violet"  t "real"
 set output

@@ -201,6 +201,8 @@ private:
 	ofstream agent_str;
 	ofstream endpts_str;
 	ofstream homevector_str;
+	ofstream globalvector_str;
+	ofstream reward_str;
 	ofstream length_scaling;
 	ofstream sim_cfg;
 
@@ -227,7 +229,10 @@ public:
 
 	/// Path integration
 	running_stat<double> is_home;					// homing success
+	running_stat<double> is_goal;					// goal success
+	running_stat<double> avg_reward;				// goal success
 	int count_home;
+	int count_goal;
 	running_stat<double> pi_error;              // distance between estimated and actual position of agent per timestep (reset each trial)
 	running_stat<double> pi_error_max;              // distance between estimated and actual position of agent per timestep (reset each trial)
 	running_stat<double> total_pi_error;		// distance between estimated and actual position of agent per timestep per trial

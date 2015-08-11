@@ -194,12 +194,12 @@ public:
 	//int get_hits();
 
 	/**
-	 * Returns number of hits of goal i
+	 * Returns number of hits of agent i
 	 *
-	 *	@param (int) i: goal index
+	 *	@param (int) i: agent index
 	 * 	@return (int)
 	 */
-	//void get_hits();
+	int get_hits(int i);
 
 	/**
 	 * Returns sum of reward given during the trial
