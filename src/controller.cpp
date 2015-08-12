@@ -12,7 +12,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise);
 	num_colors = 1;
 
-	gvl = new GoalLearning(numneurons, 0.01, &inward, false);
+	gvl = new GoalLearning(numneurons, 0.00, &inward, false);
 	gl_array.resize(num_colors);
 
 	rand_m = 0.0;

@@ -133,8 +133,8 @@ void Environment::add_agent(double x, double y){
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 }
 
-void Environment::add_goal(double x, double y, int color){
-	Goal* goal = new Goal(x,y,VERBOSE,color, 1., true);
+void Environment::add_goal(double x, double y, int color, double size, bool decay){
+	Goal* goal = new Goal(x,y,VERBOSE,color, size, decay);
 	goal_list.push_back(goal);
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());

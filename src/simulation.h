@@ -75,9 +75,11 @@ public:
 	 * 	@param (double) x: x postion of goal
 	 * 	@param (double) y: y postion of goal
 	 * 	@param (int) color: color index of goal (default: 0)
+	 * 	@param (double) size: reward amount available at goal (default: 1.)
+	 * 	@param (bool) decay: true, if amount of reward decays (default: false)
 	 * 	@return (void)
 	 */
-	void add_goal(double x, double y, int color = 0);
+	void add_goal(double x, double y, int color = 0, double size = 1., bool decay=false);
 
 	/**
 	 * Adds a randomly placed goal
@@ -220,6 +222,7 @@ private:
 	double trial_t;         // continuous time for each trial
 	double dt;              // integration time
 	int timestep;           // discrete time steps
+	int sample_time;		// how often data is written into file
 
 public:
 	//************ Evaluation parameters ************//

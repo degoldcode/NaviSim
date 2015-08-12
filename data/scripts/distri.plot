@@ -6,7 +6,7 @@ set xlabel "x"
 set ylabel "y"
 set cblabel "p(x,y)"
 set size square
-SCALE = 60.
+SCALE = 120.
 OFFSETX = 0.0
 OFFSETY = 0.0
 set xtics 10.

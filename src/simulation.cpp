@@ -80,8 +80,8 @@ Agent* Simulation::a(int i){
 	return environment->a(i);
 }
 
-void Simulation::add_goal(double x, double y, int color){
-	environment->add_goal(x, y, color);
+void Simulation::add_goal(double x, double y, int color, double size, bool decay){
+	environment->add_goal(x, y, color, size, decay);
 }
 
 void Simulation::add_goal(double max_radius){
@@ -132,11 +132,17 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 	T = in_duration;
 	dt = in_interval;
 	global_t = 0.0;
+	int total_steps = int(N*T/dt);
+	sample_time = int(total_steps/1000000.);
+	if(sample_time < 1)
+		sample_time = 1;
+	printf("Total timesteps is %u\nSet sampling interval to %u\n", total_steps, sample_time);
 
 	for(; trial < N+1; trial++){
 		reset();
 		while(trial_t < T){
-			writeTrialData();
+			if(int(trial_t/dt)%sample_time == 0)
+				writeTrialData();
 			update();
 			pi_error( (a(0)->HV()-a(0)->v()).len() );
 		}
