@@ -148,12 +148,14 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			avg_length(a(0)->d());
 			writeSimData();
 			if(N > 19 && trial%(in_numtrials/20)==0){
-				if(pin_on)
-					printf("#%u\te=%2.3f\t<e>=%2.3f\t", trial, pi_error.mean(), total_pi_error.mean());
+				printf("#%u\t", trial);
+				//if(pin_on)
+					//printf("#%u\te=%2.3f\t<e>=%2.3f\t", trial, pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
-					printf("<Home>=%3.1f%%\t<Goal>=%2.4f\t", 100.*is_home.mean(), 1.0*count_goal);
+					printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
-					printf("Expl = %1.5f\tGV(ang, r) = (%3.2f, %2.3f)\tGVC(ang, r) = (%3.2f, %2.3f)", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
+					printf("Expl = %1.5f\tGV(ang, r) = (%3.2f, %2.3f)\tGVC(ang, r) = (%3.2f, %2.3f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
+				printf("Amount=%g", e()->g(0)->a());
 				printf("\n");
 			}
 

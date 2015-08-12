@@ -56,11 +56,11 @@ Goal::Goal(double x, double y, bool in_verbose, int color, double size, bool dec
 	(VERBOSE)?printf("\nCREATE GOAL at (%g, %g)\n\n", pos.x, pos.y):VERBOSE;
 	amount = size;
 	if(decay)
-		amount_rate = 0.0001;         // decay of reward loss
+		amount_rate = 0.001;//0.0001;         // decay of reward loss
 	else
 		amount_rate = 0.0;
 	goal_type = color;
-	amount = (goal_type ? 1.0 : 0.25);
+	//amount = (goal_type ? 1.0 : 0.25);
 }
 
 Goal::~Goal(){
@@ -81,6 +81,12 @@ int Goal::color(){
 
 void Goal::color(const int value){
 	goal_type = value;
+}
+
+void Goal::da(){
+	amount -= amount_rate;
+	if(amount<0.0)
+		amount = 0.0;
 }
 
 double Goal::r(double x, double y, int mode){   //TODO move to environment

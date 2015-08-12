@@ -223,7 +223,7 @@ public:
 	 *	@param (int) i: index of goal (default: 0)
 	 *	@return (Goal*)
 	 */
-	//Goal* g(int i=0);
+	Goal* g(int i=0);
 
 	/**
 	 * Returns landmark recognition signal

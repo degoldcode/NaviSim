@@ -134,7 +134,7 @@ void Environment::add_agent(double x, double y){
 }
 
 void Environment::add_goal(double x, double y, int color){
-	Goal* goal = new Goal(x,y,VERBOSE,color);
+	Goal* goal = new Goal(x,y,VERBOSE,color, 1., true);
 	goal_list.push_back(goal);
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
@@ -256,9 +256,9 @@ double Environment::get_total_r(int index){
 	return total_reward.at(index);
 }
 
-/*Goal* Environment::goal(int i){
+Goal* Environment::g(int i){
 	return goal_list.at(i);
-}*/
+}
 
 /*double Environment::lmr(){
 	return lm_recogn;
@@ -366,9 +366,10 @@ void Environment::update_rewards(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < goal_list.size(); j++){
 			if(d(agent_list.at(i), goal_list.at(j)) < 0.2){
-				reward.at(i) += 5.*(0.2-d(agent_list.at(i), goal_list.at(j)));
+				reward.at(i) += goal_list.at(j)->a()*5.*(0.2-d(agent_list.at(i), goal_list.at(j)));
 				trial_reward.at(i) += reward.at(i);
 				total_reward.at(i) += reward.at(i);
+				goal_list.at(j)->da();
 			}
 		}
 	}

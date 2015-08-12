@@ -104,6 +104,13 @@ public:
 	void color(const int value);
 
 	/**
+	 * Decrease the amount of reward stored at the goal
+	 *
+	 *	@return (void)
+	 */
+	void da();
+
+	/**
 	 * Returns the reward given at the position (x,y) given the foraging state mode
 	 *
 	 *	@param (double) x: x position to be evaluated

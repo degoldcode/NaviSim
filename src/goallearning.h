@@ -117,6 +117,7 @@ private:
 	double learn_rate;
 	double reward;
 	double expl_rate;
+	double neural_noise;
 
 	mat weight_change;
 

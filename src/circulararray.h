@@ -63,6 +63,7 @@ public:
 		//cout << preferred_angle << endl;
 		max_rate = 0.0;
 		length = 0.0;
+		threshold = 0.;
 		type = 0;
 		seed = 0;
 
@@ -229,9 +230,9 @@ public:
 		int _end = 0;
 
 		for(int i = 0; i < N; i++){
-			if(input(i%N) > 0. && input((i+1)%N) == 0.)
+			if(input(i%N) > threshold && input((i+1)%N) <= threshold)
 				_end = (i+1)%N;
-			if(input(i%N) == 0. && input((i+1)%N) > 0.)
+			if(input(i%N) <= threshold && input((i+1)%N) > threshold)
 				_start = (i+1)%N;
 		}
 
@@ -383,6 +384,7 @@ public:
 	};
 
 	int type;                                       // 0 = rate, 1 = weight
+	double threshold;
 
 protected:
 

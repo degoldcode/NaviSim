@@ -31,11 +31,13 @@ using namespace std;
 
 GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load) : CircArray(num_neurons,1) {
 	type = 1;
+	threshold = 25.;
 	global_vector.resize(1);
 	foraging_state = forage;
 	learn_rate = 5.;
 	reward = 0.0;
 	expl_rate =  0.0;
+	neural_noise = nnoise;
 	load_weights = opt_load;
 	if(load_weights)
 		w().load("./save/goalweights.mat", raw_ascii);
@@ -74,7 +76,7 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	update_len(input_conns.col(0));
 	update_max(input_conns.col(0));
 
-	if(input_conns.max() > 10000 || input_conns.min() < 0)
+	if(input_conns.max() > 10000 || input_conns.min() < -1000)
 		printf("Eta = %g\tR = %g\texp = %g\n", 1.-*foraging_state, reward, expl_rate);
 
 	global_vector.at(0).to(len()*avg().C(), len()*avg().S());
@@ -82,8 +84,9 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 }
 
 void GoalLearning::update_weights(vec pi_input){
-	weight_change = learn_rate * reward /* expl_rate*/ * (1. - *foraging_state) * (pi_input-input_conns) - 0.0000004*input_conns;
-	input_conns += weight_change;
+	weight_change = learn_rate * reward /* expl_rate*/ * (1. - *foraging_state) * (pi_input-input_conns) - /*0.0000004*/0.000001*input_conns;
+	input_conns += weight_change+randn<vec>(N)*neural_noise;
+	input_conns.elem( find(input_conns < 0.0) ).zeros();
 }
 
 double GoalLearning::x(){
