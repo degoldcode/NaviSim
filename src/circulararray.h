@@ -54,7 +54,7 @@ public:
 	 *  @param (int) num_neurons: number of neurons in this array (default: 360)
 	 *  @param (int) input_dim: number of incoming signals (default: 0)
 	 */
-	CircArray(int num_neurons=360, int input_dim = 0){
+	CircArray(int num_neurons=360, int input_dim = 1){
 		N = num_neurons;
 		K = input_dim;
 		preferred_angle.zeros(N);
@@ -62,7 +62,9 @@ public:
 			preferred_angle(i) = 2. * M_PI * i / N; // Preferred angle of neurons
 		//cout << preferred_angle << endl;
 		max_rate = 0.0;
-		length = 0.0;
+		max_angle.resize(K);
+		avg_angle.resize(K);
+		length.resize(K);
 		threshold = 0.;
 		type = 0;
 		seed = 0;
@@ -83,10 +85,11 @@ public:
 	/**
 	 * Returns average angle of maximum firing in the array
 	 *
+	 *  @param (int) index: vector index (default: 0)
 	 *  @return (Angle)
 	 */
-	Angle avg(){
-		return avg_angle;
+	Angle avg(int index=0){
+		return avg_angle.at(0);
 	};
 
 	/**
@@ -141,10 +144,11 @@ public:
 	/**
 	 * Returns the preferred angle of the neuron with maximum firing
 	 *
+	 *	@param (int) index: vector index (default: 0)
 	 *  @return (Angle)
 	 */
-	Angle max(){
-		return max_angle;
+	Angle max(int index=0){
+		return max_angle.at(index);
 	};
 
 	/**
@@ -159,10 +163,11 @@ public:
 	/**
 	 * Returns the length of represented vector
 	 *
+	 *	@param (int) index: vector index (default: 0)
 	 *  @return (double)
 	 */
-	double len(){
-		return length;
+	double len(int index=0){
+		return length.at(index);
 	};
 
 	/**
@@ -209,6 +214,33 @@ public:
 	};
 
 	/**
+	 * Set average angle
+	 *
+	 * @return (void)
+	 */
+	void set_avg(Angle _val, int index=0){
+		avg_angle.at(index) = _val;
+	};
+
+	/**
+	 * Set vector length
+	 *
+	 * @return (void)
+	 */
+	void set_len(double _val, int index=0){
+		length.at(index) = _val;
+	};
+
+	/**
+	 * Set maximum angle
+	 *
+	 * @return (void)
+	 */
+	void set_max(Angle _val, int index=0){
+		max_angle.at(index) = _val;
+	};
+
+	/**
 	 * Sets the incoming connections to the array
 	 *
 	 * @return (void)
@@ -221,9 +253,9 @@ public:
 	 * Updates the average angle of maximum firing in the array
 	 *
 	 * @param (vec) input: vector
-	 * @return (void)
+	 * @return (double) average angle of maximum firing
 	 */
-	void update_avg(vec input){
+	Angle update_avg(vec input){
 		double sum_act = 0.0;
 		double output = 0.0;
 		int _start = 0;
@@ -265,66 +297,32 @@ public:
 		output /= sum_act;
 
 		if(output > 0.)
-			avg_angle = Angle(fmod(output, 2*M_PI));
+			return Angle(fmod(output, 2*M_PI));
 		else{
 			//printf("%f\n", output);
-			avg_angle = Angle(2*M_PI+fmod(output, 2*M_PI));
+			return Angle(2*M_PI+fmod(output, 2*M_PI));
 		}
-
-
-//		for(int i = 0; i < N; i++){
-//			output += preferred_angle((i+offset_i)%N)*input((i+offset_i)%N);
-//			sum_act += input((i+offset_i)%N);
-//		}
-//		output /= sum_act;
-//
-//		if(output+offset > 0.)
-//			avg_angle = Angle(fmod(output+offset, 2*M_PI));
-//		else{
-//			printf("%f\n", output+offset);
-//			avg_angle = Angle(2*M_PI+fmod(output+offset, 2*M_PI));
-//		}
-//		if(input(0) == 0.0){
-//			for(int i = 0; i < N; i++){
-//				if(input(i) > 0.0){
-//					output += preferred_angle(i)*input(i);
-//					sum_act += input(i);
-//				}
-//			}
-//			if(sum_act>0.0)
-//				output /= sum_act;
-//		}
-//		else{
-//			for(int i = 0; i < N; i++){
-//				if(input(i) > 0.0){
-//					output += preferred_angle(i)*input(i);
-//					sum_act += input(i);
-//				}
-//			}
-//			if(sum_act>0.0)
-//				output /= sum_act;
-//		}
 	};
 
 	/**
 	 * Updates the length of array rate
 	 *
 	 * @param (vec) input: vector
-	 * @return (void)
+	 * @return (double)
 	 */
-	void update_len(vec input){
-		length = scale_factor * sum(input)/(N*N);
+	double update_len(vec input){
+		return scale_factor * sum(input)/(N*N);
 	};
 
 	/**
 	 * Updates the angle & rate of maximum firing neuron
 	 *
-	 * @return (void)
+	 * @return (Angle)
 	 */
-	void update_max(vec input){
+	Angle update_max(vec input){
 		uword index;
 		max_rate = input.max(index);
-		max_angle = Angle(preferred_angle(index));
+		return Angle(preferred_angle(index));
 	};
 
 	/**
@@ -337,16 +335,6 @@ public:
 		if(rate.n_elem != output_rate.n_elem)
 			printf("WARNING: Dimension has been changed.\n");
 		output_rate = rate;
-//		if(type == 0){
-//			update_avg(output_rate);
-//			update_len(output_rate);
-//			update_max(output_rate);
-//		}
-//		else{
-//			update_avg(input_conns.col(0));
-//			update_len(input_conns.col(0));
-//			update_max(input_conns.col(0));
-//		}
 	};
 
 	/**
@@ -396,11 +384,11 @@ protected:
 
 private:
 
-	Angle max_angle;                                // Angle of the maximum-firing neuron
+	vector<Angle> max_angle;                                // Angle of the maximum-firing neuron
 	double max_rate;                                // Maximum rate of neuron array
-	Angle avg_angle;                                // Average position of the maximum firing rate
+	vector<Angle> avg_angle;                                // Average position of the maximum firing rate
 	Angle avgw_angle;                               // Average position of the maximum weight
-	double length;                                  // Length of vector = (some scaling factor)*(sum of activities)/N
+	vector<double> length;    					// Length of vector = (some scaling factor)*(sum of activities)/N
 	const double scale_factor = 2.41456;			// Scaling factor (1.25597(fit_mult); 2.41456(fit_add); 2.41474212(manual_add))
 
 	vec input_rate;                                 // Input activity rate to the array

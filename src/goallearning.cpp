@@ -72,9 +72,9 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	vec input = (1. - *foraging_state)*ones<vec>(K);
 	update_rate(input_conns*input);
 	update_weights(pi_input);
-	update_avg(input_conns.col(0));
-	update_len(input_conns.col(0));
-	update_max(input_conns.col(0));
+	set_avg(update_avg(input_conns.col(0)));
+	set_len(update_len(input_conns.col(0)));
+	set_max(update_max(input_conns.col(0)));
 
 	if(input_conns.max() > 10000 || input_conns.min() < -1000)
 		printf("Eta = %g\tR = %g\texp = %g\n", 1.-*foraging_state, reward, expl_rate);

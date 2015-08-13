@@ -100,16 +100,10 @@ void PIN::update(Angle angle, double speed){
 
 	//Output parameters
 	output_rate = ar.at(PI)->rate();
-	update_avg(output_rate);
-	update_len(output_rate);
-	update_max(output_rate);
+	set_avg(update_avg(output_rate));
+	set_len(update_len(output_rate));
+	set_max(update_max(output_rate));
 	home_vector.to(len()*avg().C(), len()*avg().S());
-	double checklen = len();
-	if(!std::isfinite(checklen))
-		printf("Length is non-finite: %g\n", checklen);
-	double checkrad = avg().rad();
-	if(!std::isfinite(checkrad))
-		printf("Rad is non-finite: %g\n", checkrad);
 	home_vector_max.to(len()*max().C(), len()*max().S());
 }
 
