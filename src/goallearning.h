@@ -119,6 +119,7 @@ private:
 	double expl_rate;
 	double neural_noise;
 
+	mat white_weights;
 	mat weight_change;
 
 	bool load_weights;

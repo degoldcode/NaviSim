@@ -84,10 +84,11 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 }
 
 void GoalLearning::update_weights(vec pi_input){
-	input_conns = input_conns+randu<vec>(N)*neural_noise;
 	weight_change = learn_rate * reward /* expl_rate*/ * (1. - *foraging_state) * (pi_input-input_conns) - /*0.0000004*/0.000001*input_conns;
-	input_conns += weight_change;
-	input_conns.elem( find(input_conns < 0.0) ).zeros();
+	white_weights += weight_change;
+	white_weights.elem( find(white_weights < 0.0) ).zeros();
+
+	input_conns = white_weights+randu<vec>(N)*neural_noise;
 }
 
 double GoalLearning::x(){
