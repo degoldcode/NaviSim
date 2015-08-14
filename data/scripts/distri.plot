@@ -5,8 +5,11 @@ set term postscript enhanced color eps "Helvetica,12"
 set xlabel "x"
 set ylabel "y"
 set cblabel "p(x,y)"
+
+stat "../agent.dat" u 5 nooutput
+
 set size square
-SCALE = 120.
+SCALE = (STATS_max+STATS_max/5.)*2.
 OFFSETX = 0.0
 OFFSETY = 0.0
 set xtics 10.

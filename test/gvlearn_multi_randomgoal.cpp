@@ -22,9 +22,7 @@ const double dt= 0.1;
 int main(){
 	Timer timer(true);
 
-	sim = new Simulation(numtrials, numagents, false);
-	sim->add_goal(-5., 0., 0);
-	sim->add_goal(-0., 5., 0);
+	sim = new Simulation(numtrials, numagents, true);
 	sim->init_controller(18, 0.05, 0.0, 0.00);
 	sim->set_inward(int(1000./dt));							// inward after 1000 seconds
 	sim->homing(true);

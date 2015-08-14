@@ -6,8 +6,10 @@ set xlabel "x"
 set ylabel "y"
 set cblabel "Trials" offset 1
 
+stat "../agent.dat" u 5 nooutput
+
 set size square
-SCALE = 30.
+SCALE = (STATS_max+STATS_max/5.)*2.
 OFFSETX = 0.0 ##-2.5
 OFFSETY = 0.0 ##-2.5
 	

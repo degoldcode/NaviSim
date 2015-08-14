@@ -31,14 +31,15 @@ using namespace std;
 
 GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load) : CircArray(num_neurons,1) {
 	type = 1;
-	//threshold = 25.;
+	threshold = 3.*nnoise;
 	global_vector.resize(1);
 	foraging_state = forage;
-	learn_rate = 5.;
+	learn_rate = 2.;			//0.2; (slow switch - two goals) // originally: 5.0
 	reward = 0.0;
 	expl_rate =  0.0;
 	neural_noise = nnoise;
 	load_weights = opt_load;
+	white_weights.zeros(N,K);
 	if(load_weights)
 		w().load("./save/goalweights.mat", raw_ascii);
 
@@ -47,6 +48,7 @@ GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool 
 	printf("Goal types: %u\n", K);
 	printf("Learning rate: %g\n", learn_rate);
 	printf("Uncorrelated noise: %g\n", nnoise);
+	printf("Decoding threshold: %g\n", threshold);
 	printf("Loading weights from file: %u\n", opt_load);
 	printf("==============================\n\n");
 }
@@ -84,6 +86,7 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 }
 
 void GoalLearning::update_weights(vec pi_input){
+	//printf("%u / %u X %u\n", pi_input.n_elem, input_conns.n_rows, input_conns.n_cols);
 	weight_change = learn_rate * reward /* expl_rate*/ * (1. - *foraging_state) * (pi_input-input_conns) - /*0.0000004*/0.000001*input_conns;
 	white_weights += weight_change;
 	white_weights.elem( find(white_weights < 0.0) ).zeros();

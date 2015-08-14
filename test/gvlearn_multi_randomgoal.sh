@@ -1,5 +1,5 @@
 ### check if file exists
-file="onegoal_multi_gvlearn"
+file="randomgoal_multi_gvlearn"
 if [ -f "../$file" ]
 then
 	echo "Remove $file."
@@ -12,7 +12,7 @@ cd ..
 ### compile c++ code
 if [ "$1" == "all" ] || [ "$1" == "compile" ] || [ "$1" == "run" ] ; then
 echo "Compile."
-g++ test/gvlearn_multi_onegoal.cpp src/agent.cpp src/environment.cpp src/simulation.cpp src/controller.cpp src/goal.cpp src/landmark.cpp src/object.cpp src/pin.cpp src/goallearning.cpp -std=c++11 -o $file -O1 -larmadillo
+g++ test/gvlearn_multi_randomgoal.cpp src/agent.cpp src/environment.cpp src/simulation.cpp src/controller.cpp src/goal.cpp src/landmark.cpp src/object.cpp src/pin.cpp src/goallearning.cpp -std=c++11 -o $file -O1 -larmadillo
 fi
 
 ### run program
@@ -44,8 +44,8 @@ cd ..
 if [ "$1" = "all" ] || [ "$1" = "run" ] ; then
 echo "Backup data."
 timestamp=$( date +"%y%m%d-%T")
-mkdir ../data_container/gvlearn_multi_onegoal/$timestamp/
-cp *.dat ../data_container/gvlearn_multi_onegoal/$timestamp/
+mkdir ../data_container/gvlearn_multi_randomgoal/$timestamp/
+cp *.dat ../data_container/gvlearn_multi_randomgoal/$timestamp/
 fi
 
 if [ "$1" = "" ] ; then

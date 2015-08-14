@@ -12,7 +12,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise);
 	num_colors = 1;
 
-	gvl = new GoalLearning(numneurons, 0.00, &inward, false);
+	gvl = new GoalLearning(numneurons, 0.0, &inward, false);
 	gl_array.resize(num_colors);
 
 	rand_m = 0.0;
@@ -26,6 +26,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	output = 0.0;
 	inward = 0.0;
 	goal_factor = 0.0;
+	expl_beta = 0.1;
 
 	cGV.resize(num_colors);
 	accum_reward = zeros(num_colors);
@@ -245,7 +246,7 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 	t++;
 
 	/*** Check, if inward ***/
-	if(t > t_home || accum_reward(0) > 3.)
+	if(t > t_home || accum_reward(0) > 0.5)
 		inward = 1.;
 
 	/*** Random foraging ***/
@@ -276,7 +277,7 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 			if(i == color){
 				reward(i) = inReward;
 				value(i) = reward(i) + disc_factor * value(i);
-				expl_factor(i) = exp(-.5 * value(i));
+				expl_factor(i) = exp(- expl_beta * value(i));
 			}
 			else{
 				reward(i) = 0.0;

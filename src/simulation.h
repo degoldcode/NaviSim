@@ -192,7 +192,7 @@ private:
 
 	int agents = 1;                                   // number of agents
 	const double m_rad = 40.;                         // maximum radius of objects
-	const double g_dens = 0.025;                      // density of goals
+	const double g_dens = 0.01; //0.025;              // density of goals
 	const int ngs = int(g_dens*(M_PI*pow(m_rad,2)));  // number of goals
 	const double lm_dens = 0.05;                      // density of landmarks
 	const int nlms = int(lm_dens*(M_PI*pow(m_rad,2)));// number of landmarks

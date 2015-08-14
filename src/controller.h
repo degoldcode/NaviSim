@@ -295,6 +295,7 @@ private:
 	vec value;
 	vec dvalue;
 	double val_discount;
+	double expl_beta;
 	const double disc_factor = 0.999;
 	vec expl_factor;
 	int current_goal;
