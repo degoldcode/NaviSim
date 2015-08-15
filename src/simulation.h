@@ -89,6 +89,15 @@ public:
 	 */
 	void add_goal(double max_radius);
 
+	/**
+	 * Adds a landmark at position (x,y)
+	 *
+	 * 	@param (double) x: x postion of goal
+	 * 	@param (double) y: y postion of goal
+	 * 	@return (void)
+	 */
+	void add_landmark(double x, double y);
+
 	Controller* c(int i=0);
 
 	Environment* e();

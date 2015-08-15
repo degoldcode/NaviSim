@@ -97,13 +97,12 @@ Environment::~Environment(){
 		delete goal_list.at(i);
 	}
 	stream_g.close();
-//	for(unsigned int i = 0; i < landmark_list.size(); i++){
-//		stream_lm << landmark_list.at(i)->x() << "\t"
-//				  << landmark_list.at(i)->y() << "\t"
-//				  << landmark_list.at(i)->total()
-//				  << endl;
-//		delete landmark_list.at(i);
-//	}
+	for(unsigned int i = 0; i < landmark_list.size(); i++){
+		stream_lm << landmark_list.at(i)->x() << "\t"
+				  << landmark_list.at(i)->y()
+				  << endl;
+		delete landmark_list.at(i);
+	}
 	stream_lm.close();
 //	for(unsigned int i = 0; i < pipe_list.size(); i++){
 //		stream_p << pipe_list.at(i)->x0() << "\t"

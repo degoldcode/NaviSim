@@ -29,8 +29,8 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 }
 
 RouteLearning::~RouteLearning(){
-	delete ref_pin;
-	w_lmr_lv.save("./save/routeweights.mat", raw_ascii);
+	delete reference_pin;
+	input_conns.save("./save/routeweights.mat", raw_ascii);
 }
 
 Vec RouteLearning::LV(int index){
@@ -46,8 +46,9 @@ void RouteLearning::update(double in_reward, vec input_lmr) {
 	//	if(reward > 0.0)
 	//		printf("foraging state = %g\n", *foraging_state);
 	vec input = input_lmr;//(1. - *foraging_state)*ones<vec>(K);
+	//REF PI TODO
 	update_rate(input_conns*input);
-	update_weights(pi_input);
+	update_weights();
 	for(int index = 0; index < K; index++){
 		set_avg(update_avg(input_conns.col(index)));
 		set_len(update_len(input_conns.col(index)));

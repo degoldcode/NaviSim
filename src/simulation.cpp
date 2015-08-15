@@ -88,6 +88,10 @@ void Simulation::add_goal(double max_radius){
 	environment->add_goal(max_radius);
 }
 
+void Simulation::add_landmark(double x, double y){
+	environment->add_landmark(x, y);
+}
+
 Controller* Simulation::c(int i){
 	return controllers.at(i);
 }
