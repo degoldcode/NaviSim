@@ -382,6 +382,7 @@ void Environment::update_pipe(){
 			if(d(agent_list.at(i), pipe_list.at(j)->out()) < 0.1 && agent_list.at(i)->in_pipe){
 				printf("Out pipe %u\n", j);
 				agent_list.at(i)->in_pipe = false;
+				agent_list.at(i)->set_dphi(new Angle(0.0));
 			}
 
 		}
