@@ -47,6 +47,7 @@ Environment::Environment(int num_agents){
 	lm_recogn.resize(agent_list.size());
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
+	lm_stats.visible = zeros<mat>(agent_list.size(), landmark_list.size());
 	open_streams();
 }
 
@@ -80,6 +81,7 @@ Environment::Environment(int num_goals, int num_landmarks, double max_radius, in
 	lm_recogn.resize(agent_list.size());
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
+	lm_stats.visible = zeros<mat>(agent_list.size(), landmark_list.size());
 	open_streams();
 }
 
@@ -171,6 +173,7 @@ void Environment::add_goal(double max_radius){
 void Environment::add_landmark(double x, double y){
 	Landmark* lm = new Landmark(x,y,VERBOSE);
 	landmark_list.push_back(lm);
+	lm_stats.visible = zeros<mat>(agent_list.size(), landmark_list.size());
 }
 
 void Environment::add_landmark(double max_radius){
@@ -201,10 +204,12 @@ void Environment::add_landmark(double max_radius){
 	landmark_list.push_back(landmark);
 }
 
-/*void Environment::add_pipe(double x0, double x1, double y0, double y1){
+void Environment::add_pipe(double x0, double x1, double y0, double y1){
 	Pipe* pipe = new Pipe(x0,x1,y0,y1);
 	pipe_list.push_back(pipe);
-}*/
+	Angle* angle = &(pipe->alpha);
+	pipe_angle.push_back(angle);
+}
 
 /*int Environment::color(){
 	if(goal_list.size()>0){
@@ -259,9 +264,9 @@ Goal* Environment::g(int i){
 	return goal_list.at(i);
 }
 
-/*double Environment::lmr(){
-	return lm_recogn;
-}*/
+vec Environment::lmr(int i){
+	return lm_stats.visible.col(i);
+}
 
 /*int Environment::n_goals(){
 	return goal_list.size();
@@ -330,14 +335,13 @@ Angle Environment::th(int i){
 void Environment::update(){
 	update_rewards();
 	update_collisions();
+	update_pipe();
 	update_agents();
 }
 
 void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
-/*		for(unsigned int j = 0; j < pipe_list.size(); j++)
-			agent_list.at(i) = pipe_list.at(j)->set_agent_pipe(agent_list.at(i));*/
-		agent_list.at(i)->update(reward.at(i));
+		agent_list.at(i)->update(reward.at(i), lm_stats.visible.col(i));
 		if(/*agent_list.at(i)->d() < home_radius &&*/ agent_list.at(i)->c()->get_state()){
 			stop_trial = true;
 		}
@@ -355,6 +359,30 @@ void Environment::update_collisions(){
 			}
 			else
 				g_stats.collisions(i,j) = 0;
+		}
+		for(unsigned int j = 0; j < landmark_list.size(); j++){
+			if(d(agent_list.at(i), landmark_list.at(j)) < 0.2){
+				lm_stats.visible(i,j) = 1;
+			}
+			else
+				lm_stats.visible(i,j) = 0;
+		}
+	}
+}
+
+void Environment::update_pipe(){
+	for(unsigned int i = 0; i < agent_list.size(); i++){
+		for(unsigned int j = 0; j < pipe_list.size(); j++){
+			if(d(agent_list.at(i), pipe_list.at(j)->in()) < 0.2 && !(agent_list.at(i)->in_pipe)){
+				printf("In pipe %u\n", j);
+				agent_list.at(i)->in_pipe = true;
+				agent_list.at(i)->set_dphi(pipe_angle.at(j));
+			}
+			if(d(agent_list.at(i), pipe_list.at(j)->out()) < 0.1 && agent_list.at(i)->in_pipe){
+				printf("Out pipe %u\n", j);
+				agent_list.at(i)->in_pipe = false;
+			}
+
 		}
 	}
 }

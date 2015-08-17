@@ -98,6 +98,17 @@ public:
 	 */
 	void add_landmark(double x, double y);
 
+	/**
+	 * Adds a pipe from (x0,y0) to (x1,y1)
+	 *
+	 *	@param (double) x0: x postion of pipe start
+	 * 	@param (double) y0: y postion of pipe start
+	 * 	@param (double) x1: x postion of pipe end
+	 * 	@param (double) y1: y postion of pipe end
+	 * 	@return (void)
+	 */
+	void add_pipe(double x0, double y0, double x1, double y1);
+
 	Controller* c(int i=0);
 
 	Environment* e();
@@ -118,6 +129,14 @@ public:
 	 * @return (void)
 	 */
 	void gvnav(bool _opt);
+
+	/**
+	 * Set local vector learning controller option to _opt
+	 *
+	 * @param (bool) _opt: true, if local vector learning on
+	 * @return (void)
+	 */
+	void lvlearn(bool _opt);
 
 	/**
 	 * Set homing controller option to _opt
@@ -222,6 +241,7 @@ private:
 	bool homing_on;         // true, if agent does homing after certain time
 	bool gvlearn_on;        // true, if agent learns global vectors
 	bool gvnavi_on;         // true, if agent navigates global vectors
+	bool lvlearn_on;		// true, if agent learns local vectors
 
 
 	//************ Timing parameters ************//

@@ -156,7 +156,7 @@ public:
 	 * @param (double) input: difference in heading
 	 * @return (void)
 	 */
-	void set_dphi(double input);
+	void set_dphi(Angle* input);
 
 	/**
 	 * Sets the heading direction of the agent
@@ -201,9 +201,10 @@ public:
 	 * Updates the kinematics of agent based on the motor command from the controller
 	 *
 	 * @param (double) _reward: reward from environment
+	 * @param (vec) _lmr: landmark recognition from environment
 	 * @return (void)
 	 */
-	void update(double _reward);
+	void update(double _reward, vec _lmr);
 
 	//************ Public class parameters ************//
 
@@ -224,7 +225,7 @@ private:
 	double k_phi;           // Steering constant
 	double k_s;             // Acceleration constant
 	Angle diff_heading;    // Change in heading direction (in rad)
-	double external;		// External change in heading direction (in rad)
+	Angle* external;		// External change in heading direction (in rad)
 	double diff_speed;      // Change in walking speed of agent
 	const double dt = 0.1;	// Integration time
 	int type;               // Goal type

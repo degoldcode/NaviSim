@@ -14,10 +14,12 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 	reward = 0.0;
 	neural_noise = nnoise;
 	load_weights = opt_load;
+	white_weights.zeros(N,K);
 	if(load_weights)
 		w().load("./save/routeweights.mat", raw_ascii);
 
-	reference_pin = new PIN(18, 0.0, 0.05, 0.0);
+	eligibility_lmr = zeros<vec>(num_lmr_units);
+	reference_pin = new PIN(18, 0.0, 0.00, 0.0);
 
 	printf("=== LV learning parameters ===\n");
 	printf("Neurons: %u\n", N);
@@ -33,20 +35,40 @@ RouteLearning::~RouteLearning(){
 	input_conns.save("./save/routeweights.mat", raw_ascii);
 }
 
+double RouteLearning::el_lm(int index){
+	return eligibility_lmr(index);
+}
+
 Vec RouteLearning::LV(int index){
 	return local_vector.at(index);
+}
+
+vec RouteLearning::RefPI(){
+	return reference_pin->get_output();
 }
 
 void RouteLearning::set_mu(double* state){
 	foraging_state = state;
 }
 
-void RouteLearning::update(double in_reward, vec input_lmr) {
+void RouteLearning::update(Angle angle, double speed, double in_reward, vec input_lmr) {
 
 	//	if(reward > 0.0)
 	//		printf("foraging state = %g\n", *foraging_state);
 	vec input = input_lmr;//(1. - *foraging_state)*ones<vec>(K);
-	//REF PI TODO
+	double lowpass_elig = 0.999;
+	eligibility_lmr = 0.1*input + lowpass_elig*eligibility_lmr;
+	if(accu(input) > 0.5){
+		reference_pin->reset();
+	}
+
+	//Reference PI
+	double unoise = boost_unoise();
+	//cout << unoise << endl;
+	if(accu(eligibility_lmr) > 0.1)
+		reference_pin->update(angle, speed);
+	else
+		reference_pin->update(Angle(2*M_PI*unoise), -0.00);
 	update_rate(input_conns*input);
 	update_weights();
 	for(int index = 0; index < K; index++){
@@ -62,7 +84,7 @@ void RouteLearning::update(double in_reward, vec input_lmr) {
 
 void RouteLearning::update_weights(){
 	vec ref_output = reference_pin->get_output();
-	weight_change = learn_rate * reward * eligibility_lmr * (1. - *foraging_state) * (ones<mat>(N,K)*ref_output-input_conns) - /*0.0000004*/0.000001*input_conns;
+	weight_change = learn_rate * reward /* eligibility_lmr*/ * (1. - *foraging_state) * (ref_output - input_conns) - /*0.0000004*/0.000001*input_conns;
 	white_weights += weight_change;
 	white_weights.elem( find(white_weights < 0.0) ).zeros();
 

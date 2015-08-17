@@ -15,7 +15,7 @@
 #include "pin.h"
 #include "geom.h"
 #include "goallearning.h"
-//#include "routelearning.h"
+#include "routelearning.h"
 using namespace std;
 using namespace arma;
 
@@ -67,6 +67,14 @@ public:
 	//double expl();
 
 	/**
+	 * Get eligibility trace
+	 *
+	 * @param (int) index: index of landmark
+	 * @return (double)
+	 */
+	double el_lm(int index);
+
+	/**
 	 * Returns exploration rate of goal i
 	 *
 	 *  @param (double) i: goal index
@@ -110,6 +118,14 @@ public:
 	 *  @return (Pointer to Vector)
 	 */
 	Vec HVm();
+
+	/**
+	 * Returns local vector
+	 *
+	 *  @param (int) i: goal index (default: 0)
+	 *  @return (Vec)
+	 */
+	Vec LV(int i=0);
 
 	/**
 	 * Returns angle in degrees
@@ -237,7 +253,7 @@ public:
 	 *  @param (int) inReward: Color of nearest goal
 	 *  @return (void)
 	 */
-	double update(Angle angle, double speed, double inReward, int color);
+	double update(Angle angle, double speed, double inReward, vec inLmr, int color);
 
 	/**
 	 * Updates the state matrices
@@ -261,7 +277,7 @@ private:
 	//************ Navigation Modules & Controller Parameters ************//
 	PIN* pin;
 	GoalLearning* gvl;
-	//RouteLearning* lvl;
+	RouteLearning* lvl;
 	//Map* map;
 	double inward;                        // foraging state
 
@@ -286,6 +302,9 @@ private:
 	//************ Goal Learning Parameters ************//
 	vector<mat> gl_array;
 	mat gv_array;
+
+	mat lv_array;
+	mat ref_array;
 
 
 	vector<Vec> cGV;
@@ -329,6 +348,7 @@ public:
 	bool homing_on;
 	bool gvlearn_on;
 	bool gvnavi_on;
+	bool lvlearn_on;
 	bool write;
 	bool SILENT;			// no activity matrices sampling
 	bool state_matrc;

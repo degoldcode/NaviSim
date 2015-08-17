@@ -15,6 +15,8 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	gvl = new GoalLearning(numneurons, 0.0, &inward, false);
 	gl_array.resize(num_colors);
 
+	lvl = new RouteLearning(numneurons, 1, 0.0, &inward, false);
+
 	rand_m = 0.0;
 	pi_m = 0.0;
 	gl_m = 0.0;
@@ -48,6 +50,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	homing_on = false;
 	gvlearn_on = false;
 	gvnavi_on = false;
+	lvlearn_on = false;
 
 
 	SILENT = false;
@@ -72,22 +75,16 @@ Controller::~Controller() {
 	save_matrices();
 	delete pin;
 	delete gvl;
+	delete lvl;
 	stream.close();
 	r_stream.close();
 	lm_stream.close();
 	pi_stream.close();
 }
 
-/*double NaviControl::cGV(int i){
-	if(i < cGV_angle.size())
-		return cGV_angle.at(i);
-	else
-		return cGV_angle.back();
-}*/
-
-/*double NaviControl::expl(){
-	return expl_factor(choice);
-}*/
+double Controller::el_lm(int index){
+	return lvl->el_lm(index);
+}
 
 double Controller::expl(int i){
 	if(i < expl_factor.n_elem)
@@ -122,12 +119,9 @@ Vec Controller::HVm(){
 	return pin->HVm();
 }
 
-/*double NaviControl::in_degr(double angle) {
-	if (angle > 0.)
-		return 180. * angle / M_PI;
-	else
-		return 180. * (angle + 2 * M_PI) / M_PI;
-}*/
+Vec Controller::LV(int i){
+	return lvl->LV(i);
+}
 
 int Controller::N(){
 	return numneurons;
@@ -193,6 +187,8 @@ void Controller::save_matrices() {
 	printf("Save data.\n");
 	pi_array.save("./data/mat/pi_activity.mat", raw_ascii);
 	gv_array.save("./data/mat/gv_activity.mat", raw_ascii);
+	lv_array.save("./data/mat/lv_activity.mat", raw_ascii);
+	ref_array.save("./data/mat/ref_activity.mat", raw_ascii);
 //	for(int i = blue; i < num_colors; i++){
 //		gl_array.at(i).save("./data/gv.mat", raw_ascii);
 //		gv_weight.at(i).save("./data/gv_w.mat", raw_ascii);
@@ -238,10 +234,12 @@ void Controller::set_sample_int(int _val){
 	}
 }*/
 
-double Controller::update(Angle angle, double speed, double inReward, int color) {
+double Controller::update(Angle angle, double speed, double inReward, vec inLmr, int color) {
 	if(t%inv_sampling_rate == 0 && !SILENT){
 		pi_array = join_rows(pi_array, pin->get_output());
 		gv_array = join_rows(gv_array, gvl->w(0));
+		lv_array = join_rows(lv_array, lvl->w(0));
+		ref_array = join_rows(ref_array, lvl->RefPI());
 	}
 	t++;
 
@@ -291,13 +289,22 @@ double Controller::update(Angle angle, double speed, double inReward, int color)
 		else
 			gl_m = 0.0;
 	}
+	gl_w = 0.0;
 	accum_reward += reward;
 
+	/*** Local Vector Learning Circuits TODO ***/
+	if(lvlearn_on){
+		lvl->update(angle, speed, inReward, inLmr);
+		if(inward == 0.)
+			rl_m = 4.0*(1.-expl_factor(0))*(LV(0).ang() - angle).S();
+		else
+			rl_m = 0.0;
+	}
 
 
 
 	/*** Navigation Control Output ***/
-	output = rand_w*rand_m + pi_w*pi_m + gl_m;
+	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m;
 //	if(!inward)
 //		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
 //	else

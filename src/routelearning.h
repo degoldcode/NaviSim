@@ -36,12 +36,27 @@ public:
 	~RouteLearning();
 
 	/**
+	 * Get eligibility trace
+	 *
+	 * @param (int) index: index of landmark
+	 * @return (double)
+	 */
+	double el_lm(int index);
+
+	/**
 	 * Get local vector
 	 *
 	 * @param (int) index: index of synaptic weights
 	 * @return (Vec)
 	 */
 	Vec LV(int index = 0);
+
+	/**
+	 * Return reference PI activity
+	 *
+	 * @return (vec)
+	 */
+	vec RefPI();
 
 	/**
 	 * Sets the foraging state
@@ -54,11 +69,13 @@ public:
 	/**
 	 * Updates the route learning circuit
 	 *
+	 *  @param (Angle) angle: Input angle from compass
+	 *  @param (double) speed: Input walking speed from odometry (legged: "differential step counter")
 	 *  @param (double) in_reward: Reward signal
 	 *  @param (vec) input_lmr: input from landmark recognition (visual snapshots)
 	 *  @return (void)
 	 */
-	void update(double in_reward, vec input_lmr);
+	void update(Angle angle, double speed, double in_reward, vec input_lmr);
 
 	/**
 	 * Updates the weights

@@ -40,7 +40,7 @@ Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
 	k_phi = M_PI;
 	k_s = 0.01;
 	diff_heading.to(0.0);
-	external = 0.0;
+	external = new Angle(0.0);
 
 	inward = false;
 	in_pipe = false;
@@ -93,7 +93,7 @@ void Agent::reset(){
 	control->reset();
 }
 
-void Agent::set_dphi(double input){
+void Agent::set_dphi(Angle* input){
 	external = input;
 }
 
@@ -110,22 +110,21 @@ void Agent::to(double x_new, double y_new){
 	y(y_new);
 }
 
-void Agent::update(double _reward){
+void Agent::update(double _reward, vec _lmr){
 	//control->set_inward(inward);
-	if(!in_pipe)
-		diff_heading.to(dt * k_phi * control_output + external);
+	if(!in_pipe){
+		diff_heading.to(dt * k_phi * control_output + external->rad());
+		heading = heading + diff_heading;
+	}
 	else
-		diff_heading.to(external);
-	external = 0.0;
-
-	heading = heading + diff_heading;
+		heading.to(external->rad());
 
 	diff_speed = dt * k_s * 0.0;
 	speed += diff_speed;
 
 	move(dt * speed * heading.C(), dt * speed * heading.S(), 0.0);
 
-	control_output = control->update(heading.rad(), speed, _reward, 0);
+	control_output = control->update(heading.rad(), speed, _reward, _lmr, 0);
 }
 
 double Agent::s(){

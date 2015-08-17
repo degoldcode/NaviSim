@@ -32,6 +32,7 @@
 #include <armadillo>
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/random/uniform_real.hpp>
 #include "geom.h"
 using namespace arma;
 using namespace std;
@@ -138,6 +139,15 @@ public:
 		boost::normal_distribution<> nd(0.0, width);
 		boost::variate_generator<boost::mt19937&,
 		boost::normal_distribution<> > var_nor(rng, nd);
+		return var_nor();
+	}
+	double boost_unoise(){
+		boost::mt19937 rng; // I don't seed it on purpouse (it's not relevant)
+
+		rng.seed((++seed) + time(NULL));
+		boost::uniform_real<> uni_dist(0,1);
+		boost::variate_generator<boost::mt19937&,
+		boost::uniform_real<> > var_nor(rng, uni_dist);
 		return var_nor();
 	}
 

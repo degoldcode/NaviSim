@@ -31,7 +31,7 @@
 #include "agent.h"
 #include "goal.h"
 #include "landmark.h"
-//#include "pipe.h"
+#include "pipe.h"
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -161,7 +161,7 @@ public:
 	 * 	@param (double) y1: y postion of pipe end
 	 * 	@return (void)
 	 */
-	//void add_pipe(double x0, double y0, double x1, double y1);
+	void add_pipe(double x0, double y0, double x1, double y1);
 
 	/**
 	 * Returns color index of nearest goal
@@ -232,7 +232,7 @@ public:
 	 *
 	 * 	@return (double)
 	 */
-	//double lmr();
+	vec lmr(int i=0);
 
 	/**
 	 * Returns number of goals
@@ -316,6 +316,13 @@ public:
 	void update_collisions();
 
 	/**
+	 * Updates any pipes
+	 *
+	 *	@return (void)
+	 */
+	void update_pipe();
+
+	/**
 	 * Updates any rewards
 	 *
 	 *	@return (void)
@@ -358,7 +365,8 @@ private:
 	vector<Agent*> agent_list;
 	vector<Goal*> goal_list;
 	vector<Landmark*> landmark_list;
-	//vector<Pipe*> pipe_list;
+	vector<Pipe*> pipe_list;
+	vector<Angle*> pipe_angle;
 	ObjStats g_stats;
 	ObjStats lm_stats;
 

@@ -92,6 +92,10 @@ void Simulation::add_landmark(double x, double y){
 	environment->add_landmark(x, y);
 }
 
+void Simulation::add_pipe(double x0, double x1, double y0, double y1){
+	environment->add_pipe(x0,x1,y0,y1);
+}
+
 Controller* Simulation::c(int i){
 	return controllers.at(i);
 }
@@ -121,6 +125,11 @@ void Simulation::init_controller(int num_neurons, double sensory_noise, double u
 		a(i)->init(control);
 		controllers.push_back(control);
 	}
+}
+
+void Simulation::lvlearn(bool _opt){
+	lvlearn_on = _opt;
+	c()->lvlearn_on = _opt;
 }
 
 void Simulation::reset(){
@@ -165,6 +174,8 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
 					printf("Expl = %1.5f\tGV(ang, r) = (%3.2f, %2.3f)\tGVC(ang, r) = (%3.2f, %2.3f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
+				if(lvlearn_on)
+					printf("LV(ang,r)=(%3.2f,%2.3f)\t", c()->LV().ang().deg(), c()->LV().len());
 				printf("Amount=%g", e()->g(0)->a());
 				printf("\n");
 			}
@@ -176,6 +187,8 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("<Home>=%3.1f%%\t<Goal>=%2.4f\t", 100.*is_home.mean(), is_goal.mean());
 				if(gvlearn_on)
 					printf("Expl=%1.5f\tGV(ang,r)=(%3.2f,%2.3f)\tGVC(ang,r)=(%3.2f,%2.3f)", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
+				if(lvlearn_on)
+					printf("LV(ang,r)=(%3.2f,%2.3f)\t", c()->LV().ang().deg(), c()->LV().len());
 				printf("\n");
 			}
 
@@ -217,8 +230,11 @@ void Simulation::writeSimData(){
 }
 
 void Simulation::writeTrialData(){
-	agent_str << trial << "\t" << trial_t;
-	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y() << "\t" << a(0)->d() << "\t" << a(0)->dphi()<< "\t" << a(0)->v().ang() << "\t" << global_t ; // TODO: different streams for different agents
+	agent_str << trial << "\t" << trial_t;						//1,2
+	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y();			//3,4
+	agent_str << "\t" << a(0)->d() << "\t" << a(0)->dphi();		//5,6
+	agent_str << "\t" << a(0)->v().ang() << "\t" << global_t;	//7,8
+	agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0); // TODO: different streams for different agents
 	agent_str << endl;
 	homevector_str << trial_t << "\t" << global_t;
 	homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;
