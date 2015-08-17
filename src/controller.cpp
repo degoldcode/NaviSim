@@ -164,6 +164,7 @@ double Controller::randn(double mean, double stdev) {
 
 void Controller::reset() {
 	pin->reset();
+	lvl->reset();
 	accum_reward = zeros(num_colors);
 	t = 0;
 	inward = false;
@@ -304,7 +305,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 
 
 	/*** Navigation Control Output ***/
-	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m;
+	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m + rl_m;
 //	if(!inward)
 //		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
 //	else

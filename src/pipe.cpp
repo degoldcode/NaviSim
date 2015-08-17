@@ -1,7 +1,7 @@
 /*****************************************************************************
- *  agent.cpp                                                                *
+ *  pipe.cpp                                                                 *
  *                                                                           *
- *  Created on:   Jul 17, 2014                                               *
+ *  Created on:   Aug 02, 2014                                               *
  *  Author:       Dennis Goldschmidt                                         *
  *  Email:        goldschmidtd@ini.phys.ethz.ch                              *
  *                                                                           *
@@ -25,109 +25,79 @@
  *                                                                           *
  ****************************************************************************/
 
+
 #include <cmath>
-#include <random>
-#include "agent.h"
+#include "pipe.h"
 using namespace std;
 
-Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
-	VERBOSE = in_verbose;
-	(VERBOSE)?printf("\nCREATE AGENT at (%g, %g)\n\n", x(), y()):VERBOSE;
-
-	heading.to(randuu(-M_PI, M_PI));		// random initial orientation
-	speed = 0.1;
-
-	k_phi = M_PI;
-	k_s = 0.01;
-	diff_heading.to(0.0);
-	external = new Angle(0.0);
-
-	inward = false;
-	in_pipe = false;
+Pipe::Pipe(double x0, double x1, double y0, double y1){
+	entry = new Object(x0,y0, 0.0);
+	exit = new Object(x1,y1, 0.0);
+	double dx = exit->x() - entry->x();
+	double dy = exit->y() - entry->y();
+	alpha = Angle(atan2(dy, dx));
+	len = sqrt(dx*dx + dy*dy);
 }
 
-Agent::~Agent(){
-	delete control;
+Pipe::~Pipe(){
+
 }
 
-Controller* Agent::c(){
-	return control;
+//Agent* Pipe::set_agent_pipe(Agent* agent){
+//	double x_m = x_pipe(agent->x(), agent->y());
+//	double y_m = y_pipe(agent->x(), agent->y());
+//	if((x_m > -p_width && x_m < p_width && abs(y_m) < .5*p_width) || in_this_pipe){
+//		agent->set_dphi(alpha - agent->phi());
+//		if(!in_this_pipe){
+//			agent->set_x(x_pos_0);
+//			agent->set_y(y_pos_0);
+//		}
+//		in_this_pipe = true;	//puts agent in pipe
+//		agent->in_pipe = true;
+//	}
+//	if(in_this_pipe && (x_m > len || abs(y_m) > .5*p_width)){
+//		in_this_pipe = false;
+//		agent->in_pipe = false;					//gets agent out of pipe
+//	}
+//	return agent;
+//}
+
+Object* Pipe::in(){
+	return entry;
 }
 
-Angle Agent::dphi(){
-	return diff_heading;
+Object* Pipe::out(){
+	return exit;
 }
 
-Vec Agent::GV(int i){
-	return control->GV(i);
+Angle Pipe::phi(){
+	return alpha;
 }
 
-Vec Agent::HV(){
-	return control->HV();
+double Pipe::w(){
+	return p_width;
 }
 
-Vec Agent::HVm(){
-	return control->HVm();
+double Pipe::x0(){
+	return entry->x();
 }
 
-bool Agent::in(){
-	return inward;
+double Pipe::x1(){
+	return exit->x();
 }
 
-void Agent::init(Controller* control){
-	this->control = control;
+double Pipe::x_pipe(double x, double y){
+	return x*alpha.C() + y*alpha.S() - alpha.C()*entry->x() - alpha.S()*entry->y();
 }
 
-Angle Agent::phi(){
-	return heading;
+double Pipe::y0(){
+	return entry->y();
 }
 
-PIN* Agent::pi(){
-	return control->pi();
+double Pipe::y1(){
+	return exit->y();
 }
 
-void Agent::reset(){
-	to(0.,0.);
-	heading.to(randuu(-M_PI, M_PI));
-	inward = false;
-	in_pipe = false;
-	control->reset();
-}
-
-void Agent::set_dphi(Angle* input){
-	external = input;
-}
-
-void Agent::set_phi(double input){
-	heading.to(input);
-}
-
-void Agent::set_inward(bool input){
-	inward = input;
-}
-
-void Agent::to(double x_new, double y_new){
-	x(x_new);
-	y(y_new);
-}
-
-void Agent::update(double _reward, vec _lmr){
-	//control->set_inward(inward);
-	if(!in_pipe){
-		diff_heading.to(dt * k_phi * control_output + external->rad());
-		heading = heading + diff_heading;
-	}
-	else
-		heading.to(external->rad());
-
-	diff_speed = dt * k_s * 0.0;
-	speed += diff_speed;
-
-	move(dt * speed * heading.C(), dt * speed * heading.S(), 0.0);
-
-	control_output = control->update(heading.rad(), speed, _reward, _lmr, 0);
-}
-
-double Agent::s(){
-	return speed;
+double Pipe::y_pipe(double x, double y){
+	return -x*alpha.S() + y*alpha.C() + alpha.S()*entry->x() - alpha.C()*entry->y();
 }

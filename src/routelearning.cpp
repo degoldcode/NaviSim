@@ -47,12 +47,16 @@ vec RouteLearning::RefPI(){
 	return reference_pin->get_output();
 }
 
+void RouteLearning::reset_el_lm(){
+	eligibility_lmr = zeros<vec>(K);
+}
+
 void RouteLearning::set_mu(double* state){
 	foraging_state = state;
 }
 
 void RouteLearning::update(Angle angle, double speed, double in_reward, vec input_lmr) {
-
+	reward = in_reward;
 	//	if(reward > 0.0)
 	//		printf("foraging state = %g\n", *foraging_state);
 	vec input = input_lmr;//(1. - *foraging_state)*ones<vec>(K);
@@ -84,7 +88,7 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 
 void RouteLearning::update_weights(){
 	vec ref_output = reference_pin->get_output();
-	weight_change = learn_rate * reward /* eligibility_lmr*/ * (1. - *foraging_state) * (ref_output - input_conns) - /*0.0000004*/0.000001*input_conns;
+	weight_change = learn_rate * reward /* eligibility_lmr*/ * (1. - *foraging_state) * (ref_output - input_conns);// - /*0.0000004*/0.000001*input_conns;
 	white_weights += weight_change;
 	white_weights.elem( find(white_weights < 0.0) ).zeros();
 

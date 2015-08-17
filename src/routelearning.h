@@ -58,6 +58,8 @@ public:
 	 */
 	vec RefPI();
 
+	void reset_el_lm();
+
 	/**
 	 * Sets the foraging state
 	 *

@@ -373,7 +373,8 @@ void Environment::update_collisions(){
 void Environment::update_pipe(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < pipe_list.size(); j++){
-			if(d(agent_list.at(i), pipe_list.at(j)->in()) < 0.2 && !(agent_list.at(i)->in_pipe)){
+			double dis = d(agent_list.at(i), pipe_list.at(j)->in());
+			if(dis < 0.2 && !(agent_list.at(i)->in_pipe)){
 				printf("In pipe %u\n", j);
 				agent_list.at(i)->in_pipe = true;
 				agent_list.at(i)->set_dphi(pipe_angle.at(j));
