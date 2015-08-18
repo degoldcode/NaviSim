@@ -47,7 +47,12 @@ vec RouteLearning::RefPI(){
 	return reference_pin->get_output();
 }
 
+Vec RouteLearning::RV(){
+	return reference_pin->HV();
+}
+
 void RouteLearning::reset_el_lm(){
+	reference_pin->reset();
 	eligibility_lmr = zeros<vec>(K);
 }
 
@@ -60,9 +65,9 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 	//	if(reward > 0.0)
 	//		printf("foraging state = %g\n", *foraging_state);
 	vec input = input_lmr;//(1. - *foraging_state)*ones<vec>(K);
-	double lowpass_elig = 0.999;
+	double lowpass_elig = 0.99;
 	eligibility_lmr = 0.1*input + lowpass_elig*eligibility_lmr;
-	if(accu(input) > 0.5){
+	if(accu(input) > 0.5 || accu(eligibility_lmr) < 0.1){
 		reference_pin->reset();
 	}
 

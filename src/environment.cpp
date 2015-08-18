@@ -265,7 +265,10 @@ Goal* Environment::g(int i){
 }
 
 vec Environment::lmr(int i){
-	return lm_stats.visible.col(i);
+	if(i < lm_stats.visible.n_cols)
+		return lm_stats.visible.col(i);
+	else
+		return vec(0.0);
 }
 
 /*int Environment::n_goals(){
@@ -341,7 +344,10 @@ void Environment::update(){
 
 void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
-		agent_list.at(i)->update(reward.at(i), lm_stats.visible.col(i));
+		if(i < lm_stats.visible.n_cols)
+			agent_list.at(i)->update(reward.at(i), lm_stats.visible.col(i));
+		else
+			agent_list.at(i)->update(reward.at(i), vec(0.0));
 		if(/*agent_list.at(i)->d() < home_radius &&*/ agent_list.at(i)->c()->get_state()){
 			stop_trial = true;
 		}
@@ -361,7 +367,7 @@ void Environment::update_collisions(){
 				g_stats.collisions(i,j) = 0;
 		}
 		for(unsigned int j = 0; j < landmark_list.size(); j++){
-			if(d(agent_list.at(i), landmark_list.at(j)) < 0.2){
+			if(d(agent_list.at(i), landmark_list.at(j)) < 0.1){
 				lm_stats.visible(i,j) = 1;
 			}
 			else
@@ -375,12 +381,13 @@ void Environment::update_pipe(){
 		for(unsigned int j = 0; j < pipe_list.size(); j++){
 			double dis = d(agent_list.at(i), pipe_list.at(j)->in());
 			if(dis < 0.2 && !(agent_list.at(i)->in_pipe)){
-				printf("In pipe %u\n", j);
+				//printf("In pipe %u\n", j);
 				agent_list.at(i)->in_pipe = true;
 				agent_list.at(i)->set_dphi(pipe_angle.at(j));
+				//agent_list.at(i)->to(pipe_list.at(j)->x0(), pipe_list.at(j)->y0());
 			}
-			if(d(agent_list.at(i), pipe_list.at(j)->out()) < 0.1 && agent_list.at(i)->in_pipe){
-				printf("Out pipe %u\n", j);
+			if(d(agent_list.at(i), pipe_list.at(j)->out()) < 0.2 && agent_list.at(i)->in_pipe){
+				//printf("Out pipe %u\n", j);
 				agent_list.at(i)->in_pipe = false;
 				agent_list.at(i)->set_dphi(new Angle(0.0));
 			}

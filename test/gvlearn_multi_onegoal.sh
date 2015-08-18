@@ -12,7 +12,7 @@ cd ..
 ### compile c++ code
 if [ "$1" == "all" ] || [ "$1" == "compile" ] || [ "$1" == "run" ] ; then
 echo "Compile."
-g++ test/gvlearn_multi_onegoal.cpp src/agent.cpp src/environment.cpp src/simulation.cpp src/controller.cpp src/goal.cpp src/landmark.cpp src/object.cpp src/pin.cpp src/goallearning.cpp -std=c++11 -o $file -O1 -larmadillo
+g++ test/gvlearn_multi_onegoal.cpp src/agent.cpp src/environment.cpp src/simulation.cpp src/controller.cpp src/goal.cpp src/landmark.cpp src/pipe.cpp src/object.cpp src/pin.cpp src/goallearning.cpp src/routelearning.cpp -std=c++11 -o $file -O1 -larmadillo
 fi
 
 ### run program

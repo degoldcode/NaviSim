@@ -28,9 +28,11 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	output = 0.0;
 	inward = 0.0;
 	goal_factor = 0.0;
-	expl_beta = 0.1;
+	expl_beta = 0.5;
+	seed = 12345678;
 
 	cGV.resize(num_colors);
+	cLV.resize(num_colors);
 	accum_reward = zeros(num_colors);
 	reward = zeros(num_colors);
 	value = zeros(num_colors);
@@ -150,10 +152,21 @@ double Controller::R(int index){
 	return accum_reward(index);
 }
 
+Vec Controller::RV(){
+	return lvl->RV();
+}
+
 double Controller::randn(double mean, double stdev) {
-	static random_device e { };
-	static normal_distribution<double> d(mean, stdev);
-	return d(e);
+//	static random_device e { };
+//	static normal_distribution<double> d(mean, stdev);
+//	return d(e);
+	boost::mt19937 rng; // I don't seed it on purpouse (it's not relevant)
+
+	rng.seed((++seed) + time(NULL));
+	boost::normal_distribution<> nd(mean, stdev);
+	boost::variate_generator<boost::mt19937&,
+	boost::normal_distribution<> > var_nor(rng, nd);
+	return var_nor();
 }
 
 /*double NaviControl::randu(double min, double max) {
@@ -164,7 +177,7 @@ double Controller::randn(double mean, double stdev) {
 
 void Controller::reset() {
 	pin->reset();
-	lvl->reset();
+	lvl->reset_el_lm();
 	accum_reward = zeros(num_colors);
 	t = 0;
 	inward = false;
@@ -197,6 +210,7 @@ void Controller::save_matrices() {
 }
 
 void Controller::set_sample_int(int _val){
+	cout << _val << " = sample\n";
 	inv_sampling_rate = _val;
 }
 
@@ -245,7 +259,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	t++;
 
 	/*** Check, if inward ***/
-	if(t > t_home || accum_reward(0) > 0.5)
+	if(t > t_home || accum_reward(0) > 3.)
 		inward = 1.;
 
 	/*** Random foraging ***/
@@ -290,14 +304,23 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		else
 			gl_m = 0.0;
 	}
+	stream << cGV.at(0).ang().deg() << endl;
 	gl_w = 0.0;
 	accum_reward += reward;
 
 	/*** Local Vector Learning Circuits TODO ***/
 	if(lvlearn_on){
+		//rl_w = 1. - exp(-LV(0).len());
 		lvl->update(angle, speed, inReward, inLmr);
-		if(inward == 0.)
-			rl_m = 4.0*(1.-expl_factor(0))*(LV(0).ang() - angle).S();
+
+		cLV.at(0) = (LV(0) - HV());
+
+		double route_factor = 2.*(lvl->el_lm(0)-0.5);
+		if(route_factor < 0.0)
+			route_factor = 0.0;
+		route_factor = 1.0;
+		if(inward == 0. && lvl->el_lm(0) > 0.95)
+			rl_m = 4.0*route_factor*(1.-expl_factor(0))*(LV(0).ang() - angle).S();//4.0*(1.-expl_factor(0))*(LV(0).ang() - angle).S();
 		else
 			rl_m = 0.0;
 	}
@@ -305,7 +328,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 
 
 	/*** Navigation Control Output ***/
-	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m + rl_m;
+	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m + rl_w*rl_m;
 //	if(!inward)
 //		output = gl_command + 4.*randn(0.0, 0.15)*expl_factor(0);
 //	else

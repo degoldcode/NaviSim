@@ -182,6 +182,13 @@ public:
 	double R(int index=0);
 
 	/**
+	 * Returns reference vector using average
+	 *
+	 *  @return (Pointer to Vector)
+	 */
+	Vec RV();
+
+	/**
 	 * Returns a random number drawn from a Gaussian distribution
 	 *
 	 * @param (double) mean: mean of the distribution (default: 0.0)
@@ -308,6 +315,7 @@ private:
 
 
 	vector<Vec> cGV;
+	vector<Vec> cLV;
 	vec accum_reward;
 	vec reward;
 	vec td_error;
@@ -342,6 +350,7 @@ private:
 	int trial_t;
 	int t_home;
 	int run;
+	unsigned int seed;
 
 public:
 	bool pin_on;

@@ -1,6 +1,6 @@
 reset
 set term postscript enhanced color eps "Helvetica,18"
-set output "../../figs/track.eps"
+set output "../../figs/track_hv.eps"
 
 set xlabel "x"
 set ylabel "y"

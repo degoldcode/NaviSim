@@ -56,6 +56,7 @@ public:
 	 *  @param (int) input_dim: number of incoming signals (default: 0)
 	 */
 	CircArray(int num_neurons=360, int input_dim = 1){
+		VERBOSE = false;
 		N = num_neurons;
 		K = input_dim;
 		preferred_angle.zeros(N);
@@ -265,7 +266,7 @@ public:
 	 * @param (vec) input: vector
 	 * @return (double) average angle of maximum firing
 	 */
-	Angle update_avg(vec input){
+	void update_piavg(vec input){
 		double sum_act = 0.0;
 		double output = 0.0;
 		int _start = 0;
@@ -307,12 +308,64 @@ public:
 		output /= sum_act;
 
 		if(output > 0.)
-			return Angle(fmod(output, 2*M_PI));
+			avg_angle.at(0) = Angle(fmod(output, 2*M_PI));
 		else{
 			//printf("%f\n", output);
-			return Angle(2*M_PI+fmod(output, 2*M_PI));
+			avg_angle.at(0) = Angle(2*M_PI+fmod(output, 2*M_PI));
 		}
 	};
+
+	Angle update_avg(vec input){
+			double sum_act = 0.0;
+			double output = 0.0;
+			int _start = 0;
+			int _end = 0;
+
+			for(int i = 0; i < N; i++){
+				if(input(i%N) > threshold && input((i+1)%N) <= threshold)
+					_end = (i+1)%N;
+				if(input(i%N) <= threshold && input((i+1)%N) > threshold)
+					_start = (i+1)%N;
+			}
+
+			int factor = 1;
+
+			double sins = 0.;
+			double coss = 0.;
+
+
+			uword index;
+			double maxmax = input.max(index);
+
+			if(_start > _end)
+				_end+=N;
+
+
+			for(int i = _start; i < _end; i++){
+				//cout << i << " " << i%N << endl;
+				output += (2*M_PI*i/N)*input(i%N);
+				sum_act += input(i%N);
+	//			if(input(0) != 0.0){
+	//				continue;
+	//			}
+	//			else{
+	//				offset_i = i;
+	//				offset = preferred_angle(i);
+	//				break;
+	//			}
+			}
+			if(sum_act > 0.0)
+				output /= sum_act;
+
+			if(VERBOSE)
+				printf("output = %g\n", output);
+			if(output > 0.)
+				return Angle(fmod(output, 2*M_PI));
+			else{
+				//printf("%f\n", output);
+				return Angle(2*M_PI+fmod(output, 2*M_PI));
+			}
+		};
 
 	/**
 	 * Updates the length of array rate
@@ -322,7 +375,11 @@ public:
 	 */
 	double update_len(vec input){
 		return scale_factor * sum(input)/(N*N);
-	};
+	}
+
+	void update_pilen(vec input){
+		length.at(0) = scale_factor * sum(input)/(N*N);
+	}
 
 	/**
 	 * Updates the angle & rate of maximum firing neuron
@@ -383,6 +440,7 @@ public:
 
 	int type;                                       // 0 = rate, 1 = weight
 	double threshold;
+	bool VERBOSE;
 
 protected:
 

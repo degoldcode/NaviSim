@@ -58,6 +58,13 @@ public:
 	 */
 	vec RefPI();
 
+	/**
+	 * Return reference vector
+	 *
+	 * @return (Vec)
+	 */
+	Vec RV();
+
 	void reset_el_lm();
 
 	/**

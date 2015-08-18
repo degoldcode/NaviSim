@@ -232,6 +232,8 @@ private:
 	ofstream endpts_str;
 	ofstream homevector_str;
 	ofstream globalvector_str;
+	ofstream localvector_str;
+	ofstream refvector_str;
 	ofstream reward_str;
 	ofstream length_scaling;
 	ofstream sim_cfg;

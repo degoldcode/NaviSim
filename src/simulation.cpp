@@ -38,6 +38,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	homing_on = false;
 	gvlearn_on = false;
 	gvnavi_on = false;
+	lvlearn_on = false;
 
 	(VERBOSE)?printf("Building environment.\n"):VERBOSE;
 	//environment = (rand_env ? new Environment(10, 10, 25., 1) : new Environment(agents));
@@ -57,6 +58,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	endpts_str.open("data/endpoints.dat");
 	homevector_str.open("data/homevector.dat");
 	globalvector_str.open("data/globalvector.dat");
+	refvector_str.open("data/refvector.dat");
 	reward_str.open("data/reward.dat");
 	sim_cfg.open("data/sim.cfg");
 	sim_cfg << "# Na\t# Nn\t# Sno\t# Leak\t# Uncno" << endl;
@@ -70,6 +72,7 @@ Simulation::~Simulation(){
 	endpts_str.close();
 	homevector_str.close();
 	globalvector_str.close();
+	refvector_str.close();
 	reward_str.close();
 	sim_cfg.close();
 	length_scaling.close();
@@ -120,7 +123,7 @@ void Simulation::init_controller(int num_neurons, double sensory_noise, double u
 		Controller* control = new Controller(num_neurons, sensory_noise, leakage, uncor_noise);
 		control->SILENT = SILENT;
 		int size = N*pow( 10, int(log10( double( num_neurons ) ) ) );
-		control->set_sample_int(size);      // sample activity data every 10 time steps
+		control->set_sample_int(size/10);      // sample activity data every 10 time steps
 
 		a(i)->init(control);
 		controllers.push_back(control);
@@ -176,7 +179,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("Expl = %1.5f\tGV(ang, r) = (%3.2f, %2.3f)\tGVC(ang, r) = (%3.2f, %2.3f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
 				if(lvlearn_on)
 					printf("LV(ang,r)=(%3.2f,%2.3f)\t", c()->LV().ang().deg(), c()->LV().len());
-				printf("Amount=%g", e()->g(0)->a());
+				//printf("Amount=%g", e()->g(0)->a());
 				printf("\n");
 			}
 
@@ -234,12 +237,17 @@ void Simulation::writeTrialData(){
 	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y();			//3,4
 	agent_str << "\t" << a(0)->d() << "\t" << a(0)->dphi();		//5,6
 	agent_str << "\t" << a(0)->v().ang() << "\t" << global_t;	//7,8
-	agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0); // TODO: different streams for different agents
+	if(lvlearn_on)
+		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0); // TODO: different streams for different agents
 	agent_str << endl;
 	homevector_str << trial_t << "\t" << global_t;
 	homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;
 	globalvector_str << trial_t << "\t" << global_t;
 	globalvector_str << "\t" << a(0)->GV().x << "\t" << a(0)->GV().y << "\t" << a(0)->GV().ang() << "\t" << a(0)->GV().len() << "\t" << c()->expl(0) << "\t" << 1.0*count_goal << endl;
+	if(lvlearn_on){
+		refvector_str << trial_t << "\t" << global_t;
+		refvector_str << "\t" << c()->RV().x << "\t" << c()->RV().y << "\t" << c()->RV().ang() << "\t" << c()->RV().len() << endl;
+	}
 	reward_str << trial_t << "\t" << global_t;
 	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;
 	length_scaling << a(0)->v().len() << "\t" << sum(a(0)->pi()->get_output()) << "\t" << a(0)->c()->N() << endl;

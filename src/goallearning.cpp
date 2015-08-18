@@ -87,7 +87,7 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 
 void GoalLearning::update_weights(vec pi_input){
 	//printf("%u / %u X %u\n", pi_input.n_elem, input_conns.n_rows, input_conns.n_cols);
-	weight_change = learn_rate * reward /* expl_rate*/ * (1. - *foraging_state) * (pi_input-input_conns) - /*0.0000004*/0.000001*input_conns;
+	weight_change = learn_rate * reward /* expl_rate*/ * (1. - *foraging_state) * (pi_input-input_conns);// - /*0.0000004*/0.000001*input_conns;
 	white_weights += weight_change;
 	white_weights.elem( find(white_weights < 0.0) ).zeros();
 

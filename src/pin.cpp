@@ -37,7 +37,7 @@ PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise) : C
 	nnoise = neur_noise;
 	printf("Uncorrelated noise: %g\n", nnoise);
 	printf("==============================\n\n");
-
+//	VERBOSE = true;
 
 	CircArray* in_array = new CircArray(N);
 	ar.push_back(in_array);
@@ -99,10 +99,11 @@ void PIN::update(Angle angle, double speed){
 	ar.at(PI)->update_rate(lin_rect(w_cos * ar.at(M)->rate()) /*+ vnoise(N,nnoise)*/);
 
 	//Output parameters
-	output_rate = ar.at(PI)->rate();
-	set_avg(update_avg(output_rate));
-	set_len(update_len(output_rate));
-	set_max(update_max(output_rate));
+	vec out = ar.at(PI)->rate();
+	//printf("%g\n", accu(out));
+	update_piavg(out);
+	update_pilen(out);
+	set_max(update_max(out), 0);
 	home_vector.to(len()*avg().C(), len()*avg().S());
 	home_vector_max.to(len()*max().C(), len()*max().S());
 }
