@@ -12,8 +12,8 @@ import numpy as np
 import sys
 
 M = np.loadtxt('../agent.dat', usecols=(2,3))
-bins_x = 100
-bins_y = 100
+bins_x = 200
+bins_y = 200
 H, xedges, yedges = np.histogram2d(M[:,0], M[:,1], [bins_x, bins_y], normed=True)
 
 # output as 'nonuniform matrix' format, see gnuplot doc.

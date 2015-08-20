@@ -128,6 +128,29 @@ public:
 	Vec LV(int i=0);
 
 	/**
+	 * Return Route Learning module
+	 *
+	 * @return (RouteLearning*)
+	 */
+	RouteLearning* LV_module();
+
+	/**
+	 * Returns local vector value
+	 *
+	 *  @param (int) index: local vector index (default: 0)
+	 *  @return (double)
+	 */
+	double LV_value(int index=0);
+
+	/**
+	 * Returns local vector value
+	 *
+	 *  @param (int) index: local vector index (default: 0)
+	 *  @return (double)
+	 */
+	double LV_value_raw(int index=0);
+
+	/**
 	 * Returns angle in degrees
 	 *
 	 *  @param (double) angle: input angle
@@ -312,6 +335,8 @@ private:
 
 	mat lv_array;
 	mat ref_array;
+	vec lv_value;
+	int num_lv_units;
 
 
 	vector<Vec> cGV;

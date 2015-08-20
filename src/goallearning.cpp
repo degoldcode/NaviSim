@@ -34,7 +34,7 @@ GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool 
 	threshold = 3.*nnoise;
 	global_vector.resize(1);
 	foraging_state = forage;
-	learn_rate = 2.;			//0.2; (slow switch - two goals) // originally: 5.0
+	learn_rate = 5.;			//0.2; (slow switch - two goals) // originally: 5.0
 	reward = 0.0;
 	expl_rate =  0.0;
 	neural_noise = nnoise;

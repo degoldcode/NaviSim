@@ -152,6 +152,14 @@ public:
 		return var_nor();
 	}
 
+	int num_inputs(){
+		return K;
+	}
+
+	int num_units(){
+		return N;
+	}
+
 	/**
 	 * Returns the preferred angle of the neuron with maximum firing
 	 *

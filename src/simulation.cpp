@@ -58,6 +58,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	endpts_str.open("data/endpoints.dat");
 	homevector_str.open("data/homevector.dat");
 	globalvector_str.open("data/globalvector.dat");
+	localvector_str.open("data/localvector.dat");
 	refvector_str.open("data/refvector.dat");
 	reward_str.open("data/reward.dat");
 	sim_cfg.open("data/sim.cfg");
@@ -72,6 +73,7 @@ Simulation::~Simulation(){
 	endpts_str.close();
 	homevector_str.close();
 	globalvector_str.close();
+	localvector_str.close();
 	refvector_str.close();
 	reward_str.close();
 	sim_cfg.close();
@@ -174,11 +176,12 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 				//if(pin_on)
 					//printf("#%u\te=%2.3f\t<e>=%2.3f\t", trial, pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
-					printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
+					printf("<Goal>=%2.0f\t", 1.0*count_goal);
+					//printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
-					printf("Expl = %1.5f\tGV(ang, r) = (%3.2f, %2.3f)\tGVC(ang, r) = (%3.2f, %2.3f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
+					printf("Expl = %1.5f\tGV(ang, r) = (%3.2f, %2.3f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len());
 				if(lvlearn_on)
-					printf("LV(ang,r)=(%3.2f,%2.3f)\t", c()->LV().ang().deg(), c()->LV().len());
+					printf("LV(ang,r)=(%3.2f,%2.3f)\tvLV=%g", c()->LV().ang().deg(), c()->LV().len(), c()->LV_value_raw(0));
 				//printf("Amount=%g", e()->g(0)->a());
 				printf("\n");
 			}
@@ -207,6 +210,9 @@ void Simulation::set_inward(int _time){
 }
 
 void Simulation::update(){
+//	if(accu(c()->LV_module()->dW()) < 0.0)
+//		printf("LV learn at (%g,%g)\n", a(0)->pos.x, a(0)->pos.y);
+
 	if(timestep%1000==0 && N == 1)
 		printf("Time = %g\te = %g\te_max = %g\n", trial_t, pi_error.mean(), pi_error_max.mean());
 	timestep++;
@@ -247,6 +253,8 @@ void Simulation::writeTrialData(){
 	if(lvlearn_on){
 		refvector_str << trial_t << "\t" << global_t;
 		refvector_str << "\t" << c()->RV().x << "\t" << c()->RV().y << "\t" << c()->RV().ang() << "\t" << c()->RV().len() << endl;
+		localvector_str << trial_t << "\t" << global_t;
+		localvector_str << "\t" << c()->LV().x << "\t" << c()->LV().y << "\t" << c()->LV().ang() << "\t" << c()->LV().len() << endl;
 	}
 	reward_str << trial_t << "\t" << global_t;
 	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;

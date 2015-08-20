@@ -36,6 +36,13 @@ public:
 	~RouteLearning();
 
 	/**
+	 * Return weight matrix
+	 *
+	 * @return (mat)
+	 */
+	mat dW();
+
+	/**
 	 * Get eligibility trace
 	 *
 	 * @param (int) index: index of landmark
@@ -44,7 +51,7 @@ public:
 	double el_lm(int index);
 
 	/**
-	 * Get local vector
+	 * Return local vector
 	 *
 	 * @param (int) index: index of synaptic weights
 	 * @return (Vec)
@@ -93,6 +100,22 @@ public:
 	 */
 	void update_weights();
 
+	/**
+	 * Return values of landmarks
+	 *
+	 * @param (int) index: index of local vector
+	 * @return (double)
+	 */
+	double value_lm(int index=0);
+
+	/**
+	 * Return values of landmarks
+	 *
+	 * @param (int) index: index of local vector
+	 * @return (double)
+	 */
+	double value_lm_raw(int index=0);
+
 private:
 	PIN * reference_pin;
 
@@ -101,9 +124,11 @@ private:
 	double* foraging_state;
 	double learn_rate;
 	double reward;
-	double expl_rate;
 	double neural_noise;
+	vec raw_lmr;
 	vec eligibility_lmr;
+	vec value_lmr;
+	double value_decay;
 
 	mat white_weights;
 	mat weight_change;

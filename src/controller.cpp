@@ -15,7 +15,8 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	gvl = new GoalLearning(numneurons, 0.0, &inward, false);
 	gl_array.resize(num_colors);
 
-	lvl = new RouteLearning(numneurons, 1, 0.0, &inward, false);
+	num_lv_units = 1;
+	lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false);
 
 	rand_m = 0.0;
 	pi_m = 0.0;
@@ -34,6 +35,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	cGV.resize(num_colors);
 	cLV.resize(num_colors);
 	accum_reward = zeros(num_colors);
+	lv_value = zeros(num_lv_units);
 	reward = zeros(num_colors);
 	value = zeros(num_colors);
 	dvalue = zeros(num_colors);
@@ -123,6 +125,18 @@ Vec Controller::HVm(){
 
 Vec Controller::LV(int i){
 	return lvl->LV(i);
+}
+
+RouteLearning* Controller::LV_module(){
+	return lvl;
+}
+
+double Controller::LV_value(int index){
+	return lvl->value_lm(index);
+}
+
+double Controller::LV_value_raw(int index){
+	return lvl->value_lm_raw(index);
 }
 
 int Controller::N(){
@@ -284,18 +298,21 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	if(pi_w < 0.)
 		pi_w = 0.;
 
+	for(int i = 0; i < num_lv_units; i++)
+		lv_value(i) = 1. - exp(-0.1*lvl->value_lm(i));
+
 	/*** Global Vector Learning Circuits TODO ***/
 	if(gvlearn_on){
 		for(int i = 0; i < num_colors; i++){
 			if(i == color){
 				reward(i) = inReward;
-				value(i) = reward(i) + disc_factor * value(i);
+				value(i) = (reward(i) + accu(lv_value)) + disc_factor * value(i);
 				expl_factor(i) = exp(- expl_beta * value(i));
 			}
 			else{
 				reward(i) = 0.0;
 			}
-			gvl->update(pin->get_output(), inReward, expl_factor(i));
+			gvl->update(pin->get_output(), accu(lv_value), expl_factor(i));
 
 			cGV.at(i) = (GV(i) - HV());
 		}
@@ -305,7 +322,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			gl_m = 0.0;
 	}
 	stream << cGV.at(0).ang().deg() << endl;
-	gl_w = 0.0;
+	gl_w = 1.0;
 	accum_reward += reward;
 
 	/*** Local Vector Learning Circuits TODO ***/
@@ -319,8 +336,10 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		if(route_factor < 0.0)
 			route_factor = 0.0;
 		route_factor = 1.0;
-		if(inward == 0. && lvl->el_lm(0) > 0.95)
+		if(inward == 0. && lvl->el_lm(0) > 0.5){
+			gl_w = 0.0;
 			rl_m = 4.0*route_factor*(1.-expl_factor(0))*(LV(0).ang() - angle).S();//4.0*(1.-expl_factor(0))*(LV(0).ang() - angle).S();
+		}
 		else
 			rl_m = 0.0;
 	}
