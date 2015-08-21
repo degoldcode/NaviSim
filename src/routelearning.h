@@ -119,7 +119,8 @@ public:
 private:
 	PIN * reference_pin;
 
-	vector<Vec> local_vector;                   // Local vectors
+	vector<Vec> local_vector;                   // active local vector
+	vector<Vec> stored_local_vector;            // stored local vectors
 
 	double* foraging_state;
 	double learn_rate;

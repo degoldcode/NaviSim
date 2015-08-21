@@ -23,7 +23,7 @@ set yrange [-SCALE/2+OFFSETY:SCALE/2+OFFSETY]
 #set key left outside
 set key spacing 2
 #set nokey
-FIRST = 400 ##18
+FIRST = 0 ##18
 LAST = 500
 col(x) = int(255*x)*65536 + int(68+170*x)*256 + int(255*(1-x))
 blacktogreen(x) = int(255-100*x)*65536 + int(255)*256 + int(255-100*x) 

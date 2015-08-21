@@ -312,7 +312,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			else{
 				reward(i) = 0.0;
 			}
-			gvl->update(pin->get_output(), accu(lv_value), expl_factor(i));
+			gvl->update(pin->get_output(), accu(lv_value) /*reward(i)*/, expl_factor(i));
 
 			cGV.at(i) = (GV(i) - HV());
 		}

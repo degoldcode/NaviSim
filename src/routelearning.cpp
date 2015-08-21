@@ -21,7 +21,7 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 	eligibility_lmr = zeros<vec>(num_lmr_units);
 	raw_lmr = zeros<vec>(num_lmr_units);
 	value_lmr = zeros<vec>(num_lmr_units);
-	value_decay = 0.01;
+	value_decay = 0.001;
 	reference_pin = new PIN(18, 0.0, 0.00, 0.0);
 
 	printf("=== LV learning parameters ===\n");
