@@ -34,6 +34,6 @@ f(x)=180./20.
 
 ##### Reservoir activations
 set output "../../figs/gv_activity.eps"
-plot "../mat/gv_activity.mat" matrix with image, f(x) w l lt -1 lc rgb "red" t "correct", "../globalvector.dat" u ($2*columns/(rowss/10)):(rows*$5/360) w l lt -1 lc rgb "green" t "avg"
+plot "../mat/gv_activity.mat" matrix with image, f(x) w l lt -1 lc rgb "red" t "correct", "../globalvector.dat" u ($2*columns/(rowss/10)):(rows*$5/360) w l lt -1 lc rgb "green" t "avg", "../globalvector.dat" u ($2*columns/(rowss/10)):(rows*$9/360) w l lt -1 lc rgb "cyan" t "vec avg"
 #, "../homevector.dat" u ($2*columns/(rowss/10)):(rows*$7/360) w l lt -1 lc rgb "green" t "avg", "../homevector.dat" u ($2*columns/(rowss/10)):(rows*$8/360) w l lt 1 lc rgb "blue" t "max", "../agent.dat" u ($8*columns/(rowss/10)):(rows*$7/360) w l lt -1 lc rgb "violet"  t "real"
 set output

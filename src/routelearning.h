@@ -36,7 +36,7 @@ public:
 	~RouteLearning();
 
 	/**
-	 * Return weight matrix
+	 * Return weight change matrix
 	 *
 	 * @return (mat)
 	 */
@@ -57,6 +57,13 @@ public:
 	 * @return (Vec)
 	 */
 	Vec LV(int index = 0);
+
+	/**
+	 * Returns received reward
+	 *
+	 *  @return (double)
+	 */
+	double R();
 
 	/**
 	 * Return reference PI activity

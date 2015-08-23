@@ -62,12 +62,26 @@ public:
 	~GoalLearning();
 
 	/**
+	 * Return weight change matrix
+	 *
+	 * @return (mat)
+	 */
+	mat dW();
+
+	/**
 	 * Get global vector
 	 *
 	 * @param (int) index: index of synaptic weights
 	 * @return (Vec)
 	 */
 	Vec GV(int index = 0);
+
+	/**
+	 * Returns received reward
+	 *
+	 *  @return (double)
+	 */
+	double R();
 
 	/**
 	 * Sets the foraging state
@@ -95,6 +109,8 @@ public:
 	 *  @return (void)
 	 */
 	void update_weights(vec pi_input);
+
+	Angle vec_avg();
 
 	/**
 	 * Returns the GV x coordinate

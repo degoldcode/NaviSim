@@ -368,7 +368,7 @@ void Environment::update_collisions(){
 		}
 		for(unsigned int j = 0; j < landmark_list.size(); j++){
 			if(d(agent_list.at(i), landmark_list.at(j)) < 0.1){
-				lm_stats.visible(i,j) = 1;
+				lm_stats.visible(i,j) = 10.*(0.1 - d(agent_list.at(i), landmark_list.at(j)));
 			}
 			else
 				lm_stats.visible(i,j) = 0;

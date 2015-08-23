@@ -34,7 +34,7 @@ GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool 
 	threshold = 3.*nnoise;
 	global_vector.resize(1);
 	foraging_state = forage;
-	learn_rate = 5.;			//0.2; (slow switch - two goals) // originally: 5.0
+	learn_rate = 2.;			//0.2; (slow switch - two goals) // originally: 5.0
 	reward = 0.0;
 	expl_rate =  0.0;
 	neural_noise = nnoise;
@@ -57,8 +57,17 @@ GoalLearning::~GoalLearning(){
 	w().save("./save/goalweights.mat", raw_ascii);
 }
 
+mat GoalLearning::dW(){
+	return weight_change;
+}
+
+
 Vec GoalLearning::GV(int index){
 	return global_vector.at(index);
+}
+
+double GoalLearning::R(){
+	return reward;
 }
 
 void GoalLearning::set_mu(double* state){
@@ -77,6 +86,7 @@ void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	set_avg(update_avg(input_conns.col(0)));
 	set_len(update_len(input_conns.col(0)));
 	set_max(update_max(input_conns.col(0)));
+	new_vector_avg = vector_avg(input_conns.col(0));
 
 	if(input_conns.max() > 10000 || input_conns.min() < -1000)
 		printf("Eta = %g\tR = %g\texp = %g\n", 1.-*foraging_state, reward, expl_rate);
@@ -92,6 +102,10 @@ void GoalLearning::update_weights(vec pi_input){
 	white_weights.elem( find(white_weights < 0.0) ).zeros();
 
 	input_conns = white_weights+randu<vec>(N)*neural_noise;
+}
+
+Angle GoalLearning::vec_avg(){
+	return new_vector_avg;
 }
 
 double GoalLearning::x(){

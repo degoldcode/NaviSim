@@ -115,6 +115,14 @@ Vec Controller::GVc(int i){
 		return cGV.at(0);
 }
 
+GoalLearning* Controller::GV_module(){
+	return gvl;
+}
+
+Angle Controller::GV_vecavg(){
+	return gvl->vec_avg();
+}
+
 Vec Controller::HV(){
 	return pin->HV();
 }
@@ -143,21 +151,6 @@ int Controller::N(){
 	return numneurons;
 }
 
-/*void NaviControl::no_write(){
-	write = false;
-}*/
-
-/*int NaviControl::q(){
-	return choice;
-}*/
-
-/*double NaviControl::p(int i){
-	if(i < prob.n_elem)
-		return prob(i);
-	else
-		return prob(0);
-}*/
-
 PIN* Controller::pi(){
 	return pin;
 }
@@ -182,12 +175,6 @@ double Controller::randn(double mean, double stdev) {
 	boost::normal_distribution<> > var_nor(rng, nd);
 	return var_nor();
 }
-
-/*double NaviControl::randu(double min, double max) {
-	static random_device e { };
-	static uniform_real_distribution<double> d(min, max);
-	return d(e);
-}*/
 
 void Controller::reset() {
 	pin->reset();
@@ -228,41 +215,6 @@ void Controller::set_sample_int(int _val){
 	inv_sampling_rate = _val;
 }
 
-/*void NaviControl::stream_write() {
-
-	//************ Reward stream ************
-	if (sum(reward) > 0.0){
-		r_stream << HV_x << "\t" << HV_y << "\t";
-		for(int i=0; i<num_colors; i++)
-			r_stream << GV_x.at(i) << "\t" << GV_y.at(i) << "\t";
-	}
-
-	//************ General stream ************
-	if(t%inv_sampling_rate == 0){
-		stream  << t*0.1                                  //1
-				<< "\t" << trial_t
-				<< "\t" << pi_command
-				<< "\t" << gl_command
-				<< "\t" << rl_command                     //5
-				<< "\t" << in_degr(HV_angle)
-				<< "\t" << HV_len
-				<< "\t" << HV_x
-				<< "\t" << HV_y;
-
-		for(int i=0; i<num_colors; i++){
-			stream  << "\t" << in_degr(GV_angle.at(i))   //10-17
-			    	<< "\t" << GV_x.at(i)
-			    	<< "\t" << GV_y.at(i)
-			    	<< "\t" << GV_len.at(i)
-			        << "\t" << reward(i);
-		}
-
-		stream	<< "\t" << expl_factor
-				<< "\t" << current_goal                  //19
-				<< endl;
-	}
-}*/
-
 double Controller::update(Angle angle, double speed, double inReward, vec inLmr, int color) {
 	if(t%inv_sampling_rate == 0 && !SILENT){
 		pi_array = join_rows(pi_array, pin->get_output());
@@ -299,7 +251,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		pi_w = 0.;
 
 	for(int i = 0; i < num_lv_units; i++)
-		lv_value(i) = 1. - exp(-0.1*lvl->value_lm(i));
+		lv_value(i) = 1. - exp(-0.01*lvl->value_lm(i));
 
 	/*** Global Vector Learning Circuits TODO ***/
 	if(gvlearn_on){

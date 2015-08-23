@@ -412,6 +412,17 @@ public:
 		output_rate = rate;
 	};
 
+	Angle vector_avg(vec input){
+		double x = 0.;
+		double y = 0.;
+		for(int index = 0; index < input.n_elem; index++){
+			x += input(index)*cos(2*M_PI*index/input.n_elem);
+			y += input(index)*sin(2*M_PI*index/input.n_elem);
+		}
+		Vec sum = Vec(x,y);
+		return sum.ang();
+	};
+
 	/**
 	 * Returns vector of Gaussian noise with given width
 	 *
@@ -457,6 +468,7 @@ protected:
 	vec output_rate;								// Activity rate of neuron array
 	mat input_conns;                                // incoming connections
 	vec preferred_angle;                            // Preferred angle of neurons
+	Angle new_vector_avg;
 
 private:
 

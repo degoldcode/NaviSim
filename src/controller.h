@@ -106,6 +106,15 @@ public:
 	Vec GVc(int i=0);
 
 	/**
+	 * Return Goal Learning module
+	 *
+	 * @return (GoalLearning*)
+	 */
+	GoalLearning* GV_module();
+
+	Angle GV_vecavg();
+
+	/**
 	 * Returns home vector using average
 	 *
 	 *  @return (Pointer to Vector)
