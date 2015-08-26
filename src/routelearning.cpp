@@ -15,6 +15,7 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 	neural_noise = nnoise;
 	load_weights = opt_load;
 	white_weights.zeros(N,K);
+	//printf("%u X %u\n", white_weights.n_rows, white_weights.n_cols);
 	if(load_weights)
 		w().load("./save/routeweights.mat", raw_ascii);
 
@@ -109,11 +110,19 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 
 void RouteLearning::update_weights(){
 	vec ref_output = reference_pin->get_output();
-	weight_change = learn_rate * reward * (1. - *foraging_state) * (ref_output - input_conns) * eligibility_lmr.t();// - /*0.0000004*/0.000001*input_conns;
+	mat ref_pi_mat = ref_output*ones<rowvec>(K);
+	//printf("this works -> %u + %u, %u\n", ref_pi_mat.n_rows, ref_pi_mat.n_cols, eligibility_lmr.n_elem);
+	mat diff_act = ref_pi_mat - input_conns;
+	mat elig_mat = eligibility_lmr*ones<rowvec>(K);
+	//printf("this works %u,%u\n", diff_act.n_rows, diff_act.n_cols);
+	weight_change = learn_rate * reward * (1. - *foraging_state) * diff_act * elig_mat;// - /*0.0000004*/0.000001*input_conns;
+	//printf("this works %u,%u + %u,%u\n", white_weights.n_rows, white_weights.n_cols, weight_change.n_rows, weight_change.n_cols);
 	white_weights += weight_change;
+	//printf("that works\n");
 	white_weights.elem( find(white_weights < 0.0) ).zeros();
-
-	input_conns = white_weights+randu<vec>(N)*neural_noise;
+	//printf("this works\n");
+	input_conns = white_weights+randu<mat>(N,K)*neural_noise;
+	//printf("that works\n");
 }
 
 double RouteLearning::value_lm(int index){

@@ -15,7 +15,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	gvl = new GoalLearning(numneurons, 0.0, &inward, false);
 	gl_array.resize(num_colors);
 
-	num_lv_units = 1;
+	num_lv_units = 2;
 	lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false);
 
 	rand_m = 0.0;

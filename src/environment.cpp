@@ -47,7 +47,7 @@ Environment::Environment(int num_agents){
 	lm_recogn.resize(agent_list.size());
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
-	lm_stats.visible = zeros<mat>(agent_list.size(), landmark_list.size());
+	lm_stats.visible = zeros<mat>(landmark_list.size(), agent_list.size());
 	open_streams();
 }
 
@@ -81,7 +81,7 @@ Environment::Environment(int num_goals, int num_landmarks, double max_radius, in
 	lm_recogn.resize(agent_list.size());
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
-	lm_stats.visible = zeros<mat>(agent_list.size(), landmark_list.size());
+	lm_stats.visible = zeros<mat>(landmark_list.size(), agent_list.size());
 	open_streams();
 }
 
@@ -173,7 +173,7 @@ void Environment::add_goal(double max_radius){
 void Environment::add_landmark(double x, double y){
 	Landmark* lm = new Landmark(x,y,VERBOSE);
 	landmark_list.push_back(lm);
-	lm_stats.visible = zeros<mat>(agent_list.size(), landmark_list.size());
+	lm_stats.visible = zeros<mat>(landmark_list.size(), agent_list.size());
 }
 
 void Environment::add_landmark(double max_radius){
@@ -344,7 +344,7 @@ void Environment::update(){
 
 void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
-		if(i < lm_stats.visible.n_cols)
+		if(i < lm_stats.visible.n_rows)
 			agent_list.at(i)->update(reward.at(i), lm_stats.visible.col(i));
 		else
 			agent_list.at(i)->update(reward.at(i), vec(0.0));
@@ -368,10 +368,10 @@ void Environment::update_collisions(){
 		}
 		for(unsigned int j = 0; j < landmark_list.size(); j++){
 			if(d(agent_list.at(i), landmark_list.at(j)) < 0.1){
-				lm_stats.visible(i,j) = 10.*(0.1 - d(agent_list.at(i), landmark_list.at(j)));
+				lm_stats.visible(j,i) = 10.*(0.1 - d(agent_list.at(i), landmark_list.at(j)));
 			}
 			else
-				lm_stats.visible(i,j) = 0;
+				lm_stats.visible(j,i) = 0;
 		}
 	}
 }
