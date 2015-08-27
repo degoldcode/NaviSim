@@ -179,10 +179,11 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("<G>=%5.0f\t", 1.0*count_goal);
 					//printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
-					printf("e= %1.5f\tGV= (%3.1f, %2.2f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len());
+					printf("e= %1.2f\tGV= (%3.1f, %1.2f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len());
 				if(lvlearn_on){
-					printf("LV0=(%3.1f,%2.2f)\tvLV0= %g\t", c()->LV(0).ang().deg(), c()->LV(0).len(), c()->LV_value_raw(0));
-					printf("LV1=(%3.1f,%2.2f)\tvLV1= %g", c()->LV(1).ang().deg(), c()->LV(1).len(), c()->LV_value_raw(1));
+					for(int i = 0; i < c()->K(); i++){
+						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV(i).ang().deg(), c()->LV(i).len(), c()->LV_value_raw(i));
+					}
 				}
 				//printf("Amount=%g", e()->g(0)->a());
 				printf("\n");
@@ -246,7 +247,7 @@ void Simulation::writeTrialData(){
 	agent_str << "\t" << a(0)->d() << "\t" << a(0)->dphi();		//5,6
 	agent_str << "\t" << a(0)->v().ang() << "\t" << global_t;	//7,8
 	if(lvlearn_on)
-		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0) << "\t" << c()->el_lm(1); // TODO: different streams for different agents
+		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0) << "\t" << c()->el_lm(1) << "\t" << c()->gl_w << "\t" << c()->expl(0); // TODO: different streams for different agents
 	agent_str << endl;
 	homevector_str << trial_t << "\t" << global_t;
 	homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;

@@ -468,7 +468,7 @@ protected:
 	vec output_rate;								// Activity rate of neuron array
 	mat input_conns;                                // incoming connections
 	vec preferred_angle;                            // Preferred angle of neurons
-	Angle new_vector_avg;
+	vector<Angle> new_vector_avg;
 
 private:
 

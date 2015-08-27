@@ -130,6 +130,13 @@ public:
 	Vec HVm();
 
 	/**
+	 * Return number of landmark units
+	 *
+	 * return (int)
+	 */
+	int K();
+
+	/**
 	 * Returns local vector
 	 *
 	 *  @param (int) i: goal index (default: 0)
@@ -167,7 +174,6 @@ public:
 	 *  @return (double)
 	 */
 	//double in_degr(double angle);
-
 
 	/**
 	 * Return number of neurons per circular array
@@ -328,12 +334,6 @@ private:
 	double rl_m;
 	double output;
 
-	// command weights
-	double rand_w;
-	double pi_w;
-	double gl_w;
-	double rl_w;
-
 	double goal_factor;
 
 	//************ Path Integration Parameters ************//
@@ -388,6 +388,12 @@ private:
 	unsigned int seed;
 
 public:
+	// command weights
+	double rand_w;
+	double pi_w;
+	double gl_w;
+	double rl_w;
+
 	bool pin_on;
 	bool homing_on;
 	bool gvlearn_on;

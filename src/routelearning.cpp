@@ -9,11 +9,13 @@
 
 RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, double* forage, bool opt_load) : CircArray(num_neurons, num_lmr_units) {
 	local_vector.resize(num_lmr_units);
+	new_vector_avg.resize(num_lmr_units);
 	foraging_state = forage;
 	learn_rate = .5;
 	reward = 0.0;
 	neural_noise = nnoise;
 	load_weights = opt_load;
+	weight_change.zeros(N,K);
 	white_weights.zeros(N,K);
 	//printf("%u X %u\n", white_weights.n_rows, white_weights.n_cols);
 	if(load_weights)
@@ -101,6 +103,7 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 		set_avg(update_avg(input_conns.col(index)));
 		set_len(update_len(input_conns.col(index)));
 		set_max(update_max(input_conns.col(index)));
+		new_vector_avg.at(index) = vector_avg(input_conns.col(index));
 		local_vector.at(index).to(len(index)*avg(index).C(), len(index)*avg(index).S());
 		if(input_conns.max() > 10000 || input_conns.min() < -1000)
 			printf("Eta = %g\tR = %g\n", 1.-*foraging_state, reward);
@@ -110,12 +113,14 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 
 void RouteLearning::update_weights(){
 	vec ref_output = reference_pin->get_output();
-	mat ref_pi_mat = ref_output*ones<rowvec>(K);
+	//mat ref_pi_mat = ref_output*ones<rowvec>(K);
 	//printf("this works -> %u + %u, %u\n", ref_pi_mat.n_rows, ref_pi_mat.n_cols, eligibility_lmr.n_elem);
-	mat diff_act = ref_pi_mat - input_conns;
-	mat elig_mat = eligibility_lmr*ones<rowvec>(K);
+	//mat diff_act = ref_pi_mat - input_conns;
 	//printf("this works %u,%u\n", diff_act.n_rows, diff_act.n_cols);
-	weight_change = learn_rate * reward * (1. - *foraging_state) * diff_act * elig_mat;// - /*0.0000004*/0.000001*input_conns;
+	for(int i = 0; i < K; i++){
+		vec diff_act = ref_output - input_conns.col(i);
+		weight_change.col(i) = learn_rate * reward * eligibility_lmr(i) * (1. - *foraging_state) * diff_act;// - /*0.0000004*/0.000001*input_conns;
+	}
 	//printf("this works %u,%u + %u,%u\n", white_weights.n_rows, white_weights.n_cols, weight_change.n_rows, weight_change.n_cols);
 	white_weights += weight_change;
 	//printf("that works\n");

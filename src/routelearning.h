@@ -56,7 +56,7 @@ public:
 	 * @param (int) index: index of synaptic weights
 	 * @return (Vec)
 	 */
-	Vec LV(int index = 0);
+	Vec LV(int index);
 
 	/**
 	 * Returns received reward

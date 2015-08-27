@@ -25,10 +25,10 @@ cd data/scripts
 ### plot data using gnuplot gui
 if [ "$1" = "all" ] || [ "$1" = "plot" ] ; then
 echo "Plot data."
-gnuplot track_homevector.plot
+#gnuplot track_homevector.plot
 #gnuplot histogram.gnu
 #gnuplot stat_distance.plot
-gnuplot track.plot
+gnuplot track_vectors.plot
 gnuplot distri.plot
 gnuplot activations.plot
 gnuplot gv.plot
