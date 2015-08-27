@@ -176,12 +176,14 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 				//if(pin_on)
 					//printf("#%u\te=%2.3f\t<e>=%2.3f\t", trial, pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
-					printf("<Goal>=%2.0f\t", 1.0*count_goal);
+					printf("<G>=%5.0f\t", 1.0*count_goal);
 					//printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
-					printf("Expl = %1.5f\tGV(ang, r) = (%3.2f, %2.3f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len());
-				if(lvlearn_on)
-					printf("LV(ang,r)=(%3.2f,%2.3f)\tvLV=%g", c()->LV().ang().deg(), c()->LV().len(), c()->LV_value_raw(0));
+					printf("e= %1.5f\tGV= (%3.1f, %2.2f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len());
+				if(lvlearn_on){
+					printf("LV0=(%3.1f,%2.2f)\tvLV0= %g\t", c()->LV(0).ang().deg(), c()->LV(0).len(), c()->LV_value_raw(0));
+					printf("LV1=(%3.1f,%2.2f)\tvLV1= %g", c()->LV(1).ang().deg(), c()->LV(1).len(), c()->LV_value_raw(1));
+				}
 				//printf("Amount=%g", e()->g(0)->a());
 				printf("\n");
 			}
@@ -244,7 +246,7 @@ void Simulation::writeTrialData(){
 	agent_str << "\t" << a(0)->d() << "\t" << a(0)->dphi();		//5,6
 	agent_str << "\t" << a(0)->v().ang() << "\t" << global_t;	//7,8
 	if(lvlearn_on)
-		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0); // TODO: different streams for different agents
+		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0) << "\t" << c()->el_lm(1); // TODO: different streams for different agents
 	agent_str << endl;
 	homevector_str << trial_t << "\t" << global_t;
 	homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;
@@ -257,7 +259,8 @@ void Simulation::writeTrialData(){
 		refvector_str << trial_t << "\t" << global_t;
 		refvector_str << "\t" << c()->RV().x << "\t" << c()->RV().y << "\t" << c()->RV().ang() << "\t" << c()->RV().len() << endl;
 		localvector_str << trial_t << "\t" << global_t;
-		localvector_str << "\t" << c()->LV().x << "\t" << c()->LV().y << "\t" << c()->LV().ang() << "\t" << c()->LV().len() << endl;
+		localvector_str << "\t" << c()->LV(0).x << "\t" << c()->LV(0).y << "\t" << c()->LV(0).ang() << "\t" << c()->LV(0).len();
+		localvector_str << "\t" << c()->LV(1).x << "\t" << c()->LV(1).y << "\t" << c()->LV(1).ang() << "\t" << c()->LV(1).len() << endl;
 	}
 	reward_str << trial_t << "\t" << global_t;
 	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;

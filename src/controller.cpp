@@ -36,6 +36,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	cLV.resize(num_colors);
 	accum_reward = zeros(num_colors);
 	lv_value = zeros(num_lv_units);
+	lv_array.resize(num_lv_units);
 	reward = zeros(num_colors);
 	value = zeros(num_colors);
 	dvalue = zeros(num_colors);
@@ -67,7 +68,6 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 
 	rx = 0.0;
 	ry = 0.0;
-
 
 	inv_sampling_rate = 1;
 	t = 0;
@@ -202,7 +202,15 @@ void Controller::save_matrices() {
 	printf("Save data.\n");
 	pi_array.save("./data/mat/pi_activity.mat", raw_ascii);
 	gv_array.save("./data/mat/gv_activity.mat", raw_ascii);
-	lv_array.save("./data/mat/lv_activity.mat", raw_ascii);
+
+	stringstream lv_;
+	for(int i = 0; i < lv_array.size(); i++){
+		lv_.str(string());
+		lv_ << "./data/mat/lv_activity_" << i << ".mat";
+		cout << lv_.str() << endl;
+		lv_array.at(i).save(lv_.str().c_str(), raw_ascii);
+	}
+
 	ref_array.save("./data/mat/ref_activity.mat", raw_ascii);
 //	for(int i = blue; i < num_colors; i++){
 //		gl_array.at(i).save("./data/gv.mat", raw_ascii);
@@ -219,7 +227,8 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	if(t%inv_sampling_rate == 0 && !SILENT){
 		pi_array = join_rows(pi_array, pin->get_output());
 		gv_array = join_rows(gv_array, gvl->w(0));
-		lv_array = join_rows(lv_array, lvl->w(0));
+		for(int i = 0; i < lv_array.size(); i++)
+			lv_array.at(i) = join_rows(lv_array.at(i), lvl->w(0));
 		ref_array = join_rows(ref_array, lvl->RefPI());
 	}
 	t++;
@@ -264,7 +273,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			else{
 				reward(i) = 0.0;
 			}
-			gvl->update(pin->get_output(), accu(lv_value) /*reward(i)*/, expl_factor(i));
+			gvl->update(pin->get_output(), lv_value(0) /*reward(i)*/, expl_factor(i));
 
 			cGV.at(i) = (GV(i) - HV());
 		}

@@ -30,8 +30,7 @@ blacktogreen(x) = int(255-100*x)*65536 + int(255)*256 + int(255-100*x)
 rgb(r,g,b) = int(r)*65536 + int(g)*256 + int(b)
 
 
-plot "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)?($4):1/0):1 w p pt 7 ps 0.1 lc palette t "", "../goals.dat" u 1:2:(0.2) w circles fs transparent border rgb "green" lw 1.5 lt -1 lc rgb "green" t "Goal", "../landmarks.dat" u 1:2:(0.1) w circles fs transparent border rgb "red" lw 1.5 lt -1 lc rgb "red" t "Landmark", "../home.dat" u 1:2:(0.2) w circles fs transparent border rgb "blue" lt -1 lc rgb "blue" lw 1.5 t "Home"
-#, "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$10>0.7?$4:1/0) w p ps 0.05 pt 7 lc rgb "red" notitle
+plot "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)?($4):1/0):1 w p pt 7 ps 0.1 lc palette t "", "../goals.dat" u 1:2:(0.2) w circles fs transparent border rgb "green" lw 1.5 lt -1 lc rgb "green" t "Goal", "../landmarks.dat" u 1:2:(0.1) w circles fs transparent border rgb "red" lw 1.5 lt -1 lc rgb "red" t "Landmark", "../home.dat" u 1:2:(0.2) w circles fs transparent border rgb "blue" lt -1 lc rgb "blue" lw 1.5 t "Home", "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$10>0.7?$4:1/0) w p ps 0.05 pt 7 lc rgb "red" notitle, "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$11>0.7?$4:1/0) w p ps 0.05 pt 7 lc rgb "green" notitle
 #, "../agent.dat" u 3:($9>0.?$4:1/0) w p ps 0.2 pt 7 lc rgb "green" notitle
 #, "../agent.dat" u 3:($10>0.9?$4:1/0) w p ps 0.05 pt 7 lc rgb "red" notitle
 #, "../refvector.dat" u ($3-1):($4+0) w p pt 7 ps 0.05 lc rgb "violet" t ""

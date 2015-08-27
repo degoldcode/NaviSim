@@ -11,6 +11,7 @@
 
 #include <armadillo>
 #include <cmath>
+#include <sstream>
 #include <vector>
 #include "pin.h"
 #include "geom.h"
@@ -342,7 +343,7 @@ private:
 	vector<mat> gl_array;
 	mat gv_array;
 
-	mat lv_array;
+	vector<mat> lv_array;
 	mat ref_array;
 	vec lv_value;
 	int num_lv_units;
