@@ -97,6 +97,10 @@ double Controller::expl(int i){
 		return expl_factor(0);
 }
 
+int Controller::get_inward() {
+	return t_home;
+}
+
 double Controller::get_state() {
 	return inward;
 }

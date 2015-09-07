@@ -84,6 +84,13 @@ public:
 	double expl(int i);
 
 	/**
+	 * Get inward time of controller
+	 *
+	 *  @return (int)
+	 */
+	int get_inward();
+
+	/**
 	 * Get foraging state of controller
 	 *
 	 *  @return (bool)

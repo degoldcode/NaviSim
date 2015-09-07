@@ -156,6 +156,9 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 		sample_time = 1;
 	printf("Total timesteps is %u\nSet sampling interval to %u\n", total_steps, sample_time);
 
+	if(c()->get_inward() == 0)
+		c()->set_inward(T/dt);
+
 	for(; trial < N+1; trial++){
 		reset();
 		while(trial_t < T){
