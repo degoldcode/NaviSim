@@ -1,5 +1,5 @@
 /*
- * test_pi_single.cpp
+ * pi_single.cpp
  *
  *  Created on: 03.08.2015
  *      Author: meicron

@@ -182,7 +182,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("e= %1.2f\tGV= (%3.1f, %1.2f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len());
 				if(lvlearn_on){
 					for(int i = 0; i < c()->K(); i++){
-						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV(i).ang().deg(), c()->LV(i).len(), c()->LV_value_raw(i));
+						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV(i).ang().deg(), c()->LV(i).len(), i, c()->LV_value_raw(i));
 					}
 				}
 				//printf("Amount=%g", e()->g(0)->a());

@@ -205,6 +205,15 @@ void Controller::set_inward(int _time) {
 void Controller::save_matrices() {
 	printf("Save data.\n");
 	pi_array.save("./data/mat/pi_activity.mat", raw_ascii);
+	mat first = pi_array.cols(495,504);
+	mat second = pi_array.cols(995,1004);
+	mat third = pi_array.cols(1495,1504);
+	mat fourth = pi_array.cols(1970,1979);
+	first.save("./data/mat/pi_500.mat", raw_ascii);
+	second.save("./data/mat/pi_1000.mat", raw_ascii);
+	third.save("./data/mat/pi_1500.mat", raw_ascii);
+	fourth.save("./data/mat/pi_2000.mat", raw_ascii);
+
 	gv_array.save("./data/mat/gv_activity.mat", raw_ascii);
 
 	stringstream lv_;
@@ -320,7 +329,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 
 
 	/*** Navigation Control Output ***/
-	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m + rl_w*rl_m;
+	output = rand_w*rand_m; //+ pi_w*pi_m + gl_w*gl_m + rl_w*rl_m;
 
 	return output;
 }

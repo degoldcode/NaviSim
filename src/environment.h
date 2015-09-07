@@ -369,6 +369,7 @@ private:
 	vector<Angle*> pipe_angle;
 	ObjStats g_stats;
 	ObjStats lm_stats;
+	mat in_pipe;
 
 	//************ output file streams ************//
 	//vector<ofstream> stream_a;		//agents
