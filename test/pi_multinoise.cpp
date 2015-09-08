@@ -1,5 +1,5 @@
 /*
- * test_pi_multinoise.cpp
+ * pi_multinoise.cpp
  *
  *  Created on: 04.08.2015
  *      Author: meicron
@@ -29,9 +29,9 @@ int main(){
 	nrmse.open("data/nrmse_noise.dat");
 	for(int i = 0; i < noise.size(); i++){
 		printf("Start simulation with %g %% sensory noise.\n", noise[i]*100);
-		sim = new Simulation(numtrials, numagents, true);
+		sim = new Simulation(numtrials, numagents, false);
 		sim->SILENT=true;
-		sim->init_controller(18, noise[i], 0.00);
+		sim->init_controller(18, noise[i], 0.00, 0.00);
 		sim->run(numtrials, T, dt);
 		nrmse << noise[i] << "\t" << sim->total_pi_error.mean() << "\t" << sim->total_pi_error.stddev()  << endl;
 		delete sim;

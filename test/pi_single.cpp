@@ -22,7 +22,7 @@ const double dt= 0.1;
 int main(){
 	Timer timer(true);
 
-	sim = new Simulation(numtrials, numagents, true);
+	sim = new Simulation(numtrials, numagents, false);
 	sim->init_controller(18, 0.0, 0.0, 0.00);
 	sim->run(numtrials, T, dt);
 	delete sim;

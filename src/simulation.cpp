@@ -176,8 +176,8 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			writeSimData();
 			if(N > 19 && trial%(in_numtrials/20)==0){
 				printf("#%u\t", trial);
-				//if(pin_on)
-					//printf("#%u\te=%2.3f\t<e>=%2.3f\t", trial, pi_error.mean(), total_pi_error.mean());
+				if(pin_on)
+					printf("e=%2.3f\t<e>=%2.3f\t", pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
 					printf("<G>=%5.0f\t", 1.0*count_goal);
 					//printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);

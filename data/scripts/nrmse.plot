@@ -54,7 +54,8 @@ set xrange [-1:21]		###NOISE
 set yrange [-0.5:5.5]
 #set xlabel 'Sensor Noise Variance {/Symbol-Oblique d}'	###NOISE
 set xlabel 'Sensory Noise Level in %'	###NOISE
-plot '../nrmse_noise_fullAdd.dat' u (100*$1):2:3 with errorbars lt 1 pt 7 ps 0.5 lc rgb '#00ada4' t '', '../nrmse_noise_fullMult.dat' u (100*$1):2:3 with errorbars lt 1 pt 7 ps 0.5 lc rgb '#ad00a4' t ''
+plot '../nrmse_noise.dat' u (100*$1):2:3 with errorbars lt 1 pt 7 ps 0.5 lc rgb '#00ada4' t ''
+#, '../nrmse_noise_fullMult.dat' u (100*$1):2:3 with errorbars lt 1 pt 7 ps 0.5 lc rgb '#ad00a4' t ''
 set output
 
 #plot 'input_neurons_gauss2.dat' u 1:(180*$3/PI):(180*$4/PI) with errorbars lt 1 pt 7 lw 2 lc rgb '#00ad31' t 'Gauss 2', 'input_neurons_gauss4.dat' u 1:(180*$3/PI):(180*$4/PI) with errorbars lt 1 pt 7 lw 2 lc rgb '#0042ad' t 'Gauss 4',  'input_neurons_gauss8n.dat' u 1:(180*$3/PI):(180*$4/PI) with errorbars lt 1 pt 7 lw 2 lc rgb 'red' t 'Gauss 8',  'input_neurons_binary.dat' u 1:(180*$3/PI):(180*$4/PI) with errorbars lt 1 pt 7 lw 2 lc rgb 'brown' t 'Binary',  'input_neurons_cos.dat' u 1:(180*$3/PI):(180*$4/PI) with errorbars lt 1 pt 7 lw 2 lc rgb 'orange' t 'Cosine'

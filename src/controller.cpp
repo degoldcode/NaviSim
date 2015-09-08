@@ -76,7 +76,8 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 }
 
 Controller::~Controller() {
-	save_matrices();
+	if(!SILENT)
+		save_matrices();
 	delete pin;
 	delete gvl;
 	delete lvl;
@@ -229,10 +230,7 @@ void Controller::save_matrices() {
 	}
 
 	ref_array.save("./data/mat/ref_activity.mat", raw_ascii);
-//	for(int i = blue; i < num_colors; i++){
-//		gl_array.at(i).save("./data/gv.mat", raw_ascii);
-//		gv_weight.at(i).save("./data/gv_w.mat", raw_ascii);
-//	}
+
 }
 
 void Controller::set_sample_int(int _val){
