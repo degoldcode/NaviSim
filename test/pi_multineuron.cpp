@@ -1,5 +1,5 @@
 /*
- * test_pi_multinoise.cpp
+ * pi_multinoise.cpp
  *
  *  Created on: 04.08.2015
  *      Author: meicron
@@ -21,7 +21,7 @@ const double T= 1000.;
 const double dt= 0.1;
 
 
-vector<int> neurons = {6, 9, 18, 36, 90, 180, 360}; // 0.5, 1.};
+vector<int> neurons = {3}; //6, 9, 18, 36, 90, 180 0.5, 1.};
 ofstream nrmse;
 
 int main(){
@@ -32,7 +32,7 @@ int main(){
 		printf("Start simulation with %u neurons.\n", neurons[i]);
 		sim = new Simulation(numtrials, numagents, true);
 		sim->SILENT = true;
-		sim->init_controller(neurons[i], 0.02, 0.00);
+		sim->init_controller(neurons[i], 0.02, 0.00, 0.00);
 		sim->run(numtrials, T, dt);
 		nrmse << neurons[i] << "\t" << sim->total_pi_error.mean() << "\t" << sim->total_pi_error.stddev()  << endl;
 		delete sim;

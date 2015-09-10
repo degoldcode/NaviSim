@@ -216,10 +216,10 @@ void Simulation::set_inward(int _time){
 }
 
 void Simulation::update(){
-	if(accu(c()->GV_module()->dW()) < 0.0 && (a(0)->pos - c()->HV()).len() > 0.3)
-		printf("GV learn at (%g,%g) -> (%g, %g), R = %g\n", a(0)->pos.x, a(0)->pos.y, c()->HV().x, c()->HV().y, c()->GV_module()->R());
+//	if(accu(c()->GV_module()->dW()) < 0.0 && (a(0)->pos - c()->HV()).len() > 0.3)
+//		printf("GV learn at (%g,%g) -> (%g, %g), R = %g\n", a(0)->pos.x, a(0)->pos.y, c()->HV().x, c()->HV().y, c()->GV_module()->R());
 
-	if(timestep%1000==0 && N == 1)
+	if(timestep%1000==0 && N == 1 && pin_on)
 		printf("Time = %g\te = %g\te_max = %g\n", trial_t, pi_error.mean(), pi_error_max.mean());
 	timestep++;
 	trial_t += dt;
@@ -252,13 +252,17 @@ void Simulation::writeTrialData(){
 	if(lvlearn_on)
 		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0) << "\t" << c()->el_lm(1) << "\t" << c()->gl_w << "\t" << c()->expl(0); // TODO: different streams for different agents
 	agent_str << endl;
-	homevector_str << trial_t << "\t" << global_t;
-	homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;
-	globalvector_str << trial_t << "\t" << global_t;
-	globalvector_str << "\t" << a(0)->GV().x << "\t" << a(0)->GV().y;
-	globalvector_str << "\t" << a(0)->GV().ang() << "\t" << a(0)->GV().len();
-	globalvector_str << "\t" << c()->expl(0) << "\t" << 1.0*count_goal;
-	globalvector_str << "\t" << c()->GV_vecavg() << endl;
+	if(pin_on){
+		homevector_str << trial_t << "\t" << global_t;
+		homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;
+	}
+	if(gvlearn_on){
+		globalvector_str << trial_t << "\t" << global_t;
+		globalvector_str << "\t" << a(0)->GV().x << "\t" << a(0)->GV().y;
+		globalvector_str << "\t" << a(0)->GV().ang() << "\t" << a(0)->GV().len();
+		globalvector_str << "\t" << c()->expl(0) << "\t" << 1.0*count_goal;
+		globalvector_str << "\t" << c()->GV_vecavg() << endl;
+	}
 	if(lvlearn_on){
 		refvector_str << trial_t << "\t" << global_t;
 		refvector_str << "\t" << c()->RV().x << "\t" << c()->RV().y << "\t" << c()->RV().ang() << "\t" << c()->RV().len() << endl;

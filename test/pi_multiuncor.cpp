@@ -1,5 +1,5 @@
 /*
- * test_pi_multinoise.cpp
+ * pi_multinoise.cpp
  *
  *  Created on: 04.08.2015
  *      Author: meicron

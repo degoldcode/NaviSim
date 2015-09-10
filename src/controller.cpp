@@ -12,11 +12,13 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise);
 	num_colors = 1;
 
-	gvl = new GoalLearning(numneurons, 0.0, &inward, false);
+	if(gvlearn_on)
+		gvl = new GoalLearning(numneurons, 0.0, &inward, false);
 	gl_array.resize(num_colors);
 
 	num_lv_units = 3;
-	lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false);
+	if(lvlearn_on)
+		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false);
 
 	rand_m = 0.0;
 	pi_m = 0.0;
@@ -79,8 +81,10 @@ Controller::~Controller() {
 	if(!SILENT)
 		save_matrices();
 	delete pin;
-	delete gvl;
-	delete lvl;
+	if(gvlearn_on)
+		delete gvl;
+	if(lvlearn_on)
+		delete lvl;
 	stream.close();
 	r_stream.close();
 	lm_stream.close();
@@ -187,7 +191,8 @@ double Controller::randn(double mean, double stdev) {
 
 void Controller::reset() {
 	pin->reset();
-	lvl->reset_el_lm();
+	if(lvlearn_on)
+		lvl->reset_el_lm();
 	accum_reward = zeros(num_colors);
 	t = 0;
 	inward = false;
@@ -241,10 +246,13 @@ void Controller::set_sample_int(int _val){
 double Controller::update(Angle angle, double speed, double inReward, vec inLmr, int color) {
 	if(t%inv_sampling_rate == 0 && !SILENT){
 		pi_array = join_rows(pi_array, pin->get_output());
-		gv_array = join_rows(gv_array, gvl->w(0));
-		for(int i = 0; i < lv_array.size(); i++)
-			lv_array.at(i) = join_rows(lv_array.at(i), lvl->w(i));
-		ref_array = join_rows(ref_array, lvl->RefPI());
+		if(gvlearn_on)
+			gv_array = join_rows(gv_array, gvl->w(0));
+		if(lvlearn_on){
+			for(int i = 0; i < lv_array.size(); i++)
+				lv_array.at(i) = join_rows(lv_array.at(i), lvl->w(i));
+			ref_array = join_rows(ref_array, lvl->RefPI());
+		}
 	}
 	t++;
 
@@ -274,8 +282,10 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	if(pi_w < 0.)
 		pi_w = 0.;
 
-	for(int i = 0; i < num_lv_units; i++)
-		lv_value(i) = 1. - exp(-0.01*lvl->value_lm(i));
+	if(lvlearn_on){
+		for(int i = 0; i < num_lv_units; i++)
+			lv_value(i) = 1. - exp(-0.01*lvl->value_lm(i));
+	}
 
 	/*** Global Vector Learning Circuits TODO ***/
 	if(gvlearn_on){
@@ -331,7 +341,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 
 
 	/*** Navigation Control Output ***/
-	output = rand_w*rand_m; //+ pi_w*pi_m + gl_w*gl_m + rl_w*rl_m;
+	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m + rl_w*rl_m;
 
 	return output;
 }
