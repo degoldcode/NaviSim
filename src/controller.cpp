@@ -7,8 +7,11 @@
 
 #include "controller.h"
 
-Controller::Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise){
+Controller::Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise, vector<bool> opt_switches){
 	numneurons = num_neurons;
+	homing_on = opt_switches.at(0);
+	gvlearn_on = opt_switches.at(1);
+	lvlearn_on = opt_switches.at(2);
 	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise);
 	num_colors = 1;
 
@@ -54,11 +57,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	expl_factor = ones(num_colors);
 
 	pin_on = true;
-	homing_on = false;
-	gvlearn_on = false;
 	gvnavi_on = false;
-	lvlearn_on = false;
-
 
 	SILENT = false;
 	write = true;
@@ -195,7 +194,7 @@ void Controller::reset() {
 		lvl->reset_el_lm();
 	accum_reward = zeros(num_colors);
 	t = 0;
-	inward = false;
+	inward = 0.;
 	run++;
 }
 
@@ -213,16 +212,16 @@ void Controller::set_inward(int _time) {
 
 
 void Controller::save_matrices() {
-	printf("Save data.\n");
+	printf("Save matrices.\n");
 	pi_array.save("./data/mat/pi_activity.mat", raw_ascii);
-	mat first = pi_array.cols(495,504);
-	mat second = pi_array.cols(995,1004);
-	mat third = pi_array.cols(1495,1504);
-	mat fourth = pi_array.cols(1970,1979);
-	first.save("./data/mat/pi_500.mat", raw_ascii);
-	second.save("./data/mat/pi_1000.mat", raw_ascii);
-	third.save("./data/mat/pi_1500.mat", raw_ascii);
-	fourth.save("./data/mat/pi_2000.mat", raw_ascii);
+//	mat first = pi_array.cols(495,504);
+//	mat second = pi_array.cols(995,1004);
+//	mat third = pi_array.cols(1495,1504);
+//	mat fourth = pi_array.cols(1970,1979);
+//	first.save("./data/mat/pi_500.mat", raw_ascii);
+//	second.save("./data/mat/pi_1000.mat", raw_ascii);
+//	third.save("./data/mat/pi_1500.mat", raw_ascii);
+//	fourth.save("./data/mat/pi_2000.mat", raw_ascii);
 
 	gv_array.save("./data/mat/gv_activity.mat", raw_ascii);
 
@@ -246,8 +245,9 @@ void Controller::set_sample_int(int _val){
 double Controller::update(Angle angle, double speed, double inReward, vec inLmr, int color) {
 	if(t%inv_sampling_rate == 0 && !SILENT){
 		pi_array = join_rows(pi_array, pin->get_output());
-		if(gvlearn_on)
+		if(gvlearn_on){
 			gv_array = join_rows(gv_array, gvl->w(0));
+		}
 		if(lvlearn_on){
 			for(int i = 0; i < lv_array.size(); i++)
 				lv_array.at(i) = join_rows(lv_array.at(i), lvl->w(i));
@@ -257,8 +257,10 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	t++;
 
 	/*** Check, if inward ***/
-	if(t > t_home || accum_reward(0) > 3.)
+	if(t > t_home || accum_reward(0) > 1.){
 		inward = 1.;
+		printf("t= %u > %u or sum(R)= %g\n", t, t_home, accum_reward(0));
+	}
 
 	/*** Random foraging ***/
 	rand_m = 4.*randn(0.0, 0.15)*expl_factor(0);
@@ -268,6 +270,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		pin->update(angle, speed);
 
 	if(homing_on && inward!=0.){
+		//printf("this should not be! %g\n", inward);
 		pi_m = 0.5 * ((HV().ang()).i() - angle).S();
 		rand_m = 0.0;//0.25;
 	}
@@ -298,7 +301,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			else{
 				reward(i) = 0.0;
 			}
-			gvl->update(pin->get_output(), lv_value(0) /*reward(i)*/, expl_factor(i));
+			gvl->update(pin->get_output(), /*lv_value(0)*/reward(i), expl_factor(i));
 
 			cGV.at(i) = (GV(i) - HV());
 		}
@@ -308,7 +311,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			gl_m = 0.0;
 	}
 	stream << cGV.at(0).ang().deg() << endl;
-	gl_w = 0.0;
+	//gl_w = 0.0;
 	accum_reward += reward;
 
 	/*** Local Vector Learning Circuits TODO ***/

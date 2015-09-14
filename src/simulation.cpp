@@ -56,6 +56,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 
 	agent_str.open("data/agent.dat");
 	endpts_str.open("data/endpoints.dat");
+	//error_dist.open(str_names.at(pos).c_str());
 	homevector_str.open("data/homevector.dat");
 	globalvector_str.open("data/globalvector.dat");
 	localvector_str.open("data/localvector.dat");
@@ -71,6 +72,7 @@ Simulation::~Simulation(){
 	total_pi_error.reset();
 	agent_str.close();
 	endpts_str.close();
+	error_dist.close();
 	homevector_str.close();
 	globalvector_str.close();
 	localvector_str.close();
@@ -111,18 +113,17 @@ Environment* Simulation::e(){
 
 void Simulation::gvlearn(bool _opt){
 	gvlearn_on = _opt;
-	c()->gvlearn_on = _opt;
 }
 
 void Simulation::homing(bool _opt){
 	homing_on = _opt;
-	c()->homing_on = _opt;
 }
 
 void Simulation::init_controller(int num_neurons, double sensory_noise, double uncor_noise, double leakage){
 	sim_cfg << num_neurons << "\t" << sensory_noise << "\t" << uncor_noise << "\t" << leakage << endl;
+	vector<bool> opt_switches = {homing_on, gvlearn_on, lvlearn_on};
 	for(unsigned int i= 0; i< agents; i++){
-		Controller* control = new Controller(num_neurons, sensory_noise, leakage, uncor_noise);
+		Controller* control = new Controller(num_neurons, sensory_noise, leakage, uncor_noise, opt_switches);
 		control->SILENT = SILENT;
 		int size = N*pow( 10, int(log10( double( num_neurons ) ) ) );
 		control->set_sample_int(size/10);      // sample activity data every 10 time steps
@@ -134,7 +135,6 @@ void Simulation::init_controller(int num_neurons, double sensory_noise, double u
 
 void Simulation::lvlearn(bool _opt){
 	lvlearn_on = _opt;
-	c()->lvlearn_on = _opt;
 }
 
 void Simulation::reset(){
@@ -158,6 +158,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 
 	if(c()->get_inward() == 0)
 		c()->set_inward(T/dt);
+	printf("Inward time is %u\n", c()->get_inward());
 
 	for(; trial < N+1; trial++){
 		reset();
@@ -252,9 +253,14 @@ void Simulation::writeTrialData(){
 	if(lvlearn_on)
 		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0) << "\t" << c()->el_lm(1) << "\t" << c()->gl_w << "\t" << c()->expl(0); // TODO: different streams for different agents
 	agent_str << endl;
+	error_dist  << (a(0)->x() - a(0)->HV().x) << "\t" << (a(0)->y() - a(0)->HV().y) << endl;
 	if(pin_on){
-		homevector_str << trial_t << "\t" << global_t;
-		homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang() << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len() << endl;
+		homevector_str << trial_t << "\t" << global_t; 													//1,2
+		homevector_str << "\t" << a(0)->HV().x << "\t" << a(0)->HV().y;									//3,4
+		homevector_str << "\t" << a(0)->HVm().x << "\t" << a(0)->HVm().y; 								//5,6
+		homevector_str << "\t" << a(0)->HV().ang() << "\t" << a(0)->HVm().ang(); 						//7,8
+		homevector_str << "\t" <<  (a(0)->HV()-a(0)->v()).len() << "\t" <<  a(0)->HV().len();			//9,10
+		homevector_str << "\t" << a(0)->d() << endl;	//11
 	}
 	if(gvlearn_on){
 		globalvector_str << trial_t << "\t" << global_t;

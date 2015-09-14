@@ -20,7 +20,7 @@ const int numtrials= 1000;
 const double T= 1000.;
 const double dt= 0.1;
 
-vector<double> noise = {0.0, 0.005, 0.01, 0.02, 0.04, 0.08, 0.12, 0.16, 0.2}; // 0.5, 1.};
+vector<double> noise = {0.05, 0.1};//{0.0, 0.005, 0.01, 0.02, 0.04, 0.08, 0.12, 0.16, 0.2}; // 0.5, 1.};
 ofstream nrmse;
 
 int main(){

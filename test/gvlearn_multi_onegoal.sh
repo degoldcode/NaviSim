@@ -29,7 +29,7 @@ echo "Plot data."
 #gnuplot histogram.gnu
 #gnuplot stat_distance.plot
 gnuplot track.plot
-gnuplot distri.plot
+#gnuplot distri.plot
 gnuplot activations.plot
 gnuplot gv.plot
 gnuplot reward.plot

@@ -230,6 +230,7 @@ private:
 
 	ofstream agent_str;
 	ofstream endpts_str;
+	ofstream error_dist;
 	ofstream homevector_str;
 	ofstream globalvector_str;
 	ofstream localvector_str;

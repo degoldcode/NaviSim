@@ -44,7 +44,7 @@ public:
 	 *	@param (double) uncorr_noise: uncorrelated noise at input layer (default: 0.)
 	 *
 	 */
-	Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise= 0.);
+	Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise, vector<bool> opt_switches);
 
 	/**
 	 * Destructor

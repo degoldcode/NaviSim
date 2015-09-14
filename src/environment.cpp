@@ -350,7 +350,9 @@ void Environment::update_agents(){
 			agent_list.at(i)->update(reward.at(i), lm_stats.visible.col(i));
 		else
 			agent_list.at(i)->update(reward.at(i), vec(0.0));
-		if(agent_list.at(i)->d() < home_radius && agent_list.at(i)->c()->get_state()){
+		if((agent_list.at(i)->d() < home_radius && agent_list.at(i)->c()->get_state()) ||
+				(!(agent_list.at(i)->c()->homing_on) && agent_list.at(i)->c()->get_state())){
+			printf("stop it\n");
 			stop_trial = true;
 		}
 	}
@@ -406,7 +408,7 @@ void Environment::update_rewards(){
 	std::fill(lm_recogn.begin(), lm_recogn.end(), 0.);
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < goal_list.size(); j++){
-			if(d(agent_list.at(i), goal_list.at(j)) < 0.2){
+			if(d(agent_list.at(i), goal_list.at(j)) < 0.2 && agent_list.at(i)->c()->get_state() == 0){
 				reward.at(i) += goal_list.at(j)->a()*5.*(0.2-d(agent_list.at(i), goal_list.at(j)));
 				trial_reward.at(i) += reward.at(i);
 				total_reward.at(i) += reward.at(i);
