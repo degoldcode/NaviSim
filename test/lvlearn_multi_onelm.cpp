@@ -15,8 +15,9 @@ using namespace std;
 
 Simulation* sim;
 const int numagents= 1;
-const int numtrials= 500;
+const int numtrials= 100;
 const double T= 100.;
+const double Thome= 100.;
 const double dt= 0.1;
 
 int main(){
@@ -28,11 +29,12 @@ int main(){
 	//sim->add_pipe(0., -1., 0., 0.);
 	//sim->add_pipe(-8., -10., 2., 0.);
 
-	sim->init_controller(18, 0.05, 0.0, 0.00);
-	sim->set_inward(int(100./dt));							// inward after 1000 seconds
-	sim->homing(true);
+	sim->homing(false);
 	sim->gvlearn(true);
 	sim->lvlearn(true);
+	sim->init_controller(18, 0.05, 0.0, 0.00, 0.00);
+	sim->set_inward(int(Thome/dt));							// inward after 1000 seconds
+
 
 	sim->run(numtrials, T, dt);
 	delete sim;

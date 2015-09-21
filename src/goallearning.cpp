@@ -75,6 +75,10 @@ void GoalLearning::set_mu(double* state){
 	foraging_state = state;
 }
 
+void GoalLearning::set_nnoise(double value){
+	neural_noise = value;
+}
+
 void GoalLearning::update(vec pi_input, double in_reward, double in_expl){
 	reward = in_reward;
 	expl_rate = in_expl;

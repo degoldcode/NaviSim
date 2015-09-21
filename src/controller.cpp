@@ -7,7 +7,7 @@
 
 #include "controller.h"
 
-Controller::Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise, vector<bool> opt_switches){
+Controller::Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise, double syn_noise, vector<bool> opt_switches){
 	numneurons = num_neurons;
 	homing_on = opt_switches.at(0);
 	gvlearn_on = opt_switches.at(1);
@@ -16,7 +16,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	num_colors = 1;
 
 	if(gvlearn_on)
-		gvl = new GoalLearning(numneurons, 0.0, &inward, false);
+		gvl = new GoalLearning(numneurons, syn_noise, &inward, false);
 	gl_array.resize(num_colors);
 
 	num_lv_units = 3;
@@ -34,7 +34,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	output = 0.0;
 	inward = 0.0;
 	goal_factor = 0.0;
-	expl_beta = 0.5;
+	expl_beta = 1.;//0.1;	//0.5
 	seed = 12345678;
 
 	cGV.resize(num_colors);
@@ -51,7 +51,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	choice = 0;
 	prob = zeros(num_colors);
 	act = zeros(num_colors);
-	beta = 1.;
+	beta = 0.5; // 0.5
 
 	val_discount = 0.99;
 	expl_factor = ones(num_colors);
@@ -259,24 +259,25 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	/*** Check, if inward ***/
 	if(t > t_home || accum_reward(0) > 1.){
 		inward = 1.;
-		printf("t= %u > %u or sum(R)= %g\n", t, t_home, accum_reward(0));
+		//printf("t= %u > %u or sum(R)= %g\n", t, t_home, accum_reward(0));
 	}
 
 	/*** Random foraging ***/
-	rand_m = 4.*randn(0.0, 0.15)*expl_factor(0);
+	rand_m = 4.*0.15*randn(0.0, 1.)*expl_factor(0);
 
 	/*** Path Integration Mechanism ***/
 	if(pin_on)
 		pin->update(angle, speed);
 
+	pi_m =  HV().len() * (1. - expl_factor(0)) * ((HV().ang()).i() - angle).S();		//NEW PI COMMAND
 	if(homing_on && inward!=0.){
 		//printf("this should not be! %g\n", inward);
 		pi_m = 0.5 * ((HV().ang()).i() - angle).S();
 		rand_m = 0.0;//0.25;
 	}
-	else{
-		pi_m = 0.;
-	}
+//	else{
+//		pi_m = 0.;
+//	}
 //	if(HV().len() < 0.2){
 //		pi_w -= 0.0001;
 //		printf("PI_w = %g\n", pi_w);
@@ -295,20 +296,24 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		for(int i = 0; i < num_colors; i++){
 			if(i == color){
 				reward(i) = inReward;
-				value(i) = (reward(i) + accu(lv_value)) + disc_factor * value(i);
-				expl_factor(i) = exp(- expl_beta * value(i));
+				if(inward==0.){
+					value(i) = (reward(i) + accu(lv_value)) + disc_factor * value(i);
+					expl_factor(i) = exp(- expl_beta * value(i));
+				}
 			}
 			else{
 				reward(i) = 0.0;
 			}
-			gvl->update(pin->get_output(), /*lv_value(0)*/reward(i), expl_factor(i));
+			gvl->update(pin->get_output(), lv_value(0)/*reward(i)*/, expl_factor(i));
 
 			cGV.at(i) = (GV(i) - HV());
 		}
-		if(inward == 0.)
-			gl_m = 4.0*(1.-expl_factor(0))*(cGV.at(0).ang() - angle).S();
-		else
-			gl_m = 0.0;
+
+		gl_m = GV(0).len() * (1.-expl_factor(0))*(1. - inward)*(GV(0).ang() - angle).S();			//NEW GV COMMAND
+//		if(inward == 0.)
+//			gl_m = (1.-expl_factor(0))*(cGV.at(0).ang() - angle).S();
+//		else
+//			gl_m = 0.0;
 	}
 	stream << cGV.at(0).ang().deg() << endl;
 	//gl_w = 0.0;

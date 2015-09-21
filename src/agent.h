@@ -209,6 +209,7 @@ public:
 	//************ Public class parameters ************//
 
 	bool in_pipe;			// status if agent is in pipe [TRUE = agent is in a pipe; FALSE = it's free!]
+	bool lm_catch;
 	double test;
 
 

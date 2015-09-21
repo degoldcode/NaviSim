@@ -83,6 +83,8 @@ Environment::Environment(int num_goals, int num_landmarks, double max_radius, in
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 	lm_stats.visible = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.seen = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.catchment = zeros<mat>(landmark_list.size(), agent_list.size());
 	open_streams();
 }
 
@@ -175,6 +177,8 @@ void Environment::add_landmark(double x, double y){
 	Landmark* lm = new Landmark(x,y,VERBOSE);
 	landmark_list.push_back(lm);
 	lm_stats.visible = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.seen = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.catchment = zeros<mat>(landmark_list.size(), agent_list.size());
 }
 
 void Environment::add_landmark(double max_radius){
@@ -277,12 +281,13 @@ vec Environment::lmr(int i){
 	return goal_list.size();
 }*/
 
-/*Goal* Environment::nearest(double x, double y){
+Goal* Environment::nearest(double x, double y){
 	double min_dist;
+	cout << goal_list.size() << endl;
 	if(goal_list.size()>0)
 		min_dist = sqrt( d(goal_list.at(0)->x(), x) + d(goal_list.at(0)->y(), y));
 	else
-		return 0;
+		return new Goal(0., 0.);
 	double dist;
 	int idx=0;
 	for(int i=1; i<goal_list.size(); i++){
@@ -293,7 +298,11 @@ vec Environment::lmr(int i){
 		}
 	}
 	return goal_list.at(idx);
-}*/
+}
+
+Angle Environment::phi(Object* o1, Object* o2){
+	return (o1->v() - o2->v()).ang();
+}
 
 void Environment::open_streams(){
 //	stream_a.resize(agent_list.size());
@@ -346,23 +355,35 @@ void Environment::update(){
 
 void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
+		for(unsigned int j = 0; j < landmark_list.size(); j++){
+			if(lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0){
+				agent_list.at(i)->lm_catch = true;
+				Angle lm_phi = phi(landmark_list.at(i),agent_list.at(i)).deg();
+				double landmark_attract = 0.5*(lm_phi - agent_list.at(i)->phi()).S();
+				//printf("%g vs. %g -> %g\n", phi(agent_list.at(i), landmark_list.at(i)).deg(), phi(landmark_list.at(i),agent_list.at(i)).deg(), landmark_attract);
+				agent_list.at(i)->set_dphi(new Angle(landmark_attract));
+			}
+			else{
+				agent_list.at(i)->set_dphi(new Angle(0.0));
+				agent_list.at(i)->lm_catch = false;
+			}
+		}
 		if(i < lm_stats.visible.n_rows)
 			agent_list.at(i)->update(reward.at(i), lm_stats.visible.col(i));
 		else
 			agent_list.at(i)->update(reward.at(i), vec(0.0));
 		if((agent_list.at(i)->d() < home_radius && agent_list.at(i)->c()->get_state()) ||
 				(!(agent_list.at(i)->c()->homing_on) && agent_list.at(i)->c()->get_state())){
-			printf("stop it\n");
+			//printf("stop it\n");
 			stop_trial = true;
 		}
 	}
-
 }
 
 void Environment::update_collisions(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < goal_list.size(); j++){
-			if(d(agent_list.at(i), goal_list.at(j)) < 0.2){
+			if(d(agent_list.at(i), goal_list.at(j)) < goal_radius){
 				if(g_stats.collisions(i,j) == 0)
 					g_stats.hits(i,j)++;
 				g_stats.collisions(i,j) = 1;
@@ -371,8 +392,16 @@ void Environment::update_collisions(){
 				g_stats.collisions(i,j) = 0;
 		}
 		for(unsigned int j = 0; j < landmark_list.size(); j++){
-			if(d(agent_list.at(i), landmark_list.at(j)) < 0.1){
+			if(d(agent_list.at(i), landmark_list.at(j)) < lm_catch_radius){
+				lm_stats.catchment(j,i) = 1;
+			}
+			else{
+				lm_stats.catchment(j,i) = 0;
+				lm_stats.seen(j,i) = 0;
+			}
+			if(d(agent_list.at(i), landmark_list.at(j)) < lm_radius){
 				lm_stats.visible(j,i) = 10.*(0.1 - d(agent_list.at(i), landmark_list.at(j)));
+				lm_stats.seen(j,i) = 1;
 			}
 			else
 				lm_stats.visible(j,i) = 0;
@@ -408,8 +437,8 @@ void Environment::update_rewards(){
 	std::fill(lm_recogn.begin(), lm_recogn.end(), 0.);
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < goal_list.size(); j++){
-			if(d(agent_list.at(i), goal_list.at(j)) < 0.2 && agent_list.at(i)->c()->get_state() == 0){
-				reward.at(i) += goal_list.at(j)->a()*5.*(0.2-d(agent_list.at(i), goal_list.at(j)));
+			if(d(agent_list.at(i), goal_list.at(j)) < goal_radius && agent_list.at(i)->c()->get_state() == 0){
+				reward.at(i) += goal_list.at(j)->a()*(1./goal_radius)*(goal_radius-d(agent_list.at(i), goal_list.at(j)));
 				trial_reward.at(i) += reward.at(i);
 				total_reward.at(i) += reward.at(i);
 				goal_list.at(j)->da();

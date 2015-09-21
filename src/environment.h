@@ -46,6 +46,7 @@ struct ObjStats{
 	mat hits;
 	mat visible;
 	mat seen;
+	mat catchment;
 };
 
 
@@ -173,8 +174,8 @@ public:
 	/**
 	 * Returns the distance between two given objects
 	 *
-	 * 	@param (Object*) g1: first object
-	 * 	@param (Object*) g2: second object
+	 * 	@param (Object*) o1: first object
+	 * 	@param (Object*) o2: second object
 	 * 	@return (double)
 	 */
 	double d(Object* o1, Object* o2);
@@ -248,7 +249,7 @@ public:
 	 *	@param (double) y: position to be evaluated (default: 0.)
 	 *	@return (Goal*)
 	 */
-	//Goal* nearest(double x=0.0, double y=0.0);
+	Goal* nearest(double x=0.0, double y=0.0);
 
 	/*
 	 * Open IO streams for writing data
@@ -256,6 +257,15 @@ public:
 	 * @return (void)
 	 */
 	void open_streams();
+
+	/**
+	 * Returns the angle between two given objects
+	 *
+	 * 	@param (Object*) o1: first object
+	 * 	@param (Object*) o2: second object
+	 * 	@return (Angle)
+	 */
+	Angle phi(Object* o1, Object* o2);
 
 	/**
 	 * Returns reward signal
@@ -350,6 +360,9 @@ private:
 
 	//************ Environment parameters **********//
 	const double home_radius = 0.2;
+	const double goal_radius = 0.2;
+	const double lm_catch_radius = 0.5;
+	const double lm_radius = 0.1;
 
 	//************ Reward parameters ************//
 	vector<double> reward;

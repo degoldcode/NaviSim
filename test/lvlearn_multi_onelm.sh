@@ -25,19 +25,19 @@ cd data/scripts
 ### plot data using gnuplot gui
 if [ "$1" = "all" ] || [ "$1" = "plot" ] ; then
 echo "Plot data."
-gnuplot track_homevector.plot
+gnuplot track_vectors.plot
 #gnuplot histogram.gnu
 #gnuplot stat_distance.plot
 gnuplot track.plot
-gnuplot distri.plot
-gnuplot activations.plot
+#gnuplot distri.plot
+#gnuplot activations.plot
 gnuplot gv.plot
-gnuplot lv.plot
-gnuplot ref.plot
-gnuplot reward.plot
+#gnuplot lv.plot
+#gnuplot ref.plot
+#gnuplot reward.plot
 #python circle.py
 #python circle_gv.py
-gnuplot gv_performance.plot
+#gnuplot gv_performance.plot
 #python density.py
 fi
 

@@ -12,7 +12,7 @@ cd ..
 ### compile c++ code
 if [ "$1" == "all" ] || [ "$1" == "compile" ] || [ "$1" == "run" ] ; then
 echo "Compile."
-g++ test/gvlearn_multi_randomgoal.cpp src/agent.cpp src/environment.cpp src/simulation.cpp src/controller.cpp src/goal.cpp src/landmark.cpp src/object.cpp src/pin.cpp src/goallearning.cpp -std=c++11 -o $file -O1 -larmadillo
+g++ test/gvlearn_multi_randomgoal.cpp src/agent.cpp src/environment.cpp src/simulation.cpp src/controller.cpp src/goal.cpp src/landmark.cpp src/pipe.cpp src/object.cpp src/pin.cpp src/goallearning.cpp src/routelearning.cpp -std=c++11 -o $file -O1 -larmadillo
 fi
 
 ### run program
@@ -29,10 +29,10 @@ echo "Plot data."
 #gnuplot histogram.gnu
 #gnuplot stat_distance.plot
 gnuplot track.plot
-gnuplot distri.plot
+#gnuplot distri.plot
 gnuplot activations.plot
 gnuplot gv.plot
-gnuplot reward.plot
+#gnuplot reward.plot
 #python circle.py
 #python circle_gv.py
 gnuplot gv_performance.plot

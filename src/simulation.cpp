@@ -119,11 +119,11 @@ void Simulation::homing(bool _opt){
 	homing_on = _opt;
 }
 
-void Simulation::init_controller(int num_neurons, double sensory_noise, double uncor_noise, double leakage){
+void Simulation::init_controller(int num_neurons, double sensory_noise, double uncor_noise, double leakage, double syn_noise){
 	sim_cfg << num_neurons << "\t" << sensory_noise << "\t" << uncor_noise << "\t" << leakage << endl;
 	vector<bool> opt_switches = {homing_on, gvlearn_on, lvlearn_on};
 	for(unsigned int i= 0; i< agents; i++){
-		Controller* control = new Controller(num_neurons, sensory_noise, leakage, uncor_noise, opt_switches);
+		Controller* control = new Controller(num_neurons, sensory_noise, leakage, uncor_noise, syn_noise, opt_switches);
 		control->SILENT = SILENT;
 		int size = N*pow( 10, int(log10( double( num_neurons ) ) ) );
 		control->set_sample_int(size/10);      // sample activity data every 10 time steps
@@ -183,7 +183,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("<G>=%5.0f\t", 1.0*count_goal);
 					//printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
-					printf("e= %1.2f\tGV= (%3.1f, %1.2f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len());
+					printf("e= %1.2f\tGV= (%3.1f, %1.2f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len()/*, e()->nearest()->d()*/);
 				if(lvlearn_on){
 					for(int i = 0; i < c()->K(); i++){
 						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV(i).ang().deg(), c()->LV(i).len(), i, c()->LV_value_raw(i));

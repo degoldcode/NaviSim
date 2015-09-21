@@ -92,6 +92,14 @@ public:
 	void set_mu(double* state);
 
 	/**
+	 * Sets the noise level
+	 *
+	 *	@param (double) value: new value of synaptic noise
+	 * 	@return (void)
+	 */
+	void set_nnoise(double value);
+
+	/**
 	 * Updates the goal learning circuit
 	 *
 	 *  @param (vec) pi_input: Input PI state

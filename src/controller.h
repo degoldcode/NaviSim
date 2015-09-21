@@ -41,10 +41,11 @@ public:
 	 *	@param (int) num_neurons: number of neurons
 	 *	@param (double) sensory_noise: sensory noise to PI
 	 *	@param (double) leakage: leakage of PI memory
-	 *	@param (double) uncorr_noise: uncorrelated noise at input layer (default: 0.)
+	 *	@param (double) uncorr_noise: uncorrelated noise at input layer
+	 *	@param (double) syn_noise: synaptic noise at GV layer
 	 *
 	 */
-	Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise, vector<bool> opt_switches);
+	Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise, double syn_noise, vector<bool> opt_switches);
 
 	/**
 	 * Destructor
@@ -365,7 +366,7 @@ private:
 	vec dvalue;
 	double val_discount;
 	double expl_beta;
-	const double disc_factor = 0.999;
+	const double disc_factor = 0.9995; //0.999
 	vec expl_factor;
 	int current_goal;
 

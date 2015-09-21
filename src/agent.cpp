@@ -44,6 +44,7 @@ Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
 
 	inward = false;
 	in_pipe = false;
+	lm_catch = false;
 }
 
 Agent::~Agent(){
@@ -113,12 +114,16 @@ void Agent::to(double x_new, double y_new){
 
 void Agent::update(double _reward, vec _lmr){
 	//control->set_inward(inward);
-	if(!in_pipe){
+	if(!in_pipe && !lm_catch){
 		diff_heading.to(dt * k_phi * control_output + external->rad());
 		heading = heading + diff_heading;
 	}
-	else
+	else if(in_pipe)
 		heading.to(external->rad());
+	else{
+		diff_heading.to(external->rad());
+		heading = heading + diff_heading;
+	}
 
 	diff_speed = dt * k_s * 0.0;
 	speed += diff_speed;

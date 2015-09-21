@@ -155,7 +155,7 @@ public:
 	 * @param (double) leakage: leakage term for systematic errors (default: 0.0)
 	 * @return (void)
 	 */
-	void init_controller(int num_neurons=18, double sensory_noise=0.0, double uncor_noise = 0.0, double leakage=0.0);
+	void init_controller(int num_neurons=18, double sensory_noise=0.0, double uncor_noise = 0.0, double leakage=0.0, double syn_noise=0.0);
 
 	/**
 	 * Reset simulation

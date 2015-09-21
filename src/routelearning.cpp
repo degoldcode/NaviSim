@@ -79,9 +79,14 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 	//	if(reward > 0.0)
 	//		printf("foraging state = %g\n", *foraging_state);
 	raw_lmr = input_lmr;//(1. - *foraging_state)*ones<vec>(K);
+	if(raw_lmr.n_elem < eligibility_lmr.n_elem){
+		raw_lmr.resize(eligibility_lmr.n_elem);
+	}
+
+	//printf("LMR_dim = %u\n", raw_lmr.n_elem);
 	vec clip_lmr = raw_lmr;
 	clip_lmr.elem( find(clip_lmr > 0.0) ).ones();
-	double lowpass_elig = 0.99;
+	double lowpass_elig = 0.995;
 	eligibility_lmr = 0.1*clip_lmr + lowpass_elig*eligibility_lmr;
 	if(accu(raw_lmr) > 0.5 || accu(eligibility_lmr) < 0.1){
 		reference_pin->reset();
