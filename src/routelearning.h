@@ -123,6 +123,15 @@ public:
 	 */
 	double value_lm_raw(int index=0);
 
+
+	/**
+	 * Return vector average of circular array activity
+	 *
+	 * @param (int) index: index of local vector
+	 * @return (Angle)
+	 */
+	Angle vec_avg(int index);
+
 private:
 	PIN * reference_pin;
 

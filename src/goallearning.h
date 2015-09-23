@@ -118,6 +118,11 @@ public:
 	 */
 	void update_weights(vec pi_input);
 
+	/**
+	 * Return vector average of circular array activity
+	 *
+	 * @return (Angle)
+	 */
 	Angle vec_avg();
 
 	/**

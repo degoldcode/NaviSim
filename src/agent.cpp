@@ -122,7 +122,7 @@ void Agent::update(double _reward, vec _lmr){
 		heading.to(external->rad());
 	else{
 		diff_heading.to(external->rad());
-		heading = heading + diff_heading;
+		heading = heading + diff_heading + dt *  0.1 * control_output;
 	}
 
 	diff_speed = dt * k_s * 0.0;

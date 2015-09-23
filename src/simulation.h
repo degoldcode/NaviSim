@@ -238,6 +238,7 @@ private:
 	ofstream reward_str;
 	ofstream length_scaling;
 	ofstream sim_cfg;
+	ofstream out_signals;
 
 	//************ Controller options *************//
 	bool pin_on;			// true, if agent does PI

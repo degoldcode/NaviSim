@@ -6,10 +6,10 @@ rows = "`cat ../mat/gv_activity.mat | wc -l`"
 columns = "`head ../mat/gv_activity.mat -n1 | wc -w`"
 rowss = "`cat ../globalvector.dat | wc -l`"
 stat "../globalvector.dat" u 2 nooutput
-print rows
-print columns
-print rowss
-print STATS_max
+#print rows
+#print columns
+#print rowss
+#print STATS_max
 
 ## Ranges
 set xrange [-0.5:columns-0.5]
@@ -41,7 +41,7 @@ FACTOR = (1.*columns/(1.*STATS_max))
 
 ##### Reservoir activations
 set output "../../figs/gv_activity.eps"
-plot "../mat/gv_activity.mat" matrix with image, "../globalvector.dat" u ($2*FACTOR):(rows*$9/360) w l lt -1 lc rgb "cyan" t "vec avg"
+plot "../mat/gv_activity.mat" matrix with image, "../globalvector.dat" u ($2*FACTOR):(rows*$9/360) w l lt -1 lc rgb "cyan" t "vec avg", f(x) w l lt -1 lc rgb "red" t "correct"
 #, "../globalvector.dat" u ($2*FACTOR):(rows*$5/360) w l lt -1 lw 0.5 lc rgb "green" t "avg", "../globalvector.dat" u ($2*FACTOR):(rows*$9/360) w l lt -1 lc rgb "cyan" t "vec avg"
 #, f(x) w l lt -1 lc rgb "red" t "correct"
 #, "../globalvector.dat" u ($2*columns/(rowss/10)):(rows*$9/360) w l lt -1 lc rgb "cyan" t "vec avg"

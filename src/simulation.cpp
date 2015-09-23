@@ -66,6 +66,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	sim_cfg << "# Na\t# Nn\t# Sno\t# Leak\t# Uncno" << endl;
 	sim_cfg << agents << "\t";
 	length_scaling.open("data/l_scale.dat");
+	out_signals.open("data/signals.dat");
 }
 
 Simulation::~Simulation(){
@@ -80,6 +81,7 @@ Simulation::~Simulation(){
 	reward_str.close();
 	sim_cfg.close();
 	length_scaling.close();
+	out_signals.close();
 	delete environment;
 }
 
@@ -183,10 +185,10 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("<G>=%5.0f\t", 1.0*count_goal);
 					//printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
-					printf("e= %1.2f\tGV= (%3.1f, %1.2f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len()/*, e()->nearest()->d()*/);
+					printf("e= %1.2f\tGV= (%3.1f, %1.2f)\t", c()->expl(0), c()->GV_vecavg().deg(), a(0)->GV().len()/*, e()->nearest()->d()*/);
 				if(lvlearn_on){
 					for(int i = 0; i < c()->K(); i++){
-						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV(i).ang().deg(), c()->LV(i).len(), i, c()->LV_value_raw(i));
+						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV_vecavg(i).deg(), c()->LV(i).len(), i, c()->LV_value_raw(i));
 					}
 				}
 				//printf("Amount=%g", e()->g(0)->a());
@@ -194,14 +196,19 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 			}
 
 			if(N <= 19){
+				printf("#%u\t", trial);
 				if(pin_on)
-					printf("#%u\te=%2.3f\t<e>=%2.3f\t", trial, pi_error.mean(), total_pi_error.mean());
+					printf("e=%2.3f\t<e>=%2.3f\t", pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
-					printf("<Home>=%3.1f%%\t<Goal>=%2.4f\t", 100.*is_home.mean(), is_goal.mean());
+					printf("<G>=%5.0f\t", 1.0*count_goal);
+					//printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
-					printf("Expl=%1.5f\tGV(ang,r)=(%3.2f,%2.3f)\tGVC(ang,r)=(%3.2f,%2.3f)", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len(), c()->GVc().ang().deg(), c()->GVc().len());
-				if(lvlearn_on)
-					printf("LV(ang,r)=(%3.2f,%2.3f)\t", c()->LV().ang().deg(), c()->LV().len());
+					printf("e= %1.2f\tGV= (%3.1f, %1.2f)\t", c()->expl(0), a(0)->GV().ang().deg(), a(0)->GV().len()/*, e()->nearest()->d()*/);
+				if(lvlearn_on){
+					for(int i = 0; i < c()->K(); i++){
+						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV(i).ang().deg(), c()->LV(i).len(), i, c()->LV_value_raw(i));
+					}
+				}
 				printf("\n");
 			}
 
@@ -273,11 +280,17 @@ void Simulation::writeTrialData(){
 		refvector_str << trial_t << "\t" << global_t;
 		refvector_str << "\t" << c()->RV().x << "\t" << c()->RV().y << "\t" << c()->RV().ang() << "\t" << c()->RV().len() << endl;
 		localvector_str << trial_t << "\t" << global_t;
-		localvector_str << "\t" << c()->LV(0).x << "\t" << c()->LV(0).y << "\t" << c()->LV(0).ang() << "\t" << c()->LV(0).len();
-		localvector_str << "\t" << c()->LV(1).x << "\t" << c()->LV(1).y << "\t" << c()->LV(1).ang() << "\t" << c()->LV(1).len() << endl;
+		localvector_str << "\t" << c()->LV(0).x << "\t" << c()->LV(0).y << "\t" << c()->LV(0).ang() << "\t" << c()->LV(0).len(); // 3,4,5,6
+		localvector_str << "\t" << c()->LV(1).x << "\t" << c()->LV(1).y << "\t" << c()->LV(1).ang() << "\t" << c()->LV(1).len(); // 7,8,9,10
+		localvector_str << "\t" << c()->LV_vecavg(0) << "\t" << c()->LV_vecavg(1) << endl;										 // 11,12
 	}
 	reward_str << trial_t << "\t" << global_t;
 	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;
 	length_scaling << a(0)->v().len() << "\t" << sum(a(0)->pi()->get_output()) << "\t" << a(0)->c()->N() << endl;
+	out_signals << trial_t << "\t" << global_t << "\t";
+	out_signals << c()->rand_w << "\t" << c()->rand_m << "\t";
+	out_signals << c()->pi_w << "\t" << c()->pi_m << "\t";
+	out_signals << c()->gl_w << "\t" << c()->gl_m << "\t";
+	out_signals << c()->rl_w << "\t" << c()->rl_m << endl;
 }
 

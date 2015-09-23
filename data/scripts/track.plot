@@ -10,7 +10,7 @@ stat "../agent.dat" u 5 nooutput
 print STATS_max
 
 set size square
-SCALE = 4.##(STATS_max+STATS_max/20.)*2.
+SCALE = (STATS_max+STATS_max/20.)*2.
 OFFSETX = 0 ##-2.5
 OFFSETY = 0 ##-2.5
 	

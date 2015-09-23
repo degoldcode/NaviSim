@@ -175,6 +175,8 @@ public:
 	 */
 	double LV_value_raw(int index=0);
 
+	Angle LV_vecavg(int index);
+
 	/**
 	 * Returns angle in degrees
 	 *
@@ -335,12 +337,6 @@ private:
 	//Map* map;
 	double inward;                        // foraging state
 
-	// motor commands
-	double rand_m;
-	double pi_m;
-	double gl_m;
-	double rl_m;
-	double output;
 
 	double goal_factor;
 
@@ -401,6 +397,12 @@ public:
 	double pi_w;
 	double gl_w;
 	double rl_w;
+	// motor commands
+	double rand_m;
+	double pi_m;
+	double gl_m;
+	double rl_m;
+	double output;
 
 	bool pin_on;
 	bool homing_on;

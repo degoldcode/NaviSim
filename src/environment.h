@@ -361,7 +361,7 @@ private:
 	//************ Environment parameters **********//
 	const double home_radius = 0.2;
 	const double goal_radius = 0.2;
-	const double lm_catch_radius = 0.5;
+	const double lm_catch_radius = 0.6;
 	const double lm_radius = 0.1;
 
 	//************ Reward parameters ************//

@@ -32,7 +32,8 @@ gnuplot track.plot
 #gnuplot distri.plot
 #gnuplot activations.plot
 gnuplot gv.plot
-#gnuplot lv.plot
+gnuplot lv.plot
+gnuplot signals.plot
 #gnuplot ref.plot
 #gnuplot reward.plot
 #python circle.py

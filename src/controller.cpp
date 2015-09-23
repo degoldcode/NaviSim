@@ -29,12 +29,12 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	rl_m = 0.0;
 	rand_w= 1.0;
 	pi_w = 1.0;
-	gl_w = 1.0;
-	rl_w = 1.0;
+	gl_w = 0.0;
+	rl_w = 0.0;
 	output = 0.0;
 	inward = 0.0;
 	goal_factor = 0.0;
-	expl_beta = 1.;//0.1;	//0.5
+	expl_beta = 0.5;//0.1;	//0.5
 	seed = 12345678;
 
 	cGV.resize(num_colors);
@@ -151,6 +151,10 @@ RouteLearning* Controller::LV_module(){
 	return lvl;
 }
 
+Angle Controller::LV_vecavg(int index){
+	return lvl->vec_avg(index);
+}
+
 double Controller::LV_value(int index){
 	return lvl->value_lm(index);
 }
@@ -263,16 +267,19 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	}
 
 	/*** Random foraging ***/
-	rand_m = 4.*0.15*randn(0.0, 1.)*expl_factor(0);
+	rand_w = 0.6*expl_factor(0);
+	rand_m = randn(0.0, 1.);
 
 	/*** Path Integration Mechanism ***/
 	if(pin_on)
 		pin->update(angle, speed);
 
-	pi_m =  HV().len() * (1. - expl_factor(0)) * ((HV().ang()).i() - angle).S();		//NEW PI COMMAND
+	pi_w = HV().len() * (1. - expl_factor(0));
+	pi_m =  ((HV().ang()).i() - angle).S();		//NEW PI COMMAND
 	if(homing_on && inward!=0.){
 		//printf("this should not be! %g\n", inward);
-		pi_m = 0.5 * ((HV().ang()).i() - angle).S();
+		pi_w = 0.5;
+		pi_m = ((HV().ang()).i() - angle).S();
 		rand_m = 0.0;//0.25;
 	}
 //	else{
@@ -288,7 +295,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 
 	if(lvlearn_on){
 		for(int i = 0; i < num_lv_units; i++)
-			lv_value(i) = 1. - exp(-0.01*lvl->value_lm(i));
+			lv_value(i) = 1. - exp(-0.5*lvl->value_lm(i));
 	}
 
 	/*** Global Vector Learning Circuits TODO ***/
@@ -297,7 +304,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			if(i == color){
 				reward(i) = inReward;
 				if(inward==0.){
-					value(i) = (reward(i) + accu(lv_value)) + disc_factor * value(i);
+					value(i) = (reward(i) /*+ accu(lv_value)*/) + disc_factor * value(i);
 					expl_factor(i) = exp(- expl_beta * value(i));
 				}
 			}
@@ -309,7 +316,8 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			cGV.at(i) = (GV(i) - HV());
 		}
 
-		gl_m = GV(0).len() * (1.-expl_factor(0))*(1. - inward)*(GV(0).ang() - angle).S();			//NEW GV COMMAND
+		gl_w = (1. - inward)*GV(0).len() * (1.-expl_factor(0));
+		gl_m = (GV(0).ang() - angle).S();			//NEW GV COMMAND
 //		if(inward == 0.)
 //			gl_m = (1.-expl_factor(0))*(cGV.at(0).ang() - angle).S();
 //		else
@@ -321,26 +329,18 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 
 	/*** Local Vector Learning Circuits TODO ***/
 	if(lvlearn_on){
-		if(cGV.at(0).len() < 0.5)
-			gl_w = 0.0;
 
-		//rl_w = 1. - exp(-LV(0).len());
 		lvl->update(angle, speed, inReward, inLmr);
 
-		vector<double> route_factor;
-		route_factor.resize(num_lv_units);
+		rl_w = 0.0;
 		rl_m = 0.0;
 		for(int i = 0; i < num_lv_units; i++){
-			cLV.at(i) = (LV(i) - HV());
-
-
-			route_factor.at(i)= 2.*(lvl->el_lm(i)-0.5);
-			if(route_factor.at(i) < 0.0)
-				route_factor.at(i) = 0.0;
-			route_factor.at(i) = 1.0;
+			//cLV.at(i) = (LV(i) - HV());
 			if(inward == 0. && lvl->el_lm(i) > 0.5){
 				gl_w = 0.0;
-				rl_m += 4.0*route_factor.at(i)*(1.-expl_factor(0))*(LV(i).ang() - angle).S();//4.0*(1.-expl_factor(0))*(LV(0).ang() - angle).S();
+				pi_w = 0.0;
+				rl_w += lv_value(i)*(1.-expl_factor(0));
+				rl_m += (LV_vecavg(i) - angle).S();//4.0*(1.-expl_factor(0))*(LV(0).ang() - angle).S();
 			}
 		}
 	}

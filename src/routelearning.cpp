@@ -24,7 +24,7 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 	eligibility_lmr = zeros<vec>(num_lmr_units);
 	raw_lmr = zeros<vec>(num_lmr_units);
 	value_lmr = zeros<vec>(num_lmr_units);
-	value_decay = 0.001;
+	value_decay = 0.0001;
 	reference_pin = new PIN(18, 0.0, 0.00, 0.0);
 
 	printf("=== LV learning parameters ===\n");
@@ -91,7 +91,7 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 	if(accu(raw_lmr) > 0.5 || accu(eligibility_lmr) < 0.1){
 		reference_pin->reset();
 	}
-	value_lmr += (reward - value_decay)*eligibility_lmr;
+	value_lmr += (0.01*reward - value_decay)*eligibility_lmr;
 	value_lmr.elem( find(value_lmr < 0.0) ).zeros();
 
 
@@ -133,6 +133,10 @@ void RouteLearning::update_weights(){
 	//printf("this works\n");
 	input_conns = white_weights+randu<mat>(N,K)*neural_noise;
 	//printf("that works\n");
+}
+
+Angle RouteLearning::vec_avg(int index){
+	return new_vector_avg.at(index);
 }
 
 double RouteLearning::value_lm(int index){
