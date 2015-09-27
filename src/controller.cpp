@@ -311,7 +311,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			else{
 				reward(i) = 0.0;
 			}
-			gvl->update(pin->get_output(), lv_value(0)/*reward(i)*/, expl_factor(i));
+			gvl->update(pin->get_output(), 0.0 /*lv_value(0) reward(i)*/, expl_factor(i));
 
 			cGV.at(i) = (GV(i) - HV());
 		}
@@ -336,7 +336,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		rl_m = 0.0;
 		for(int i = 0; i < num_lv_units; i++){
 			//cLV.at(i) = (LV(i) - HV());
-			if(inward == 0. && lvl->el_lm(i) > 0.5){
+			if(inward == 0. && lvl->el_lm(i) > 0.25){
 				gl_w = 0.0;
 				pi_w = 0.0;
 				rl_w += lv_value(i)*(1.-expl_factor(0));

@@ -142,6 +142,7 @@ private:
 	double learn_rate;
 	double reward;
 	double neural_noise;
+	vec d_raw_lmr;
 	vec raw_lmr;
 	vec eligibility_lmr;
 	vec value_lmr;
