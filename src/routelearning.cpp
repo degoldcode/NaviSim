@@ -24,6 +24,7 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 	eligibility_lmr = zeros<vec>(num_lmr_units);
 	raw_lmr = zeros<vec>(num_lmr_units);
 	d_raw_lmr = zeros<vec>(num_lmr_units);
+	clip_lmr = zeros<vec>(num_lmr_units);
 	value_lmr = zeros<vec>(num_lmr_units);
 	value_decay = 0.0001;
 	reference_pin = new PIN(18, 0.0, 0.00, 0.0);
@@ -41,6 +42,11 @@ RouteLearning::~RouteLearning(){
 	delete reference_pin;
 	input_conns.save("./save/routeweights.mat", raw_ascii);
 }
+
+double RouteLearning::cl_state_lm(int index){
+	return clip_lmr(index);
+}
+
 
 mat RouteLearning::dW(){
 	return weight_change;
@@ -75,6 +81,14 @@ void RouteLearning::set_mu(double* state){
 	foraging_state = state;
 }
 
+double RouteLearning::dstate_lm(int index){
+	return d_raw_lmr(index);
+}
+
+double RouteLearning::state_lm(int index){
+	return raw_lmr(index);
+}
+
 void RouteLearning::update(Angle angle, double speed, double in_reward, vec input_lmr) {
 	reward = in_reward;
 	//	if(reward > 0.0)
@@ -88,12 +102,14 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 	d_raw_lmr *= -1;
 
 	//printf("LMR_dim = %u\n", raw_lmr.n_elem);
-	vec clip_lmr = d_raw_lmr;
+	clip_lmr = d_raw_lmr;
 	clip_lmr.elem( find(clip_lmr > 0.0) ).ones();
 	double lowpass_elig = 0.995;	//0.995
 	eligibility_lmr = 1.0*clip_lmr + lowpass_elig*eligibility_lmr;
-	if(accu(d_raw_lmr) > 0.0/*accu(raw_lmr) > 0.5 || accu(eligibility_lmr) < 0.1*/){
-		printf("Now\n");
+	if(accu(clip_lmr) > 0.0/*accu(raw_lmr) > 0.5 || accu(eligibility_lmr) < 0.1*/){
+		cout << clip_lmr.elem( find(clip_lmr > 0.0) ) << endl;
+		cout << eligibility_lmr.elem( find(eligibility_lmr > 0.0) ) << endl;
+		printf("%g\t%g\n", accu(clip_lmr), accu(eligibility_lmr));
 		reference_pin->reset();
 	}
 	value_lmr += (0.01*reward - value_decay)*eligibility_lmr;

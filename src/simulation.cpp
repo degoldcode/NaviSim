@@ -61,6 +61,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	globalvector_str.open("data/globalvector.dat");
 	localvector_str.open("data/localvector.dat");
 	refvector_str.open("data/refvector.dat");
+	lmr_signals.open("data/lmr_signals.dat");
 	reward_str.open("data/reward.dat");
 	sim_cfg.open("data/sim.cfg");
 	sim_cfg << "# Na\t# Nn\t# Sno\t# Leak\t# Uncno" << endl;
@@ -82,6 +83,7 @@ Simulation::~Simulation(){
 	sim_cfg.close();
 	length_scaling.close();
 	out_signals.close();
+	lmr_signals.close();
 	delete environment;
 }
 
@@ -292,5 +294,14 @@ void Simulation::writeTrialData(){
 	out_signals << c()->pi_w << "\t" << c()->pi_m << "\t";
 	out_signals << c()->gl_w << "\t" << c()->gl_m << "\t";
 	out_signals << c()->rl_w << "\t" << c()->rl_m << endl;
+
+	lmr_signals << trial_t << "\t" << global_t << "\t";
+	for(int lm_unit = 0; lm_unit < c()->K(); lm_unit++){
+		lmr_signals << c()->LV_module()->state_lm(lm_unit) << "\t"
+					<< c()->LV_module()->dstate_lm(lm_unit) << "\t"
+					<< c()->LV_module()->cl_state_lm(lm_unit) << "\t"
+					<< c()->el_lm(lm_unit) << "\t";
+	}
+	lmr_signals << endl;
 }
 

@@ -36,6 +36,14 @@ public:
 	~RouteLearning();
 
 	/**
+	 * Get clipped landmark detection state
+	 *
+	 * @param (int) index: index of landmark
+	 * @return (double)
+	 */
+	double cl_state_lm(int index);
+
+	/**
 	 * Return weight change matrix
 	 *
 	 * @return (mat)
@@ -88,6 +96,22 @@ public:
 	 * 	@return (void)
 	 */
 	void set_mu(double* state);
+
+	/**
+	 * Get delta landmark detection state
+	 *
+	 * @param (int) index: index of landmark
+	 * @return (double)
+	 */
+	double dstate_lm(int index);
+
+	/**
+	 * Get landmark detection state
+	 *
+	 * @param (int) index: index of landmark
+	 * @return (double)
+	 */
+	double state_lm(int index);
 
 	/**
 	 * Updates the route learning circuit
@@ -143,6 +167,7 @@ private:
 	double reward;
 	double neural_noise;
 	vec d_raw_lmr;
+	vec clip_lmr;
 	vec raw_lmr;
 	vec eligibility_lmr;
 	vec value_lmr;
