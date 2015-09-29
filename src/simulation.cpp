@@ -255,6 +255,7 @@ void Simulation::writeSimData(){
 }
 
 void Simulation::writeTrialData(){
+	printf("%f\n", e()->get_visible_LM_th(0));
 	agent_str << trial << "\t" << trial_t;						//1,2
 	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y();			//3,4
 	agent_str << "\t" << a(0)->d() << "\t" << a(0)->dphi();		//5,6

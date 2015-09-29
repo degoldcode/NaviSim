@@ -221,7 +221,23 @@ public:
 	double get_total_r(int index=0);
 
 	/**
-	 * Returns goal pointer with given index
+	 * Return pointer to visible landmark (d < lm_catch_radius)
+	 *
+	 *	@param (int) i: agent i
+	 * 	@return (Landmark*)
+	 */
+	Landmark* get_visible_LM(int i);
+
+	/**
+	 * Return angle to visible landmark (d < lm_catch_radius)
+	 *
+	 *	@param (int) i: agent i
+	 * 	@return (Landmark*)
+	 */
+	double get_visible_LM_th(int i);
+
+	/**
+	 * Return goal pointer with given index
 	 *
 	 *	@param (int) i: index of goal (default: 0)
 	 *	@return (Goal*)

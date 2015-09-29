@@ -266,6 +266,18 @@ double Environment::get_total_r(int index){
 	return total_reward.at(index);
 }
 
+Landmark* Environment::get_visible_LM(int i){
+	for(unsigned int j = 0; j < landmark_list.size(); j++){
+		if(d(agent_list.at(i), landmark_list.at(j)) < lm_catch_radius)
+			return landmark_list.at(j);
+	}
+	return nullptr;
+}
+
+double Environment::get_visible_LM_th(int i){
+	return phi(get_visible_LM(i), agent_list.at(i)).rad();
+}
+
 Goal* Environment::g(int i){
 	return goal_list.at(i);
 }
@@ -356,12 +368,11 @@ void Environment::update(){
 void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < landmark_list.size(); j++){
-			if(lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0){
+			if(j!= 0 && lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0){
 				//agent_list.at(i)->lm_catch = true;
 				Angle lm_phi = phi(landmark_list.at(i),agent_list.at(i)).deg();
 				double landmark_attract = 0.5*(lm_phi - agent_list.at(i)->phi()).S();
-				//printf("%g vs. %g -> %g\n", phi(agent_list.at(i), landmark_list.at(i)).deg(), phi(landmark_list.at(i),agent_list.at(i)).deg(), landmark_attract);
-				//agent_list.at(i)->set_dphi(new Angle(landmark_attract));
+				agent_list.at(i)->set_dphi(new Angle(landmark_attract));
 			}
 			else{
 				agent_list.at(i)->set_dphi(new Angle(0.0));

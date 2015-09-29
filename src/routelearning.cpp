@@ -103,13 +103,21 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 
 	//printf("LMR_dim = %u\n", raw_lmr.n_elem);
 	clip_lmr = d_raw_lmr;
+	clip_lmr.elem( find(clip_lmr < 0.0) ).zeros();
 	clip_lmr.elem( find(clip_lmr > 0.0) ).ones();
 	double lowpass_elig = 0.995;	//0.995
 	eligibility_lmr = 1.0*clip_lmr + lowpass_elig*eligibility_lmr;
+
 	if(accu(clip_lmr) > 0.0/*accu(raw_lmr) > 0.5 || accu(eligibility_lmr) < 0.1*/){
-		cout << clip_lmr.elem( find(clip_lmr > 0.0) ) << endl;
+/*		cout << clip_lmr.elem( find(clip_lmr > 0.0) ) << endl;
 		cout << eligibility_lmr.elem( find(eligibility_lmr > 0.0) ) << endl;
-		printf("%g\t%g\n", accu(clip_lmr), accu(eligibility_lmr));
+		printf("%g\t%g\n", accu(clip_lmr), accu(eligibility_lmr));*/
+		double emax = arma::max(eligibility_lmr);
+		for(int i=0; i<eligibility_lmr.n_elem; i++){
+			if(eligibility_lmr(i) < emax)
+				eligibility_lmr(i) = 0.0;
+		}
+
 		reference_pin->reset();
 	}
 	value_lmr += (0.01*reward - value_decay)*eligibility_lmr;

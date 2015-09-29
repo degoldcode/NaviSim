@@ -10,8 +10,8 @@ stat "../agent.dat" u 5 nooutput
 print STATS_max
 
 set size square
-SCALE = 5##(STATS_max+STATS_max/20.)*2.
-OFFSETX = -1 ##-2.5
+SCALE = 8##(STATS_max+STATS_max/20.)*2.
+OFFSETX = -2 ##-2.5
 OFFSETY = 0 ##-2.5
 	
 set xtics 10
@@ -35,7 +35,7 @@ set cbtics ("1" FIRST, "2" FIRST+1, "3" FIRST+2,"4" FIRST+3,"5" FIRST+4, "6" FIR
 set cbrange [FIRST-0.5:LAST+0.5]
 
 
-plot "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)?($4):1/0):1 w p pt 7 ps 0.1 lc rgb "#eeeeee" t "", "../goals.dat" u 1:2:(0.2) w circles fs transparent border rgb "#32cd32" lw 0.2 lt -1 lc rgb "#32cd32" t "Goal", "../landmarks.dat" u 1:2:(0.1) w circles fs transparent border rgb "red" lw 0.1 lt -1 lc rgb "red" t "Landmark", "../landmarks.dat" u 1:2:(0.5) w circles fs transparent border rgb "blue" lw 0.1 lt 2 lc rgb "blue" t "Landmark", "../home.dat" u 1:2:(0.2) w circles fs transparent border rgb "#444444" lt -1 lc rgb "#444444" lw 0.2 t "Home", "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$10>0.01?$4:1/0) w p ps 0.05 pt 7 lc rgb "violet" notitle, "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$11>0.01?$4:1/0) w p ps 0.05 pt 7 lc rgb "green" notitle
+plot "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)?($4):1/0):1 w p pt 7 ps 0.1 lc rgb "#eeeeee" t "", "../goals.dat" u 1:2:(0.2) w circles fs transparent border rgb "#32cd32" lw 0.2 lt -1 lc rgb "#32cd32" t "Goal", "../landmarks.dat" u 1:2:(0.1) w circles fs transparent border rgb "red" lw 0.1 lt -1 lc rgb "red" t "Landmark", "../landmarks.dat" u 1:2:(0.5) w circles fs transparent border rgb "blue" lw 0.1 lt 2 lc rgb "blue" t "Landmark", "../home.dat" u 1:2:(0.2) w circles fs transparent border rgb "#444444" lt -1 lc rgb "#444444" lw 0.2 t "Home", "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$10>0.1?$4:1/0) w p ps 0.05 pt 7 lc rgb "violet" notitle, "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$11>0.1?$4:1/0) w p ps 0.05 pt 7 lc rgb "green" notitle
 #, "../landmarks.dat" u 1:2:(0.1) w circles fs transparent border rgb "red" lw 1.5 lt -1 lc rgb "red" t "Landmark"
 #, "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$10>0.7?$4:1/0) w p ps 0.05 pt 7 lc rgb "red" notitle, "../agent.dat" u 3:(($1<=LAST && $1>=FIRST)&&$11>0.7?$4:1/0) w p ps 0.05 pt 7 lc rgb "green" notitle
 #, "../agent.dat" u 3:($9>0.?$4:1/0) w p ps 0.2 pt 7 lc rgb "green" notitle

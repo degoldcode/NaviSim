@@ -274,7 +274,8 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	if(pin_on)
 		pin->update(angle, speed);
 
-	pi_w = HV().len() * (1. - expl_factor(0));
+	if(gvlearn_on)
+		pi_w = HV().len() * (1. - expl_factor(0));
 	pi_m =  ((HV().ang()).i() - angle).S();		//NEW PI COMMAND
 	if(homing_on && inward!=0.){
 		//printf("this should not be! %g\n", inward);
@@ -298,21 +299,24 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			lv_value(i) = 1. - exp(-0.5*lvl->value_lm(i));
 	}
 
+	/*** Reward update ***/
+	for(int i = 0; i < num_colors; i++){
+		if(i == color){
+			reward(i) = inReward;
+			if(inward==0.){
+				value(i) = (reward(i) /*+ accu(lv_value)*/) + disc_factor * value(i);
+				expl_factor(i) = exp(- expl_beta * value(i));
+			}
+		}
+		else{
+			reward(i) = 0.0;
+		}
+	}
+
 	/*** Global Vector Learning Circuits TODO ***/
 	if(gvlearn_on){
 		for(int i = 0; i < num_colors; i++){
-			if(i == color){
-				reward(i) = inReward;
-				if(inward==0.){
-					value(i) = (reward(i) /*+ accu(lv_value)*/) + disc_factor * value(i);
-					expl_factor(i) = exp(- expl_beta * value(i));
-				}
-			}
-			else{
-				reward(i) = 0.0;
-			}
 			gvl->update(pin->get_output(), 0.0 /*lv_value(0) reward(i)*/, expl_factor(i));
-
 			cGV.at(i) = (GV(i) - HV());
 		}
 
@@ -344,7 +348,6 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			}
 		}
 	}
-
 
 
 

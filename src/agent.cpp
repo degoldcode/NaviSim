@@ -115,14 +115,16 @@ void Agent::to(double x_new, double y_new){
 void Agent::update(double _reward, vec _lmr){
 	//control->set_inward(inward);
 	if(!in_pipe && !lm_catch){
-		diff_heading.to(dt * k_phi * control_output + external->rad());
+		//printf("%f \n", external->rad());
+		diff_heading.to(dt * k_phi * control_output/* + external->rad()*/);
 		heading = heading + diff_heading;
 	}
-	else if(in_pipe)
-		heading.to(external->rad());
-	else{
+	if(!in_pipe && lm_catch){
 		diff_heading.to(external->rad());
-		heading = heading + diff_heading + dt *  0.1 * control_output;
+		heading = heading + diff_heading + dt *  0.5 * control_output;
+	}
+	if(in_pipe){
+		heading.to(external->rad());
 	}
 
 	diff_speed = dt * k_s * 0.0;
