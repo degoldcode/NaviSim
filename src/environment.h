@@ -378,7 +378,7 @@ private:
 	const double home_radius = 0.2;
 	const double goal_radius = 0.2;
 	const double lm_catch_radius = 0.6;
-	const double lm_radius = 0.1;
+	const double lm_radius = 0.05;
 
 	//************ Reward parameters ************//
 	vector<double> reward;

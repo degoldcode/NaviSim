@@ -299,10 +299,12 @@ void Simulation::writeTrialData(){
 
 	lmr_signals << trial_t << "\t" << global_t << "\t";
 	for(int lm_unit = 0; lm_unit < c()->K(); lm_unit++){
-		lmr_signals << c()->LV_module()->state_lm(lm_unit) << "\t"
-					<< c()->LV_module()->dstate_lm(lm_unit) << "\t"
-					<< c()->LV_module()->cl_state_lm(lm_unit) << "\t"
-					<< c()->el_lm(lm_unit) << "\t";
+		lmr_signals << c()->LV_module()->state_lm(lm_unit) << "\t"		// 3
+					<< c()->LV_module()->dstate_lm(lm_unit) << "\t"		// 4
+					<< c()->LV_module()->cl_state_lm(lm_unit) << "\t"	// 5
+					<< c()->el_lm(lm_unit) << "\t"						// 6
+					<< c()->LV_value(lm_unit) << "\t"					// 7
+					<< c()->LV_value_raw(lm_unit) << "\t";				// 8
 	}
 	lmr_signals << endl;
 	lmr_angles << trial_t << "\t" << global_t << "\t";

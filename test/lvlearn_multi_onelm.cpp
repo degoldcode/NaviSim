@@ -15,7 +15,7 @@ using namespace std;
 
 Simulation* sim;
 const int numagents= 1;
-const int numtrials= 20;
+const int numtrials= 100;
 const double T= 200.;
 const double Thome= 200.;
 const double dt= 0.1;
@@ -24,8 +24,8 @@ int main(){
 	Timer timer(true);
 
 	sim = new Simulation(numtrials, numagents, false);
-	sim->add_goal(-3., -1., 0);
-	sim->add_landmark(20., 0.);
+	sim->add_goal(-2., -1., 0);
+	//sim->add_landmark(0., 0.);
 	sim->add_landmark(-1., 0.);
 	//sim->add_pipe(0., -2., 0., 0.);
 	//sim->add_pipe(-8., -10., 2., 0.);

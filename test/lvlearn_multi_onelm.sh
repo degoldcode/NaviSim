@@ -31,13 +31,13 @@ echo "Plot data."
 #gnuplot track.plot
 gnuplot track_local.plot
 gnuplot track_lmr_vectors.plot
-#gnuplot distri.plot
+gnuplot distri.plot
 #gnuplot activations.plot
 #gnuplot gv.plot
-#gnuplot lv.plot
+gnuplot lv.plot
 gnuplot lv_signals.plot
 gnuplot signals.plot
-#gnuplot ref.plot
+gnuplot ref.plot
 #gnuplot reward.plot
 #python circle.py
 #python circle_gv.py

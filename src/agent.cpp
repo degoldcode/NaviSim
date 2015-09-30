@@ -125,10 +125,10 @@ void Agent::update(double _reward, vec _lmr){
 		heading = heading + diff_heading;
 	}
 	if(!in_pipe && lm_catch){
-		printf("this\n");
+		//printf("this\n");
 		//diff_heading.to(external->rad());
-		printf("%f \n", innate_lm_control);
-		diff_heading.to(dt * 0.1 * control_output + dt * k_phi * innate_lm_control);
+		//printf("%f \n", innate_lm_control);
+		diff_heading.to(dt * 1.0 * control_output + dt * k_phi * innate_lm_control);
 		heading = heading + diff_heading; //+ dt *  0.5 * control_output;
 	}
 	if(in_pipe){

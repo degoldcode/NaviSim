@@ -371,12 +371,12 @@ void Environment::update(){
 void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < landmark_list.size(); j++){
-			if(j!= 0 && lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0){
+			if(/*j!= 0 &&*/ lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0){
 				agent_list.at(i)->lm_catch = true;
 				Angle lm_phi = phi(landmark_list.at(i), agent_list.at(i));
-				printf("%g\t%g\t%g\t%g\n", get_visible_LM_th(0), phi(landmark_list.at(i), agent_list.at(i)).rad(), lm_phi.rad(), agent_list.at(i)->phi().rad());
+				//printf("%g\t%g\t%g\t%g\n", get_visible_LM_th(0), phi(landmark_list.at(i), agent_list.at(i)).rad(), lm_phi.rad(), agent_list.at(i)->phi().rad());
 				double landmark_attract = 0.5*sin(get_visible_LM_th(0) - agent_list.at(i)->phi().rad());
-				printf("%g\n", landmark_attract);
+				//printf("%g\n", landmark_attract);
 				agent_list.at(i)->set_lmcontrol(landmark_attract);
 			}
 			else{

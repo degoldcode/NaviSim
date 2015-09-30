@@ -11,7 +11,7 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 	local_vector.resize(num_lmr_units);
 	new_vector_avg.resize(num_lmr_units);
 	foraging_state = forage;
-	learn_rate = .5;
+	learn_rate = 1.;//.5;
 	reward = 0.0;
 	neural_noise = nnoise;
 	load_weights = opt_load;
@@ -105,10 +105,10 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 	clip_lmr = d_raw_lmr;
 	clip_lmr.elem( find(clip_lmr < 0.0) ).zeros();
 	clip_lmr.elem( find(clip_lmr > 0.0) ).ones();
-	double lowpass_elig = 0.995;	//0.995
+	double lowpass_elig = 0.99;	//0.995
 	eligibility_lmr = 1.0*clip_lmr + lowpass_elig*eligibility_lmr;
 
-	if(accu(clip_lmr) > 0.0/*accu(raw_lmr) > 0.5 || accu(eligibility_lmr) < 0.1*/){
+	if(accu(clip_lmr) > 0.5/*accu(raw_lmr) > 0.5 || accu(eligibility_lmr) < 0.1*/){
 /*		cout << clip_lmr.elem( find(clip_lmr > 0.0) ) << endl;
 		cout << eligibility_lmr.elem( find(eligibility_lmr > 0.0) ) << endl;
 		printf("%g\t%g\n", accu(clip_lmr), accu(eligibility_lmr));*/
@@ -117,20 +117,19 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 			if(eligibility_lmr(i) < emax)
 				eligibility_lmr(i) = 0.0;
 		}
-
 		reference_pin->reset();
 	}
-	value_lmr += (0.01*reward - value_decay)*eligibility_lmr;
+	value_lmr += (/*0.01**/reward - value_decay)*eligibility_lmr;
 	value_lmr.elem( find(value_lmr < 0.0) ).zeros();
 
 
 	//Reference PI
 	double unoise = boost_unoise();
 	//cout << unoise << endl;
-	if(accu(eligibility_lmr) > 0.1)
+	/*if(accu(eligibility_lmr) > 0.001)*/
 		reference_pin->update(angle, speed);
-	else
-		reference_pin->update(Angle(2*M_PI*unoise), -0.00);
+/*	else
+		reference_pin->update(Angle(2*M_PI*unoise), -0.00);*/
 	update_rate(input_conns*eligibility_lmr);
 	update_weights();
 	for(int index = 0; index < K; index++){
@@ -169,7 +168,7 @@ Angle RouteLearning::vec_avg(int index){
 }
 
 double RouteLearning::value_lm(int index){
-	return raw_lmr(index)*value_lmr(index);
+	return eligibility_lmr(index)*value_lmr(index);
 }
 
 double RouteLearning::value_lm_raw(int index){
