@@ -68,6 +68,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	sim_cfg << agents << "\t";
 	length_scaling.open("data/l_scale.dat");
 	out_signals.open("data/signals.dat");
+	lmr_angles.open("data/lmr_angles.dat");
 }
 
 Simulation::~Simulation(){
@@ -84,6 +85,7 @@ Simulation::~Simulation(){
 	length_scaling.close();
 	out_signals.close();
 	lmr_signals.close();
+	lmr_angles.close();
 	delete environment;
 }
 
@@ -255,10 +257,9 @@ void Simulation::writeSimData(){
 }
 
 void Simulation::writeTrialData(){
-	printf("%f\n", e()->get_visible_LM_th(0));
 	agent_str << trial << "\t" << trial_t;						//1,2
 	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y();			//3,4
-	agent_str << "\t" << a(0)->d() << "\t" << a(0)->dphi();		//5,6
+	agent_str << "\t" << a(0)->d() << "\t" << a(0)->phi();		//5,6
 	agent_str << "\t" << a(0)->v().ang() << "\t" << global_t;	//7,8
 	if(lvlearn_on)
 		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0) << "\t" << c()->el_lm(1) << "\t" << c()->gl_w << "\t" << c()->expl(0); // TODO: different streams for different agents
@@ -304,5 +305,9 @@ void Simulation::writeTrialData(){
 					<< c()->el_lm(lm_unit) << "\t";
 	}
 	lmr_signals << endl;
+	lmr_angles << trial_t << "\t" << global_t << "\t";
+	lmr_angles << a(0)->x()<< "\t" << a(0)->y() << "\t" ;			//3,4
+	lmr_angles << e()->get_visible_LM_th(0) << "\t"<< a(0)->phi()<< "\t"  << sin(e()->get_visible_LM_th(0) - a(0)->phi().rad()) << "\t"; //5,6,7
+	lmr_angles << 0.1*cos(e()->get_visible_LM_th(0)) << "\t" << 0.1*sin(e()->get_visible_LM_th(0)) << endl; // 8,9
 }
 

@@ -240,6 +240,7 @@ private:
 	ofstream sim_cfg;
 	ofstream out_signals;
 	ofstream lmr_signals;
+	ofstream lmr_angles;
 
 	//************ Controller options *************//
 	bool pin_on;			// true, if agent does PI

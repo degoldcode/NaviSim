@@ -148,7 +148,7 @@ public:
 	}
 	friend ostream& operator<<(ostream& out, const Angle& a) // output
 	{
-	    out << *(a.deg_);
+	    out << *(a.rad_);
 	    return out;
 	}
 

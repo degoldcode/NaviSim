@@ -159,6 +159,14 @@ public:
 	void set_dphi(Angle* input);
 
 	/**
+	 * Sets the landmark attraction difference in heading direction of the agent
+	 *
+	 * @param (double) input: difference in heading
+	 * @return (void)
+	 */
+	void set_lmcontrol(double input);
+
+	/**
 	 * Sets the heading direction of the agent
 	 *
 	 * @param (double) input: new heading
@@ -221,6 +229,7 @@ private:
 	//************ Kinematics parameters ************//
 
 	double control_output;
+	double innate_lm_control;
 	Angle heading;         // Angle of heading direction (in rad; ccw from x-axis)
 	double speed;           // Walking speed of agent
 	double k_phi;           // Steering constant

@@ -39,6 +39,7 @@ Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
 
 	k_phi = M_PI;
 	k_s = 0.01;
+	innate_lm_control = 0.0;
 	diff_heading.to(0.0);
 	external = new Angle(0.0);
 
@@ -99,6 +100,10 @@ void Agent::set_dphi(Angle* input){
 	external = input;
 }
 
+void Agent::set_lmcontrol(double input){
+	innate_lm_control = input;
+}
+
 void Agent::set_phi(double input){
 	heading.to(input);
 }
@@ -115,15 +120,19 @@ void Agent::to(double x_new, double y_new){
 void Agent::update(double _reward, vec _lmr){
 	//control->set_inward(inward);
 	if(!in_pipe && !lm_catch){
-		//printf("%f \n", external->rad());
-		diff_heading.to(dt * k_phi * control_output/* + external->rad()*/);
+		//printf("that\n");
+		diff_heading.to(dt * k_phi * control_output);
 		heading = heading + diff_heading;
 	}
 	if(!in_pipe && lm_catch){
-		diff_heading.to(external->rad());
-		heading = heading + diff_heading + dt *  0.5 * control_output;
+		printf("this\n");
+		//diff_heading.to(external->rad());
+		printf("%f \n", innate_lm_control);
+		diff_heading.to(dt * 0.1 * control_output + dt * k_phi * innate_lm_control);
+		heading = heading + diff_heading; //+ dt *  0.5 * control_output;
 	}
 	if(in_pipe){
+		printf("not this\n");
 		heading.to(external->rad());
 	}
 

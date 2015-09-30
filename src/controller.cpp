@@ -276,6 +276,8 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 
 	if(gvlearn_on)
 		pi_w = HV().len() * (1. - expl_factor(0));
+	else
+		pi_w = 0.0;
 	pi_m =  ((HV().ang()).i() - angle).S();		//NEW PI COMMAND
 	if(homing_on && inward!=0.){
 		//printf("this should not be! %g\n", inward);
