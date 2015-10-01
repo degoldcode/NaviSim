@@ -297,19 +297,21 @@ void Simulation::writeTrialData(){
 	out_signals << c()->gl_w << "\t" << c()->gl_m << "\t";
 	out_signals << c()->rl_w << "\t" << c()->rl_m << endl;
 
-	lmr_signals << trial_t << "\t" << global_t << "\t";
-	for(int lm_unit = 0; lm_unit < c()->K(); lm_unit++){
-		lmr_signals << c()->LV_module()->state_lm(lm_unit) << "\t"		// 3
+	if(lvlearn_on){
+		lmr_signals << trial_t << "\t" << global_t << "\t";
+		for(int lm_unit = 0; lm_unit < c()->K(); lm_unit++){
+			lmr_signals << c()->LV_module()->state_lm(lm_unit) << "\t"		// 3
 					<< c()->LV_module()->dstate_lm(lm_unit) << "\t"		// 4
 					<< c()->LV_module()->cl_state_lm(lm_unit) << "\t"	// 5
 					<< c()->el_lm(lm_unit) << "\t"						// 6
 					<< c()->LV_value(lm_unit) << "\t"					// 7
 					<< c()->LV_value_raw(lm_unit) << "\t";				// 8
+		}
+		lmr_signals << endl;
+		lmr_angles << trial_t << "\t" << global_t << "\t";
+		lmr_angles << a(0)->x()<< "\t" << a(0)->y() << "\t" ;			//3,4
+		lmr_angles << e()->get_visible_LM_th(0) << "\t"<< a(0)->phi()<< "\t"  << sin(e()->get_visible_LM_th(0) - a(0)->phi().rad()) << "\t"; //5,6,7
+		lmr_angles << 0.1*cos(e()->get_visible_LM_th(0)) << "\t" << 0.1*sin(e()->get_visible_LM_th(0)) << endl; // 8,9
 	}
-	lmr_signals << endl;
-	lmr_angles << trial_t << "\t" << global_t << "\t";
-	lmr_angles << a(0)->x()<< "\t" << a(0)->y() << "\t" ;			//3,4
-	lmr_angles << e()->get_visible_LM_th(0) << "\t"<< a(0)->phi()<< "\t"  << sin(e()->get_visible_LM_th(0) - a(0)->phi().rad()) << "\t"; //5,6,7
-	lmr_angles << 0.1*cos(e()->get_visible_LM_th(0)) << "\t" << 0.1*sin(e()->get_visible_LM_th(0)) << endl; // 8,9
 }
 

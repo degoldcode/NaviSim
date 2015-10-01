@@ -267,6 +267,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	}
 
 	/*** Random foraging ***/
+	rand_w = 0.6*expl_factor(0);
 	rand_m = randn(0.0, 1.);
 
 	/*** Path Integration Mechanism ***/
@@ -348,16 +349,14 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 				rl_m += (LV_vecavg(i) - angle).S();//4.0*(1.-expl_factor(0))*(LV(0).ang() - angle).S();
 			}
 		}
+		vec elig = zeros<vec>(num_lv_units);
+		for(int i=0; i< num_lv_units; i++)
+			elig(i) = lvl->el_lm(i);
+
+		if(dot(lv_value,elig) > 0.0)
+		 printf("Dot Prod = %g\tVecAvg = %g\tAng = %g\n", dot(lv_value,elig), LV_vecavg(0).rad(), LV(0).ang().rad());
+		rand_w = 0.6*expl_factor(0)*(1.-dot(lv_value,elig));
 	}
-	vec elig = zeros<vec>(num_lv_units);
-	for(int i=0; i< num_lv_units; i++)
-		elig(i) = lvl->el_lm(i);
-
-	if(dot(lv_value,elig) > 0.0)
-	 printf("Dot Prod = %g\tVecAvg = %g\tAng = %g\n", dot(lv_value,elig), LV_vecavg(0).rad(), LV(0).ang().rad());
-	rand_w = 0.6*expl_factor(0)*(1.-dot(lv_value,elig));
-
-
 
 	/*** Navigation Control Output ***/
 	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m + rl_w*rl_m;
