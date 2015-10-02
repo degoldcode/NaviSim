@@ -9,7 +9,7 @@ set cblabel "p(x,y)"
 stat "../agent.dat" u 5 nooutput
 
 set size square
-SCALE = 10.
+SCALE = 5.
 OFFSETX = 0.0
 OFFSETY = 0.0
 set xtics 5.

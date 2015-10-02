@@ -24,9 +24,11 @@ int main(){
 	Timer timer(true);
 
 	sim = new Simulation(numtrials, numagents, false);
-	sim->add_goal(-2., -1., 0);
+	sim->add_goal(-1.2, -1.2, 0);
 	//sim->add_landmark(0., 0.);
-	sim->add_landmark(-1., 0.);
+
+	sim->add_landmark(-0.6, 0.);
+
 	//sim->add_pipe(0., -2., 0., 0.);
 	//sim->add_pipe(-8., -10., 2., 0.);
 
