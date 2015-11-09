@@ -21,6 +21,13 @@ echo "Run program."
 ./$file
 fi
 
+cd figs
+### plot data using gnuplot gui
+if [ "$1" = "all" ] || [ "$1" = "plot" ] ; then
+mv *.eps ./archived/
+fi
+cd ..
+
 cd data/scripts
 ### plot data using gnuplot gui
 if [ "$1" = "all" ] || [ "$1" = "plot" ] ; then
@@ -29,13 +36,15 @@ echo "Plot data."
 #gnuplot histogram.gnu
 #gnuplot stat_distance.plot
 gnuplot track.plot
+#gnuplot fig9.plot
 #gnuplot distri.plot
-gnuplot activations.plot
+#gnuplot activations.plot
 gnuplot gv.plot
 gnuplot reward.plot
 #python circle.py
 #python circle_gv.py
-gnuplot gv_performance.plot
+#gnuplot gv_performance.plot
+gnuplot adaptive_expl.plot
 #python density.py
 fi
 

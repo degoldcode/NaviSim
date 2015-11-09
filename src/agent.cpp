@@ -132,7 +132,7 @@ void Agent::update(double _reward, vec _lmr){
 		heading = heading + diff_heading; //+ dt *  0.5 * control_output;
 	}
 	if(in_pipe){
-		printf("not this\n");
+		//printf("not this\n");
 		heading.to(external->rad());
 	}
 

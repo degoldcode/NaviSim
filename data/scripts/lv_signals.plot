@@ -22,7 +22,7 @@ plot "../mat/ref_activity.mat" matrix with image,"../lmr_signals.dat" u ($2*colu
 set ylabel "e_k"
 plot "../mat/ref_activity.mat" matrix with image,"../lmr_signals.dat" u ($2*columns/(rowss/10)):(360*$6) w l lt -1 lw 0.1 lc rgb "green" t "", "" u ($2*columns/(rowss/10)):(360*$12) w l lt -1 lw 0.1 lc rgb "blue" t ""
 set ylabel "Value"
-set yrange [-0.1:2]
+set yrange [-0.1:300]
 set ytics autofreq
 plot "../lmr_signals.dat" u ($2*columns/(rowss/10)):7 w l lt -1 lw 0.1 lc rgb "green" t "", "" u ($2*columns/(rowss/10)):13 w l lt -1 lw 0.1 lc rgb "blue" t ""
 set ylabel "Value raw"

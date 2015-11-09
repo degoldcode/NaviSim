@@ -19,7 +19,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 		gvl = new GoalLearning(numneurons, syn_noise, &inward, false);
 	gl_array.resize(num_colors);
 
-	num_lv_units = 3;
+	num_lv_units = 1;
 	if(lvlearn_on)
 		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false);
 
@@ -34,7 +34,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	output = 0.0;
 	inward = 0.0;
 	goal_factor = 0.0;
-	expl_beta = 0.5;//0.1;	//0.5
+	expl_beta = 0.1;//0.01;//0.1;	//0.5
 	seed = 12345678;
 
 	cGV.resize(num_colors);
@@ -58,6 +58,7 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 
 	pin_on = true;
 	gvnavi_on = false;
+	beta_on = false;
 
 	SILENT = false;
 	write = true;
@@ -99,6 +100,10 @@ double Controller::expl(int i){
 		return expl_factor(i);
 	else
 		return expl_factor(0);
+}
+
+double Controller::e_beta(){
+	return expl_beta;
 }
 
 int Controller::get_inward() {
@@ -285,13 +290,6 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		pi_m = ((HV().ang()).i() - angle).S();
 		rand_m = 0.0;//0.25;
 	}
-//	else{
-//		pi_m = 0.;
-//	}
-//	if(HV().len() < 0.2){
-//		pi_w -= 0.0001;
-//		printf("PI_w = %g\n", pi_w);
-//	}
 
 	if(pi_w < 0.)
 		pi_w = 0.;
@@ -302,6 +300,12 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	}
 
 	/*** Reward update ***/
+	delta_beta = mu_beta*((1./expl_beta) + lambda * value(0) * expl_factor(0));
+	if(beta_on)
+		expl_beta += delta_beta;
+	if(expl_factor(0) < 0.0001 && delta_beta < 0.01)
+		beta_on = false;
+
 	for(int i = 0; i < num_colors; i++){
 		if(i == color){
 			reward(i) = inReward;
@@ -318,7 +322,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	/*** Global Vector Learning Circuits TODO ***/
 	if(gvlearn_on){
 		for(int i = 0; i < num_colors; i++){
-			gvl->update(pin->get_output(), 0.0 /*lv_value(0) reward(i)*/, expl_factor(i));
+			gvl->update(pin->get_output(), reward(i), expl_factor(i));
 			cGV.at(i) = (GV(i) - HV());
 		}
 
@@ -353,8 +357,8 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		for(int i=0; i< num_lv_units; i++)
 			elig(i) = lvl->el_lm(i);
 
-		if(dot(lv_value,elig) > 0.0)
-		 printf("Dot Prod = %g\tVecAvg = %g\tAng = %g\n", dot(lv_value,elig), LV_vecavg(0).rad(), LV(0).ang().rad());
+		//if(dot(lv_value,elig) > 0.0)
+		 //printf("Dot Prod = %g\tVecAvg = %g\tAng = %g\n", dot(lv_value,elig), LV_vecavg(0).rad(), LV(0).ang().rad());
 		rand_w = 0.6*expl_factor(0)*(1.-dot(lv_value,elig));
 	}
 

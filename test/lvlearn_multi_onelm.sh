@@ -42,7 +42,7 @@ gnuplot ref.plot
 #python circle.py
 #python circle_gv.py
 #gnuplot gv_performance.plot
-#python density.py
+python density.py
 fi
 
 cd ..

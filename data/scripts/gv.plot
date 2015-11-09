@@ -41,7 +41,7 @@ FACTOR = (1.*columns/(1.*STATS_max))
 
 ##### Reservoir activations
 set output "../../figs/gv_activity.eps"
-plot "../mat/gv_activity.mat" matrix with image, "../globalvector.dat" u ($2*FACTOR):(rows*$9/360) w l lt -1 lc rgb "cyan" t "vec avg", f(x) w l lt -1 lc rgb "red" t "correct"
+plot "../mat/gv_activity.mat" matrix with image, f(x) w l lt -1 lc rgb "red" t "correct", "../globalvector.dat" u ($2*FACTOR):($6>1.0)?(rows*$9/(2*PI)):1/0 w l lt -1 lc rgb "cyan" t "vec avg"
 #, "../globalvector.dat" u ($2*FACTOR):(rows*$5/360) w l lt -1 lw 0.5 lc rgb "green" t "avg", "../globalvector.dat" u ($2*FACTOR):(rows*$9/360) w l lt -1 lc rgb "cyan" t "vec avg"
 #, f(x) w l lt -1 lc rgb "red" t "correct"
 #, "../globalvector.dat" u ($2*columns/(rowss/10)):(rows*$9/360) w l lt -1 lc rgb "cyan" t "vec avg"

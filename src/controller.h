@@ -77,12 +77,19 @@ public:
 	double el_lm(int index);
 
 	/**
-	 * Returns exploration rate of goal i
+	 * Return exploration rate of goal i
 	 *
 	 *  @param (double) i: goal index
 	 *  @return (double)
 	 */
 	double expl(int i);
+
+	/**
+	 * Return inverse temperature of exploration rate
+	 *
+	 *  @return (double)
+	 */
+	double e_beta();
 
 	/**
 	 * Get inward time of controller
@@ -361,8 +368,13 @@ private:
 	vec value;
 	vec dvalue;
 	double val_discount;
+
+	// Adaptive exploration rate
 	double expl_beta;
-	const double disc_factor = 0.9995; //0.999
+	double delta_beta;					// Change of beta
+	const double mu_beta = 0.000001;		// Learning rate of beta
+	const double lambda = 100.;			// Lambda parameter of exponential distribution
+	const double disc_factor = 0.9995;	// 0.999
 	vec expl_factor;
 	int current_goal;
 
@@ -409,6 +421,7 @@ public:
 	bool gvlearn_on;
 	bool gvnavi_on;
 	bool lvlearn_on;
+	bool beta_on;
 	bool write;
 	bool SILENT;			// no activity matrices sampling
 	bool state_matrc;

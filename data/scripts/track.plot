@@ -10,9 +10,9 @@ stat "../agent.dat" u 5 nooutput
 print STATS_max
 
 set size square
-SCALE = (STATS_max+STATS_max/20.)*2.
+SCALE = 30 ##(STATS_max+STATS_max/20.)*2.
 OFFSETX = 0 ##-2.5
-OFFSETY = 0 ##-2.5
+OFFSETY = 4 ##-2.5
 	
 set xtics 10
 set ytics 10
@@ -24,14 +24,16 @@ set yrange [-SCALE/2+OFFSETY:SCALE/2+OFFSETY]
 set key spacing 2
 #set nokey
 FIRST = 1 ##18
-LAST = 100
+LAST = 10
 col(x) = int(255*x)*65536 + int(68+170*x)*256 + int(255*(1-x))
 blacktogreen(x) = int(255-100*x)*65536 + int(255)*256 + int(255-100*x) 
 rgb(r,g,b) = int(r)*65536 + int(g)*256 + int(b)
 
-set palette maxcolors 6
-set palette defined (1 "#e74c3c", 2 "#f1c40f", 3 "#2ecc71", 4 "#3498db", 5 "#9b59b6", 6 "#34495e")
-set cbtics ("1" FIRST, "2" FIRST+1, "3" FIRST+2,"4" FIRST+3,"5" FIRST+4, "6" FIRST+5)
+set palette maxcolors 5
+set palette defined (1 "#e74c3c", 2 "#f1c40f", 3 "#2ecc71", 4 "#3498db", 5 "#9b59b6")
+#, 6 "#34495e")
+set cbtics ("1" FIRST, "2" FIRST+1, "3" FIRST+2,"4" FIRST+3,"5" FIRST+4)
+#, "6" FIRST+5)
 set cbrange [FIRST-0.5:LAST+0.5]
 
 

@@ -69,6 +69,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	length_scaling.open("data/l_scale.dat");
 	out_signals.open("data/signals.dat");
 	lmr_angles.open("data/lmr_angles.dat");
+	adaptive_expl.open("data/adaptive_expl.dat");
 }
 
 Simulation::~Simulation(){
@@ -86,6 +87,7 @@ Simulation::~Simulation(){
 	out_signals.close();
 	lmr_signals.close();
 	lmr_angles.close();
+	adaptive_expl.close();
 	delete environment;
 }
 
@@ -107,6 +109,10 @@ void Simulation::add_landmark(double x, double y){
 
 void Simulation::add_pipe(double x0, double x1, double y0, double y1){
 	environment->add_pipe(x0,x1,y0,y1);
+}
+
+void Simulation::beta(bool _opt){
+	beta_on = _opt;
 }
 
 Controller* Simulation::c(int i){
@@ -134,6 +140,7 @@ void Simulation::init_controller(int num_neurons, double sensory_noise, double u
 		int size = N*pow( 10, int(log10( double( num_neurons ) ) ) );
 		control->set_sample_int(size/10);      // sample activity data every 10 time steps
 
+		control->beta_on = beta_on;
 		a(i)->init(control);
 		controllers.push_back(control);
 	}
@@ -186,7 +193,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 				if(pin_on)
 					printf("e=%2.3f\t<e>=%2.3f\t", pi_error.mean(), total_pi_error.mean());
 				if(homing_on)
-					printf("<G>=%5.0f\t", 1.0*count_goal);
+					printf("<R>=%1.2f\t", avg_reward.mean());
 					//printf("<Home>=%3.1f%%\t<Goal>=%2.0f\t", 100.*is_home.mean(), 1.0*count_goal);
 				if(gvlearn_on)
 					printf("e= %1.2f\tGV= (%3.1f, %1.2f)\t", c()->expl(0), c()->GV_vecavg().deg(), a(0)->GV().len()/*, e()->nearest()->d()*/);
@@ -195,6 +202,8 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV_vecavg(i).deg(), c()->LV(i).len(), i, c()->LV_value_raw(i));
 					}
 				}
+				if(beta_on)
+					printf("Beta=%g\t", c()->e_beta());
 				//printf("Amount=%g", e()->g(0)->a());
 				printf("\n");
 			}
@@ -213,6 +222,8 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 						printf("LV%u=(%3.1f,%1.2f), V%u= %1.1f\t", i, c()->LV(i).ang().deg(), c()->LV(i).len(), i, c()->LV_value_raw(i));
 					}
 				}
+				if(beta_on)
+					printf("Beta=%g\t", c()->e_beta());
 				printf("\n");
 			}
 
@@ -236,6 +247,7 @@ void Simulation::update(){
 	timestep++;
 	trial_t += dt;
 	global_t += dt;
+	avg_reward(c()->R(0));
 	environment->update();
 	is_goal(environment->get_hits(0));
 	count_goal += environment->get_hits(0);
@@ -261,8 +273,10 @@ void Simulation::writeTrialData(){
 	agent_str << "\t" << a(0)->x()<< "\t" << a(0)->y();			//3,4
 	agent_str << "\t" << a(0)->d() << "\t" << a(0)->phi();		//5,6
 	agent_str << "\t" << a(0)->v().ang() << "\t" << global_t;	//7,8
-	if(lvlearn_on)
-		agent_str << "\t" << e()->lmr(0)(0) << "\t" << c()->el_lm(0) << "\t" << c()->el_lm(1) << "\t" << c()->gl_w << "\t" << c()->expl(0); // TODO: different streams for different agents
+	if(lvlearn_on){
+		for(int lm_i=0; lm_i < c()->K(); lm_i++)
+			agent_str  << "\t" << c()->el_lm(lm_i);	// TODO: different streams for different agents
+	}
 	agent_str << endl;
 	error_dist  << (a(0)->x() - a(0)->HV().x) << "\t" << (a(0)->y() - a(0)->HV().y) << endl;
 	if(pin_on){
@@ -275,18 +289,18 @@ void Simulation::writeTrialData(){
 	}
 	if(gvlearn_on){
 		globalvector_str << trial_t << "\t" << global_t;
-		globalvector_str << "\t" << a(0)->GV().x << "\t" << a(0)->GV().y;
-		globalvector_str << "\t" << a(0)->GV().ang() << "\t" << a(0)->GV().len();
-		globalvector_str << "\t" << c()->expl(0) << "\t" << 1.0*count_goal;
-		globalvector_str << "\t" << c()->GV_vecavg() << endl;
+		globalvector_str << "\t" << a(0)->GV().x << "\t" << a(0)->GV().y;						//3,4
+		globalvector_str << "\t" << a(0)->GV().ang() << "\t" << a(0)->GV().len();				//5,6
+		globalvector_str << "\t" << c()->expl(0) << "\t" << 1.0*count_goal;						//7,8
+		globalvector_str << "\t" << c()->GV_vecavg() << endl;									//9
 	}
 	if(lvlearn_on){
 		refvector_str << trial_t << "\t" << global_t;
 		refvector_str << "\t" << c()->RV().x << "\t" << c()->RV().y << "\t" << c()->RV().ang() << "\t" << c()->RV().len() << endl;
 		localvector_str << trial_t << "\t" << global_t;
-		localvector_str << "\t" << c()->LV(0).x << "\t" << c()->LV(0).y << "\t" << c()->LV(0).ang() << "\t" << c()->LV(0).len(); // 3,4,5,6
-		localvector_str << "\t" << c()->LV(1).x << "\t" << c()->LV(1).y << "\t" << c()->LV(1).ang() << "\t" << c()->LV(1).len(); // 7,8,9,10
-		localvector_str << "\t" << c()->LV_vecavg(0) << "\t" << c()->LV_vecavg(1) << endl;										 // 11,12
+		for(int lm_i=0; lm_i < c()->K(); lm_i++)
+			localvector_str << "\t" << c()->LV(lm_i).x << "\t" << c()->LV(lm_i).y << "\t" << c()->LV(lm_i).ang() << "\t" << c()->LV(lm_i).len() << "\t" << c()->LV_vecavg(lm_i);
+		localvector_str  << endl;
 	}
 	reward_str << trial_t << "\t" << global_t;
 	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;
@@ -312,6 +326,13 @@ void Simulation::writeTrialData(){
 		lmr_angles << a(0)->x()<< "\t" << a(0)->y() << "\t" ;			//3,4
 		lmr_angles << e()->get_visible_LM_th(0) << "\t"<< a(0)->phi()<< "\t"  << sin(e()->get_visible_LM_th(0) - a(0)->phi().rad()) << "\t"; //5,6,7
 		lmr_angles << 0.1*cos(e()->get_visible_LM_th(0)) << "\t" << 0.1*sin(e()->get_visible_LM_th(0)) << endl; // 8,9
+	}
+
+	if(gvlearn_on){
+		adaptive_expl << trial_t << "\t" << global_t << "\t";								// 1,2
+		adaptive_expl << trial << "\t" << c()->e_beta() << "\t";							// 3,4
+		adaptive_expl << c()->v(0) << "\t" << avg_reward.mean()  << "\t";					// 5,6
+		adaptive_expl << c()->expl(0)  << "\t" << 2. * c()->v(0) * c()->expl(0)  << endl;	// 7,8							//7
 	}
 }
 

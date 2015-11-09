@@ -109,6 +109,14 @@ public:
 	 */
 	void add_pipe(double x0, double y0, double x1, double y1);
 
+	/**
+	 * Set beta learning controller option to _opt
+	 *
+	 * @param (bool) _opt: true, if beta learning on
+	 * @return (void)
+	 */
+	void beta(bool _opt);
+
 	Controller* c(int i=0);
 
 	Environment* e();
@@ -117,7 +125,7 @@ public:
 	/**
 	 * Set global vector learning controller option to _opt
 	 *
-	 * @param (bool) _opt: true, if homing on
+	 * @param (bool) _opt: true, if GV learning on
 	 * @return (void)
 	 */
 	void gvlearn(bool _opt);
@@ -125,7 +133,7 @@ public:
 	/**
 	 * Set global vector navigation controller option to _opt (also changes gv_learn)
 	 *
-	 * @param (bool) _opt: true, if homing on
+	 * @param (bool) _opt: true, if GV navigation on
 	 * @return (void)
 	 */
 	void gvnav(bool _opt);
@@ -241,6 +249,7 @@ private:
 	ofstream out_signals;
 	ofstream lmr_signals;
 	ofstream lmr_angles;
+	ofstream adaptive_expl;
 
 	//************ Controller options *************//
 	bool pin_on;			// true, if agent does PI
@@ -248,6 +257,7 @@ private:
 	bool gvlearn_on;        // true, if agent learns global vectors
 	bool gvnavi_on;         // true, if agent navigates global vectors
 	bool lvlearn_on;		// true, if agent learns local vectors
+	bool beta_on;		// true, if agent learns beta
 
 
 	//************ Timing parameters ************//
