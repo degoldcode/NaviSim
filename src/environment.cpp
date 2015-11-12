@@ -298,7 +298,7 @@ vec Environment::lmr(int i){
 
 Goal* Environment::nearest(double x, double y){
 	double min_dist;
-	cout << goal_list.size() << endl;
+	//cout << goal_list.size() << endl;
 	if(goal_list.size()>0)
 		min_dist = sqrt( d(goal_list.at(0)->x(), x) + d(goal_list.at(0)->y(), y));
 	else

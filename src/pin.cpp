@@ -27,16 +27,19 @@
 
 #include "pin.h"
 
-PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise) : CircArray(num_neurons) {
-	printf("=== PI parameters ============\n");
-	printf("Neurons: %u\n", N);
-	leak_rate = leak;
-	printf("Leak: %g\n", leak_rate);
-	snoise = sens_noise;
-	printf("Sensory noise: %g\n", snoise);
-	nnoise = neur_noise;
-	printf("Uncorrelated noise: %g\n", nnoise);
-	printf("==============================\n\n");
+PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise, bool in_silent) : CircArray(num_neurons) {
+	SILENT = in_silent;
+	if(!SILENT){
+		printf("=== PI parameters ============\n");
+		printf("Neurons: %u\n", N);
+		leak_rate = leak;
+		printf("Leak: %g\n", leak_rate);
+		snoise = sens_noise;
+		printf("Sensory noise: %g\n", snoise);
+		nnoise = neur_noise;
+		printf("Uncorrelated noise: %g\n", nnoise);
+		printf("==============================\n\n");
+	}
 //	VERBOSE = true;
 
 	CircArray* in_array = new CircArray(N);

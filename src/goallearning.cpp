@@ -29,7 +29,8 @@
 using namespace std;
 
 
-GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load) : CircArray(num_neurons,1) {
+GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load, bool in_silent) : CircArray(num_neurons,1) {
+	SILENT = in_silent;
 	type = 1;
 	threshold = 3.*nnoise;
 	global_vector.resize(1);
@@ -44,14 +45,16 @@ GoalLearning::GoalLearning(int num_neurons, double nnoise, double* forage, bool 
 	if(load_weights)
 		w().load("./save/goalweights.mat", raw_ascii);
 
-	printf("=== GV learning parameters ===\n");
-	printf("Neurons: %u\n", num_neurons);
-	printf("Goal types: %u\n", K);
-	printf("Learning rate: %g\n", learn_rate);
-	printf("Uncorrelated noise: %g\n", nnoise);
-	printf("Decoding threshold: %g\n", threshold);
-	printf("Loading weights from file: %u\n", opt_load);
-	printf("==============================\n\n");
+	if(!SILENT){
+		printf("=== GV learning parameters ===\n");
+		printf("Neurons: %u\n", num_neurons);
+		printf("Goal types: %u\n", K);
+		printf("Learning rate: %g\n", learn_rate);
+		printf("Uncorrelated noise: %g\n", nnoise);
+		printf("Decoding threshold: %g\n", threshold);
+		printf("Loading weights from file: %u\n", opt_load);
+		printf("==============================\n\n");
+	}
 }
 
 GoalLearning::~GoalLearning(){

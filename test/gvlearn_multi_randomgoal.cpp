@@ -16,17 +16,19 @@ using namespace std;
 Simulation* sim;
 const int numagents= 1;
 const int numtrials= 50;
-const double T= 1500.;
+const double T= 500.;		//Maybe 600
+const double Thome= 300.;	//Maybe 400
 const double dt= 0.1;
 
 int main(){
 	Timer timer(true);
 
 	sim = new Simulation(numtrials, numagents, true);
-	sim->homing(false);
+	sim->homing(true);
 	sim->gvlearn(true);
-	sim->init_controller(18, 0.05, 0.0, 0.00, 50.0);
-	sim->set_inward(int(1000./dt));							// inward after 1000 seconds
+	sim->beta(true);
+	sim->init_controller(18, 0.05, 0.0, 0.00, 0.0);
+	sim->set_inward(int(Thome/dt));							// inward after 1000 seconds
 
 	sim->run(numtrials, T, dt);
 	delete sim;

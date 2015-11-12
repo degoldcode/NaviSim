@@ -27,7 +27,7 @@ public:
 	 *  @param (double*) forage: pointer to agent's foraging state
 	 *  @param (bool) opt_load: true, if loading learned weights from file
 	 */
-	RouteLearning(int num_neurons, int num_lmr_units, double nnoise, double* forage, bool opt_load=false);
+	RouteLearning(int num_neurons, int num_lmr_units, double nnoise, double* forage, bool opt_load=false, bool in_silent=false);
 
 	/**
 	 * Destructor
@@ -155,6 +155,8 @@ public:
 	 * @return (Angle)
 	 */
 	Angle vec_avg(int index);
+
+	bool SILENT;
 
 private:
 	PIN * reference_pin;

@@ -39,6 +39,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	gvlearn_on = false;
 	gvnavi_on = false;
 	lvlearn_on = false;
+	beta_on = false;
 
 	(VERBOSE)?printf("Building environment.\n"):VERBOSE;
 	//environment = (rand_env ? new Environment(10, 10, 25., 1) : new Environment(agents));
@@ -48,16 +49,26 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	T = 0.;
 	dt = 0.;
 	trial = 1;
+	start_time = 0.;
 	global_t = 0.;
 	trial_t = 0.;
 	timestep = 0;
 	count_home = 0;
 	count_goal = 0;
 
+	trial_converge = 0;
+	expl_rate.resize(N);
+	home_rate.resize(N);
+	goal_rate.resize(N);
+
+	agent_str.width(10);
+	agent_str << "#Trial\t#Trial_t\t#X\t#Y\t#Dis\t#Phi\t#Theta\t#Global_t\t#EligibLM\n";
 	agent_str.open("data/agent.dat");
 	endpts_str.open("data/endpoints.dat");
 	//error_dist.open(str_names.at(pos).c_str());
 	homevector_str.open("data/homevector.dat");
+	globalvector_str.width(10);
+	globalvector_str << "#Trial_t\t#Global_t\t#X\t#Y\t#Theta_GV\t#D_GV\t#Expl\t#GoalCount\t#GV_ThPVA\n";
 	globalvector_str.open("data/globalvector.dat");
 	localvector_str.open("data/localvector.dat");
 	refvector_str.open("data/refvector.dat");
@@ -70,6 +81,10 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	out_signals.open("data/signals.dat");
 	lmr_angles.open("data/lmr_angles.dat");
 	adaptive_expl.open("data/adaptive_expl.dat");
+	trialtimes.open("data/trialtimes.dat");
+	performance_gvl.open("data/performgvl.dat");
+	performance_gvl.width(10);
+	performance_gvl << "#Trial\t#ExplRate\t#HomeRate\t#GoalRate\n";
 }
 
 Simulation::~Simulation(){
@@ -88,6 +103,8 @@ Simulation::~Simulation(){
 	lmr_signals.close();
 	lmr_angles.close();
 	adaptive_expl.close();
+	trialtimes.close();
+	performance_gvl.close();
 	delete environment;
 }
 
@@ -133,10 +150,9 @@ void Simulation::homing(bool _opt){
 
 void Simulation::init_controller(int num_neurons, double sensory_noise, double uncor_noise, double leakage, double syn_noise){
 	sim_cfg << num_neurons << "\t" << sensory_noise << "\t" << uncor_noise << "\t" << leakage << endl;
-	vector<bool> opt_switches = {homing_on, gvlearn_on, lvlearn_on};
+	vector<bool> opt_switches = {homing_on, gvlearn_on, lvlearn_on, SILENT};
 	for(unsigned int i= 0; i< agents; i++){
 		Controller* control = new Controller(num_neurons, sensory_noise, leakage, uncor_noise, syn_noise, opt_switches);
-		control->SILENT = SILENT;
 		int size = N*pow( 10, int(log10( double( num_neurons ) ) ) );
 		control->set_sample_int(size/10);      // sample activity data every 10 time steps
 
@@ -167,13 +183,17 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 	sample_time = int(total_steps/1000000.);
 	if(sample_time < 1)
 		sample_time = 1;
-	printf("Total timesteps is %u\nSet sampling interval to %u\n", total_steps, sample_time);
-
 	if(c()->get_inward() == 0)
 		c()->set_inward(T/dt);
-	printf("Inward time is %u\n", c()->get_inward());
+	if(!SILENT){
+		printf("Total timesteps is %u\nSet sampling interval to %u\n", total_steps, sample_time);
+		printf("Inward time is %u\n", c()->get_inward());
+	}
 
 	for(; trial < N+1; trial++){
+		start_time = global_t;
+		prev_expl = c()->expl(0);
+
 		reset();
 		while(trial_t < T){
 			if(int(trial_t/dt)%sample_time == 0)
@@ -184,7 +204,13 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 		if(trial_t <= T + 0.5)
 			is_home(0);
 
-		if(N > 1){
+		if(prev_expl >= 0.5 && c()->expl(0) < 0.5)
+			trial_converge = trial;
+		expl_rate.at(trial-1) = c()->expl(0);
+		home_rate.at(trial-1) = is_home.mean();
+		goal_rate.at(trial-1) = is_goal.mean();
+
+		if(N > 1 && !SILENT){
 			total_pi_error( pi_error.mean() );
 			avg_length(a(0)->d());
 			writeSimData();
@@ -208,7 +234,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 				printf("\n");
 			}
 
-			if(N <= 19){
+			if(N <= 19 && !SILENT){
 				printf("#%u\t", trial);
 				if(pin_on)
 					printf("e=%2.3f\t<e>=%2.3f\t", pi_error.mean(), total_pi_error.mean());
@@ -226,11 +252,7 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 					printf("Beta=%g\t", c()->e_beta());
 				printf("\n");
 			}
-
-//				printf("Trial = %u\tTrial R = %g\tTotal R = %g\n", trial, e()->get_trial_r(), e()->get_total_r());
-				//printf("Trial = %u\tAvg Length = %1.5f\tVar Length = %3.3f\n", trial, avg_length.max(), avg_length.var());
 		}
-
 	}
 }
 
@@ -242,17 +264,17 @@ void Simulation::update(){
 //	if(accu(c()->GV_module()->dW()) < 0.0 && (a(0)->pos - c()->HV()).len() > 0.3)
 //		printf("GV learn at (%g,%g) -> (%g, %g), R = %g\n", a(0)->pos.x, a(0)->pos.y, c()->HV().x, c()->HV().y, c()->GV_module()->R());
 
-	if(timestep%1000==0 && N == 1 && pin_on)
+	if(timestep%1000==0 && N == 1 && pin_on && !SILENT)
 		printf("Time = %g\te = %g\te_max = %g\n", trial_t, pi_error.mean(), pi_error_max.mean());
 	timestep++;
 	trial_t += dt;
 	global_t += dt;
 	avg_reward(c()->R(0));
 	environment->update();
-	is_goal(environment->get_hits(0));
+	is_goal(environment->get_hits(0) > 0);
 	count_goal += environment->get_hits(0);
 	if(environment->stop_trial){
-		if(N < 10)
+		if(N < 10 && !SILENT)
 			printf("Homing success at %g s\n", trial_t);
 		trial_t = T+1.;
 		count_home++;
@@ -261,6 +283,15 @@ void Simulation::update(){
 }
 
 void Simulation::writeSimData(){
+	trialtimes << trial << "\t" << start_time << "\t" << global_t << "\t" << global_t-start_time << endl;
+	performance_gvl << fixed;
+	if(gvlearn_on){
+		performance_gvl << setprecision(0) << trial << "\t" ;
+		performance_gvl	<< setprecision(6) << c()->expl(0) << "\t";
+		performance_gvl	<< setprecision(6) << is_home.mean() << "\t";
+		performance_gvl	<< setprecision(6) << is_goal.mean() << endl;
+	}
+
 	endpts_str << trial;
 	for(unsigned int i= 0; i< agents; i++){
 		endpts_str << "\t" << a(i)->x()<< "\t" << a(i)->y() << "\t" << a(i)->d();

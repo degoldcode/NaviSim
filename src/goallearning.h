@@ -53,7 +53,7 @@ public:
 	 *  @param (double*) forage: pointer to agent's foraging state
 	 *  @param (bool) opt_load: true, if loading learned weights from file
 	 */
-	GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load=false);
+	GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load=false, bool in_silent=false);
 
 	/**
 	 * Destructor
@@ -138,6 +138,8 @@ public:
 	 * @return (double)
 	 */
 	double y();
+
+	bool SILENT;
 
 private:
 	vector<Vec> global_vector;                   // Global vectors

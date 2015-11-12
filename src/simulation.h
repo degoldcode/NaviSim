@@ -250,6 +250,8 @@ private:
 	ofstream lmr_signals;
 	ofstream lmr_angles;
 	ofstream adaptive_expl;
+	ofstream trialtimes;
+	ofstream performance_gvl;
 
 	//************ Controller options *************//
 	bool pin_on;			// true, if agent does PI
@@ -268,6 +270,8 @@ private:
 	double dt;              // integration time
 	int timestep;           // discrete time steps
 	int sample_time;		// how often data is written into file
+	double start_time;		// trial start time
+	double foodward_time;	// time needed for foraging
 
 public:
 	//************ Evaluation parameters ************//
@@ -277,14 +281,21 @@ public:
 
 	/// Path integration
 	running_stat<double> is_home;					// homing success
+	vector<double> home_rate;
 	running_stat<double> is_goal;					// goal success
+	vector<double> goal_rate;
+	vector<double> expl_rate;
 	running_stat<double> avg_reward;				// goal success
 	int count_home;
 	int count_goal;
-	running_stat<double> pi_error;              // distance between estimated and actual position of agent per timestep (reset each trial)
-	running_stat<double> pi_error_max;              // distance between estimated and actual position of agent per timestep (reset each trial)
-	running_stat<double> total_pi_error;		// distance between estimated and actual position of agent per timestep per trial
+	double prev_expl;                               /// Exploration rate of previous trial
+	int trial_converge;                             /// Number of trials for goal-directed behavior (expl_rate < 0.5)
+	running_stat<double> pi_error;                  /// distance between estimated and actual position of agent per timestep (reset each trial)
+	running_stat<double> pi_error_max;              /// distance between estimated and actual position of agent per timestep (reset each trial)
+	running_stat<double> total_pi_error;		    /// distance between estimated and actual position of agent per timestep per trial
 	//running_stat<double> avg_foraging_dis;
+
+	//vector< running_stat<double> >
 
 	//************ debugging ************//
 	bool VERBOSE;

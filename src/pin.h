@@ -59,7 +59,7 @@ public:
 	 *  @param (int) num_neurons: number of neurons in this array (default: 360)
 	 *  @param (int) input_dim: number of incoming signals (default: 0)
 	 */
-	PIN(int num_neurons = 36, double leak = 0.0, double sens_noise = 0.0, double neur_noise = 0.0);
+	PIN(int num_neurons = 36, double leak = 0.0, double sens_noise = 0.0, double neur_noise = 0.0, bool in_silent=false);
 
 	/**
 	 * Destructor
@@ -114,6 +114,8 @@ public:
 	 * @return (double)
 	 */
 	double y();
+
+	bool SILENT;
 
 private:
 	vector<CircArray*> ar;

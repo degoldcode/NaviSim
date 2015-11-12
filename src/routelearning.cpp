@@ -7,7 +7,8 @@
 
 #include "routelearning.h"
 
-RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, double* forage, bool opt_load) : CircArray(num_neurons, num_lmr_units) {
+RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, double* forage, bool opt_load, bool in_silent) : CircArray(num_neurons, num_lmr_units) {
+	SILENT = in_silent;
 	local_vector.resize(num_lmr_units);
 	new_vector_avg.resize(num_lmr_units);
 	foraging_state = forage;
@@ -29,13 +30,15 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 	value_decay = 0.0001;
 	reference_pin = new PIN(18, 0.0, 0.00, 0.0);
 
-	printf("=== LV learning parameters ===\n");
-	printf("Neurons: %u\n", N);
-	printf("Landmark units: %u\n", K);
-	printf("Learning rate: %g\n", learn_rate);
-	printf("Uncorrelated noise: %g\n", nnoise);
-	printf("Loading weights from file: %u\n", opt_load);
-	printf("==============================\n\n");
+	if(!SILENT){
+		printf("=== LV learning parameters ===\n");
+		printf("Neurons: %u\n", N);
+		printf("Landmark units: %u\n", K);
+		printf("Learning rate: %g\n", learn_rate);
+		printf("Uncorrelated noise: %g\n", nnoise);
+		printf("Loading weights from file: %u\n", opt_load);
+		printf("==============================\n\n");
+	}
 }
 
 RouteLearning::~RouteLearning(){

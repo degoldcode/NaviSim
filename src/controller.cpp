@@ -12,16 +12,17 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	homing_on = opt_switches.at(0);
 	gvlearn_on = opt_switches.at(1);
 	lvlearn_on = opt_switches.at(2);
-	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise);
+	SILENT = opt_switches.at(3);
+	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise, SILENT);
 	num_colors = 1;
 
 	if(gvlearn_on)
-		gvl = new GoalLearning(numneurons, syn_noise, &inward, false);
+		gvl = new GoalLearning(numneurons, syn_noise, &inward, false, SILENT);
 	gl_array.resize(num_colors);
 
 	num_lv_units = 1;
 	if(lvlearn_on)
-		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false);
+		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false, SILENT);
 
 	rand_m = 0.0;
 	pi_m = 0.0;
@@ -60,7 +61,6 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 	gvnavi_on = false;
 	beta_on = false;
 
-	SILENT = false;
 	write = true;
 	state_matrc = true;
 	stream.open("./data/control.dat");
@@ -247,7 +247,8 @@ void Controller::save_matrices() {
 }
 
 void Controller::set_sample_int(int _val){
-	cout << _val << " = sample\n";
+	if(!SILENT)
+		cout << _val << " = sample\n";
 	inv_sampling_rate = _val;
 }
 
