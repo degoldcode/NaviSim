@@ -30,9 +30,9 @@
 using namespace std;
 
 Environment::Environment(int num_agents){
+	t_step = 0;
 	inv_sampling_rate = 1;
 	stop_trial = false;
-
 
 	(VERBOSE)?printf("\nCREATE %u AGENTS\n\n", num_agents):VERBOSE;
 	/*** SET UP AGENTS ***/
@@ -298,7 +298,7 @@ vec Environment::lmr(int i){
 
 Goal* Environment::nearest(double x, double y){
 	double min_dist;
-	cout << goal_list.size() << endl;
+	//cout << goal_list.size() << endl;
 	if(goal_list.size()>0)
 		min_dist = sqrt( d(goal_list.at(0)->x(), x) + d(goal_list.at(0)->y(), y));
 	else
@@ -362,6 +362,7 @@ Angle Environment::th(int i){
 }
 
 void Environment::update(){
+	t_step++;
 	update_rewards();
 	update_collisions();
 	update_pipe();
@@ -371,18 +372,21 @@ void Environment::update(){
 void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
 		for(unsigned int j = 0; j < landmark_list.size(); j++){
+			count_lm=0;
 			if(/*j!= 0 &&*/ lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0){
 				agent_list.at(i)->lm_catch = true;
 				Angle lm_phi = phi(landmark_list.at(i), agent_list.at(i));
-				//printf("%g\t%g\t%g\t%g\n", get_visible_LM_th(0), phi(landmark_list.at(i), agent_list.at(i)).rad(), lm_phi.rad(), agent_list.at(i)->phi().rad());
 				double landmark_attract = 0.5*sin(get_visible_LM_th(0) - agent_list.at(i)->phi().rad());
-				//printf("%g\n", landmark_attract);
+				if(VERBOSE && t_step%100==0)
+					printf("LM attract %g at (%g,%g) -> %u\n", landmark_attract, a(0)->x(), a(0)->y(), agent_list.at(i)->lm_catch);
 				agent_list.at(i)->set_lmcontrol(landmark_attract);
 			}
 			else{
 				//agent_list.at(i)->set_dphi(new Angle(0.0));
-				agent_list.at(i)->lm_catch = false;
+				count_lm++;
 			}
+			if(count_lm==3)
+				agent_list.at(i)->lm_catch = false;
 		}
 		if(i < lm_stats.visible.n_rows)
 			agent_list.at(i)->update(reward.at(i), lm_stats.visible.col(i));

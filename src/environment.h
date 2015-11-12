@@ -387,8 +387,10 @@ private:
 	vector<double> lm_recogn;
 	bool flag = 0;
 	int count = 0;
+	int count_lm = 0;
 	int mode = 0; 						// 0 = outb, 1 = inb
 	int inv_sampling_rate;
+	int t_step;
 
 	//************ Object containers ************//
 	vector<Agent*> agent_list;

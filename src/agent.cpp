@@ -31,14 +31,13 @@
 using namespace std;
 
 Agent::Agent(bool in_verbose, double x_0, double y_0) : Object(x_0, y_0, 0.0){
+	t_step=0;
 	VERBOSE = in_verbose;
 	(VERBOSE)?printf("\nCREATE AGENT at (%g, %g)\n\n", x(), y()):VERBOSE;
 
 	heading.to(randuu(-M_PI, M_PI));		// random initial orientation
 	speed = 0.1;
 
-	k_phi = M_PI;
-	k_s = 0.01;
 	innate_lm_control = 0.0;
 	diff_heading.to(0.0);
 	external = new Angle(0.0);
@@ -93,6 +92,7 @@ void Agent::reset(){
 	heading.to(randuu(-M_PI, M_PI));
 	inward = false;
 	in_pipe = false;
+	lm_catch = false;
 	control->reset();
 }
 
@@ -118,21 +118,25 @@ void Agent::to(double x_new, double y_new){
 }
 
 void Agent::update(double _reward, vec _lmr){
+	t_step++;
 	//control->set_inward(inward);
+	if(VERBOSE && t_step%100==0)
+		printf("%u\n", lm_catch);
 	if(!in_pipe && !lm_catch){
-		//printf("that\n");
+		if(VERBOSE && t_step%100==0)
+			printf("Normal control: %f \n", control_output);
 		diff_heading.to(dt * k_phi * control_output);
 		heading = heading + diff_heading;
 	}
 	if(!in_pipe && lm_catch){
-		//printf("this\n");
-		//diff_heading.to(external->rad());
-		//printf("%f \n", innate_lm_control);
-		diff_heading.to(dt * 1.0 * control_output + dt * k_phi * innate_lm_control);
+		if(VERBOSE && t_step%100==0)
+			printf("LM control: %f \n", innate_lm_control);
+		diff_heading.to(dt * k_phi * control_output + 0.5 * dt * k_phi * innate_lm_control);
 		heading = heading + diff_heading; //+ dt *  0.5 * control_output;
 	}
 	if(in_pipe){
-		//printf("not this\n");
+		if(VERBOSE && t_step%100==0)
+			printf("Pipe control: %f \n", innate_lm_control);
 		heading.to(external->rad());
 	}
 

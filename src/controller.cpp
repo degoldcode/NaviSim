@@ -7,21 +7,25 @@
 
 #include "controller.h"
 
-Controller::Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise, double syn_noise, vector<bool> opt_switches){
-	numneurons = num_neurons;
+Controller::Controller(int num_neurons, int _num_gv_units, int _num_lv_units, double sensory_noise, double leakage, double uncorr_noise, double syn_noise, vector<bool> opt_switches){
 	homing_on = opt_switches.at(0);
 	gvlearn_on = opt_switches.at(1);
 	lvlearn_on = opt_switches.at(2);
-	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise);
-	num_colors = 1;
+	SILENT = opt_switches.at(3);
 
+	numneurons = num_neurons;
+	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise, SILENT);
+	pin->VERBOSE=true;
+
+
+	num_colors = _num_gv_units;
 	if(gvlearn_on)
-		gvl = new GoalLearning(numneurons, syn_noise, &inward, false);
+		gvl = new GoalLearning(numneurons, syn_noise, &inward, false, SILENT);
 	gl_array.resize(num_colors);
 
-	num_lv_units = 1;
+	num_lv_units = _num_lv_units;
 	if(lvlearn_on)
-		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false);
+		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false, SILENT);
 
 	rand_m = 0.0;
 	pi_m = 0.0;
@@ -55,12 +59,12 @@ Controller::Controller(int num_neurons, double sensory_noise, double leakage, do
 
 	val_discount = 0.99;
 	expl_factor = ones(num_colors);
+	d_expl_factor = zeros(num_colors);
 
 	pin_on = true;
 	gvnavi_on = false;
 	beta_on = false;
 
-	SILENT = false;
 	write = true;
 	state_matrc = true;
 	stream.open("./data/control.dat");
@@ -148,6 +152,10 @@ int Controller::K(){
 	return num_lv_units;
 }
 
+Vec Controller::LV(){
+	return lvl->LV();
+}
+
 Vec Controller::LV(int i){
 	return lvl->LV(i);
 }
@@ -160,12 +168,16 @@ Angle Controller::LV_vecavg(int index){
 	return lvl->vec_avg(index);
 }
 
-double Controller::LV_value(int index){
-	return lvl->value_lm(index);
+double Controller::el_LV_value(int index){
+	return lvl->eligibility_value(index);
 }
 
-double Controller::LV_value_raw(int index){
-	return lvl->value_lm_raw(index);
+double Controller::LV_value(int index){
+	return lvl->lv_value(index);
+}
+
+void Controller::LV_value(int index, double value){
+	lvl->lv_value(index, value);
 }
 
 int Controller::N(){
@@ -243,11 +255,21 @@ void Controller::save_matrices() {
 	}
 
 	ref_array.save("./data/mat/ref_activity.mat", raw_ascii);
+}
 
+void Controller::set_delta_expl(int _index, double _value, bool _const){
+	d_expl_factor(_index) = _value;
+	const_expl = _const;
+}
+
+void Controller::set_expl(int _index, double _value, bool _const){
+	expl_factor(_index) = _value;
+	const_expl = _const;
 }
 
 void Controller::set_sample_int(int _val){
-	cout << _val << " = sample\n";
+	if(!SILENT)
+		cout << _val << " = sample\n";
 	inv_sampling_rate = _val;
 }
 
@@ -271,16 +293,12 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		//printf("t= %u > %u or sum(R)= %g\n", t, t_home, accum_reward(0));
 	}
 
-	/*** Random foraging ***/
-	rand_w = 0.6*expl_factor(0);
-	rand_m = randn(0.0, 1.);
-
 	/*** Path Integration Mechanism ***/
 	if(pin_on)
 		pin->update(angle, speed);
 
-	if(gvlearn_on)
-		pi_w = HV().len() * (1. - expl_factor(0));
+	if(gvlearn_on && gl_w > 0.)
+		pi_w = HV().len() * (1. - expl_factor(0))*(1.-accu(lv_value));
 	else
 		pi_w = 0.0;
 	pi_m =  ((HV().ang()).i() - angle).S();		//NEW PI COMMAND
@@ -290,16 +308,17 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		pi_m = ((HV().ang()).i() - angle).S();
 		rand_m = 0.0;//0.25;
 	}
-
 	if(pi_w < 0.)
 		pi_w = 0.;
+	output_hv = pi_w * pi_m;
 
+
+
+	/*** Reward and value update ***/
 	if(lvlearn_on){
 		for(int i = 0; i < num_lv_units; i++)
-			lv_value(i) = 1. - exp(-0.5*lvl->value_lm(i));//1. - exp(-0.5*lvl->value_lm(i));
+			lv_value(i) = 1. - exp(-0.5*lvl->eligibility_value(i));
 	}
-
-	/*** Reward update ***/
 	delta_beta = mu_beta*((1./expl_beta) + lambda * value(0) * expl_factor(0));
 	if(beta_on)
 		expl_beta += delta_beta;
@@ -311,13 +330,19 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 			reward(i) = inReward;
 			if(inward==0.){
 				value(i) = (reward(i) /*+ accu(lv_value)*/) + disc_factor * value(i);
-				expl_factor(i) = exp(- expl_beta * value(i));
+				if(!const_expl)
+					expl_factor(i) = exp(- expl_beta * value(i));
+				else
+					expl_factor(i) += d_expl_factor(i);
+				expl_factor.elem( find(expl_factor > 1.) ).ones();    //clip expl
+				expl_factor.elem( find(expl_factor < 0.) ).zeros();   //clip expl
 			}
 		}
 		else{
 			reward(i) = 0.0;
 		}
 	}
+	accum_reward += reward;
 
 	/*** Global Vector Learning Circuits TODO ***/
 	if(gvlearn_on){
@@ -328,42 +353,37 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 
 		gl_w = (1. - inward)*GV(0).len() * (1.-expl_factor(0));
 		gl_m = (GV(0).ang() - angle).S();			//NEW GV COMMAND
-//		if(inward == 0.)
-//			gl_m = (1.-expl_factor(0))*(cGV.at(0).ang() - angle).S();
-//		else
-//			gl_m = 0.0;
 	}
 	stream << cGV.at(0).ang().deg() << endl;
-	//gl_w = 0.0;
-	accum_reward += reward;
+	output_gv = gl_w * gl_m;
 
 	/*** Local Vector Learning Circuits TODO ***/
 	if(lvlearn_on){
 
 		lvl->update(angle, speed, inReward, inLmr);
 
-		rl_w = 0.0;
 		rl_m = 0.0;
+		rl_w = (1. - inward);
 		for(int i = 0; i < num_lv_units; i++){
 			//cLV.at(i) = (LV(i) - HV());
 			if(inward == 0. && lvl->el_lm(i) > 0.1){
 				gl_w = 0.0;
 				pi_w = 0.0;
-				rl_w += lv_value(i);
-				rl_m += (LV_vecavg(i) - angle).S();//4.0*(1.-expl_factor(0))*(LV(0).ang() - angle).S();
+				rl_m += lv_value(i) * (LV().len()*(LV().ang() - angle).S() + RV().len()*(RV().ang().i() - angle).S());
 			}
 		}
-		vec elig = zeros<vec>(num_lv_units);
-		for(int i=0; i< num_lv_units; i++)
-			elig(i) = lvl->el_lm(i);
-
-		//if(dot(lv_value,elig) > 0.0)
-		 //printf("Dot Prod = %g\tVecAvg = %g\tAng = %g\n", dot(lv_value,elig), LV_vecavg(0).rad(), LV(0).ang().rad());
-		rand_w = 0.6*expl_factor(0)*(1.-dot(lv_value,elig));
+		output_lv = rl_w * rl_m;
 	}
 
+	/*** Random foraging ***/
+	rand_w = (1. - inward)*0.6*expl_factor(0);//*(1.-accu(lv_value));
+	rand_m = randn(0.0, 1.);
+	if(inward == 1)
+		rand_m = 0.;
+	output_rand = rand_w * rand_m;
+
 	/*** Navigation Control Output ***/
-	output = rand_w*rand_m + pi_w*pi_m + gl_w*gl_m + rl_w*rl_m;
+	output = output_rand + output_hv + 0.0 + output_lv;
 
 	return output;
 }

@@ -53,7 +53,7 @@ public:
 	 *  @param (double*) forage: pointer to agent's foraging state
 	 *  @param (bool) opt_load: true, if loading learned weights from file
 	 */
-	GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load=false);
+	GoalLearning(int num_neurons, double nnoise, double* forage, bool opt_load=false, bool in_silent=false);
 
 	/**
 	 * Destructor
@@ -75,6 +75,16 @@ public:
 	 * @return (Vec)
 	 */
 	Vec GV(int index = 0);
+
+	/**
+	 * Set global vector of given index
+	 *
+	 *	@param (int) index: index of global vector (i.e., goal type)
+	 *	@param (Vec) vector: vector to be set
+	 *	@param (bool) locked: option, whether vector can be changed by learning or not (true: const.;default: true)
+	 * 	@return (void)
+	 */
+	void GV(int index, Vec vector, bool locked=true);
 
 	/**
 	 * Returns received reward
@@ -139,6 +149,8 @@ public:
 	 */
 	double y();
 
+	bool SILENT;
+
 private:
 	vector<Vec> global_vector;                   // Global vectors
 
@@ -152,6 +164,7 @@ private:
 	mat weight_change;
 
 	bool load_weights;
+	bool no_learning;
 };
 
 

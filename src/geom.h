@@ -64,6 +64,8 @@ public:
 		gon_ = &val.at(inGon);
 
 		val.at(inRad) = fmod(_val,(vmax.at(inRad)));
+		if(val.at(inRad) >= vmax.at(inRad))
+			val.at(inRad) -= vmax.at(inRad);
 		convertTo(val.at(inRad), inRad);
 	}
 	Angle(double _val, int _unit)
@@ -84,6 +86,8 @@ public:
 		gon_ = &val.at(inGon);
 
 		val.at(_unit) = fmod(_val,(vmax.at(_unit)));
+		if(val.at(_unit) >= vmax.at(_unit))
+			val.at(_unit) -= vmax.at(_unit);
 		convertTo(val.at(_unit), _unit);
 	}
 
@@ -207,6 +211,8 @@ public:
 	Angle elevation() { return Angle(atan2(z, len())); }
 	Vec i(){return Vec(-x,-y);}
 	double len() { return sqrt(x*x+y*y+z*z); }
+	bool lock(){ return const_vec; }
+	void lock(bool _in){ const_vec = _in; }
 
 	void move(double _dx, double _dy, double _dz=0) { x+=_dx; y+=_dy; z+=_dz; }
 
@@ -222,7 +228,8 @@ public:
 	}
 
     void print() const { printf("(%g, %g, %g)\n", x, y, z); }
-    void to(double _x, double _y, double _z=0) { x=_x; y=_y; z=_z; }
+    void to(Vec vector) {if(!const_vec){ x=vector.x; y=vector.y; z=vector.z; } }
+    void to(double _x, double _y, double _z=0) {if(!const_vec){ x=_x; y=_y; z=_z; } }
     const double* toArray(){ array[0]=x;array[1]=y; array[2]=z; return array; }
 
 	double x;
@@ -231,6 +238,7 @@ public:
 
 private:
   double array[3];
+  bool const_vec;
 };
 
 

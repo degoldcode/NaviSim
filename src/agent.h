@@ -230,16 +230,17 @@ private:
 
 	double control_output;
 	double innate_lm_control;
-	Angle heading;         // Angle of heading direction (in rad; ccw from x-axis)
-	double speed;           // Walking speed of agent
-	double k_phi;           // Steering constant
-	double k_s;             // Acceleration constant
-	Angle diff_heading;    // Change in heading direction (in rad)
-	Angle* external;		// External change in heading direction (in rad)
-	double diff_speed;      // Change in walking speed of agent
-	const double dt = 0.1;	// Integration time
-	int type;               // Goal type
-	bool inward;			// State of foraging (TRUE = towards home)
+	Angle heading;             // Angle of heading direction (in rad; ccw from x-axis)
+	double speed;              // Walking speed of agent
+	const double k_phi = M_PI; // Steering constant
+	const double k_s = 0.01;   // Acceleration constant
+	Angle diff_heading;        // Change in heading direction (in rad)
+	Angle* external;		   // External change in heading direction (in rad)
+	double diff_speed;         // Change in walking speed of agent
+	const double dt = 0.1;	   // Integration time
+	int type;                  // Goal type
+	bool inward;			   // State of foraging (TRUE = towards home)
+	int t_step;
 
 	//************ debugging ************//
 	bool VERBOSE;

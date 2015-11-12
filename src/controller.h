@@ -39,13 +39,15 @@ public:
 	 * Constructor
 	 *
 	 *	@param (int) num_neurons: number of neurons
+	 *  @param (int) num_gv_units: number of global vector units
+	 *  @param (int) num_lv_units: number of local vector units
 	 *	@param (double) sensory_noise: sensory noise to PI
 	 *	@param (double) leakage: leakage of PI memory
 	 *	@param (double) uncorr_noise: uncorrelated noise at input layer
 	 *	@param (double) syn_noise: synaptic noise at GV layer
 	 *
 	 */
-	Controller(int num_neurons, double sensory_noise, double leakage, double uncorr_noise, double syn_noise, vector<bool> opt_switches);
+	Controller(int num_neurons, int num_gv_units, int num_lv_units, double sensory_noise, double leakage, double uncorr_noise, double syn_noise, vector<bool> opt_switches);
 
 	/**
 	 * Destructor
@@ -152,12 +154,19 @@ public:
 	int K();
 
 	/**
-	 * Returns local vector
+	 * Returns active local vector
 	 *
-	 *  @param (int) i: goal index (default: 0)
 	 *  @return (Vec)
 	 */
-	Vec LV(int i=0);
+	Vec LV();
+
+	/**
+	 * Returns stored local vector
+	 *
+	 *  @param (int) i: goal index
+	 *  @return (Vec)
+	 */
+	Vec LV(int i);
 
 	/**
 	 * Return Route Learning module
@@ -167,7 +176,15 @@ public:
 	RouteLearning* LV_module();
 
 	/**
-	 * Returns local vector value
+	 * Return product of eligibility trace and local vector value of given index
+	 *
+	 *  @param (int) index: local vector index (default: 0)
+	 *  @return (double)
+	 */
+	double el_LV_value(int index=0);
+
+	/**
+	 * Return local vector value of given index
 	 *
 	 *  @param (int) index: local vector index (default: 0)
 	 *  @return (double)
@@ -175,12 +192,15 @@ public:
 	double LV_value(int index=0);
 
 	/**
-	 * Returns local vector value
+	 * Set local vector value of given index
 	 *
-	 *  @param (int) index: local vector index (default: 0)
-	 *  @return (double)
+	 *  @param (int) index: local vector index
+	 *  @param (double) value: new local vector value
+	 *  @return (void)
 	 */
-	double LV_value_raw(int index=0);
+	void LV_value(int index, double _value);
+
+
 
 	Angle LV_vecavg(int index);
 
@@ -284,6 +304,26 @@ public:
 	void save_matrices();
 
 	/**
+	 * Set change of exploration rate to value (constant, if second argument is true)
+	 *
+	 *	@param (int) _index: goal type index
+	 *	@param (double) _value: new value of change of exploration rate
+	 *	@param (bool) _const: sets new change constant (default: true)
+	 * 	@return (void)
+	 */
+	void set_delta_expl(int _index, double _value, bool _const);
+
+	/**
+	 * Set exploration rate to value (constant, if second argument is true)
+	 *
+	 *	@param (int) _index: goal type index
+	 *	@param (double) _value: new value of exploration rate
+	 *	@param (bool) _const: sets new value constant (default: true)
+	 * 	@return (void)
+	 */
+	void set_expl(int _index, double _value, bool _const);
+
+	/**
 	 * Set time for inward switch
 	 *
 	 *	@param (int) _time: time steps when agent goes inward
@@ -376,6 +416,7 @@ private:
 	const double lambda = 100.;			// Lambda parameter of exponential distribution
 	const double disc_factor = 0.9995;	// 0.999
 	vec expl_factor;
+	vec d_expl_factor;
 	int current_goal;
 
 	//************ Decision Making Parameters ************//
@@ -414,6 +455,12 @@ public:
 	double pi_m;
 	double gl_m;
 	double rl_m;
+
+	// output signals
+	double output_rand;
+	double output_hv;
+	double output_gv;
+	double output_lv;
 	double output;
 
 	bool pin_on;
@@ -422,6 +469,7 @@ public:
 	bool gvnavi_on;
 	bool lvlearn_on;
 	bool beta_on;
+	bool const_expl;
 	bool write;
 	bool SILENT;			// no activity matrices sampling
 	bool state_matrc;

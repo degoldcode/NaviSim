@@ -27,7 +27,7 @@ public:
 	 *  @param (double*) forage: pointer to agent's foraging state
 	 *  @param (bool) opt_load: true, if loading learned weights from file
 	 */
-	RouteLearning(int num_neurons, int num_lmr_units, double nnoise, double* forage, bool opt_load=false);
+	RouteLearning(int num_neurons, int num_lmr_units, double nnoise, double* forage, bool opt_load=false, bool in_silent=false);
 
 	/**
 	 * Destructor
@@ -59,12 +59,29 @@ public:
 	double el_lm(int index);
 
 	/**
-	 * Return local vector
+	 * Return active local vector
+	 *
+	 * @return (Vec)
+	 */
+	Vec LV();
+
+	/**
+	 * Return stored local vector
 	 *
 	 * @param (int) index: index of synaptic weights
 	 * @return (Vec)
 	 */
 	Vec LV(int index);
+
+	/**
+	 * Set local vector of given index
+	 *
+	 *	@param (int) index: index of local vector (i.e., detected landmark)
+	 *	@param (Vec) vector: vector to be set
+	 *	@param (bool) locked: option, whether vector can be changed by learning or not (true: const.;default: true)
+	 * 	@return (void)
+	 */
+	void LV(int index, Vec vector, bool locked=true);
 
 	/**
 	 * Returns received reward
@@ -132,21 +149,29 @@ public:
 	void update_weights();
 
 	/**
-	 * Return values of landmarks
+	 * Return the product of eligibility trace and LV value
 	 *
 	 * @param (int) index: index of local vector
 	 * @return (double)
 	 */
-	double value_lm(int index=0);
+	double eligibility_value(int index=0);
 
 	/**
-	 * Return values of landmarks
+	 * Return local vector value of given index
 	 *
 	 * @param (int) index: index of local vector
 	 * @return (double)
 	 */
-	double value_lm_raw(int index=0);
+	double lv_value(int index=0);
 
+	/**
+	 * Set local vector value of given index
+	 *
+	 * @param (int) index: index of local vector
+	 * @param (double) value: new local vector value
+	 * @return (void)
+	 */
+	void lv_value(int index, double value);
 
 	/**
 	 * Return vector average of circular array activity
@@ -156,10 +181,13 @@ public:
 	 */
 	Angle vec_avg(int index);
 
+	bool SILENT;
+	bool VERBOSE;
+
 private:
 	PIN * reference_pin;
 
-	vector<Vec> local_vector;                   // active local vector
+	Vec local_vector;                   // active local vector
 	vector<Vec> stored_local_vector;            // stored local vectors
 
 	double* foraging_state;
@@ -170,13 +198,15 @@ private:
 	vec clip_lmr;
 	vec raw_lmr;
 	vec eligibility_lmr;
-	vec value_lmr;
+	vec value;
 	double value_decay;
 
 	mat white_weights;
 	mat weight_change;
+	int t_step;
 
 	bool load_weights;
+	bool no_learning;
 };
 
 

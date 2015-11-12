@@ -204,6 +204,58 @@ public:
 	};
 
 	/**
+	 * Return the population vector average angle of maximum firing in the array
+	 *
+	 * @param (vec) input: vector
+	 * @return (double) average angle of maximum firing
+	 */
+	Angle pva_angle(vec input){
+		double sum_act = 0.0;
+		double output = 0.0;
+		int _start = 0;
+		int _end = 0;
+
+		for(int i = 0; i < N; i++){
+			if(input(i%N) > threshold && input((i+1)%N) <= threshold)
+				_end = (i+1)%N;
+			if(input(i%N) <= threshold && input((i+1)%N) > threshold)
+				_start = (i+1)%N;
+		}
+
+		uword index;
+		double maxmax = input.max(index);
+
+		if(_start > _end)
+			_end+=N;
+
+		for(int i = _start; i < _end; i++){
+			output += (2*M_PI*i/N)*input(i%N);
+			sum_act += input(i%N);
+		}
+		if(sum_act > 0.0)
+			output /= sum_act;
+
+		if(VERBOSE)
+			printf("output = %g\n", output);
+		if(output > 0.)
+			return Angle(fmod(output, 2*M_PI));
+		else{
+			//printf("%f\n", output);
+			return Angle(2*M_PI+fmod(output, 2*M_PI));
+		}
+	};
+
+	/**
+	 * Return the length of array rate
+	 *
+	 * @param (vec) input: vector
+	 * @return (double)
+	 */
+	double pva_len(vec input){
+		return scale_factor * sum(input)/(N*N);
+	}
+
+	/**
 	 * Returns the rate vector of the array
 	 *
 	 *  @return (vec)
@@ -299,19 +351,9 @@ public:
 		if(_start > _end)
 			_end+=N;
 
-
 		for(int i = _start; i < _end; i++){
-			//cout << i << " " << i%N << endl;
 			output += (2*M_PI*i/N)*input(i%N);
 			sum_act += input(i%N);
-//			if(input(0) != 0.0){
-//				continue;
-//			}
-//			else{
-//				offset_i = i;
-//				offset = preferred_angle(i);
-//				break;
-//			}
 		}
 		output /= sum_act;
 
@@ -324,56 +366,45 @@ public:
 	};
 
 	Angle update_avg(vec input){
-			double sum_act = 0.0;
-			double output = 0.0;
-			int _start = 0;
-			int _end = 0;
+		double sum_act = 0.0;
+		double output = 0.0;
+		int _start = 0;
+		int _end = 0;
 
-			for(int i = 0; i < N; i++){
-				if(input(i%N) > threshold && input((i+1)%N) <= threshold)
-					_end = (i+1)%N;
-				if(input(i%N) <= threshold && input((i+1)%N) > threshold)
-					_start = (i+1)%N;
-			}
+		for(int i = 0; i < N; i++){
+			if(input(i%N) > threshold && input((i+1)%N) <= threshold)
+				_end = (i+1)%N;
+			if(input(i%N) <= threshold && input((i+1)%N) > threshold)
+				_start = (i+1)%N;
+		}
 
-			int factor = 1;
+		int factor = 1;
 
-			double sins = 0.;
-			double coss = 0.;
+		double sins = 0.;
+		double coss = 0.;
 
+		uword index;
+		double maxmax = input.max(index);
 
-			uword index;
-			double maxmax = input.max(index);
+		if(_start > _end)
+			_end+=N;
 
-			if(_start > _end)
-				_end+=N;
+		for(int i = _start; i < _end; i++){
+			output += (2*M_PI*i/N)*input(i%N);
+			sum_act += input(i%N);
+		}
+		if(sum_act > 0.0)
+			output /= sum_act;
 
-
-			for(int i = _start; i < _end; i++){
-				//cout << i << " " << i%N << endl;
-				output += (2*M_PI*i/N)*input(i%N);
-				sum_act += input(i%N);
-	//			if(input(0) != 0.0){
-	//				continue;
-	//			}
-	//			else{
-	//				offset_i = i;
-	//				offset = preferred_angle(i);
-	//				break;
-	//			}
-			}
-			if(sum_act > 0.0)
-				output /= sum_act;
-
-			if(VERBOSE)
-				printf("output = %g\n", output);
-			if(output > 0.)
-				return Angle(fmod(output, 2*M_PI));
-			else{
-				//printf("%f\n", output);
-				return Angle(2*M_PI+fmod(output, 2*M_PI));
-			}
-		};
+		if(VERBOSE)
+			printf("output = %g\n", output);
+		if(output > 0.)
+			return Angle(fmod(output, 2*M_PI));
+		else{
+			//printf("%f\n", output);
+			return Angle(2*M_PI+fmod(output, 2*M_PI));
+		}
+	};
 
 	/**
 	 * Updates the length of array rate

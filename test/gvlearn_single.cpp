@@ -15,21 +15,24 @@ using namespace std;
 
 Simulation* sim;
 const int numagents= 1;
-const int numtrials= 50;
-const double T= 500.;		//Maybe 600
-const double Thome= 300.;	//Maybe 400
+const int numtrials= 1;
+const double T= 900.; // 2500 for 10m
+const double Thome= 600.; // 2000 for 10m
 const double dt= 0.1;
 
 int main(){
 	Timer timer(true);
 
-	sim = new Simulation(numtrials, numagents, true);
+	sim = new Simulation(numtrials, numagents, false);
+	sim->add_goal(0., 5., 0);
 	sim->homing(true);
 	sim->gvlearn(true);
 	sim->beta(true);
-	sim->init_controller(18, 0.05, 0.0, 0.00, 0.0);
+	sim->init_controller(18, 0.05, 0.0, 0.00);
 	sim->set_inward(int(Thome/dt));							// inward after 1000 seconds
 
+	sim->c(0)->set_expl(0, 0.0, true);
+	sim->c(0)->GV_module()->GV(0,Vec(5.,0.),true);
 	sim->run(numtrials, T, dt);
 	delete sim;
 

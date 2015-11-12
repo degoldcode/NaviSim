@@ -27,16 +27,21 @@
 
 #include "pin.h"
 
-PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise) : CircArray(num_neurons) {
-	printf("=== PI parameters ============\n");
-	printf("Neurons: %u\n", N);
-	leak_rate = leak;
-	printf("Leak: %g\n", leak_rate);
-	snoise = sens_noise;
-	printf("Sensory noise: %g\n", snoise);
-	nnoise = neur_noise;
-	printf("Uncorrelated noise: %g\n", nnoise);
-	printf("==============================\n\n");
+PIN::PIN(int num_neurons, double leak, double sens_noise, double neur_noise, bool in_silent) : CircArray(num_neurons) {
+	t_step = 0;
+	SILENT = in_silent;
+	VERBOSE = false;
+	if(!SILENT){
+		printf("=== PI parameters ============\n");
+		printf("Neurons: %u\n", N);
+		leak_rate = leak;
+		printf("Leak: %g\n", leak_rate);
+		snoise = sens_noise;
+		printf("Sensory noise: %g\n", snoise);
+		nnoise = neur_noise;
+		printf("Uncorrelated noise: %g\n", nnoise);
+		printf("==============================\n\n");
+	}
 //	VERBOSE = true;
 
 	CircArray* in_array = new CircArray(N);
@@ -74,6 +79,7 @@ void PIN::reset(){
 }
 
 void PIN::update(Angle angle, double speed){
+	t_step++;
 	//---Sensory Noise
 	Angle noisy_angle = angle + Angle(2.*M_PI*snoise*boost_noise(1.));
 	double noisy_speed = speed + 0.1*snoise*boost_noise(1.);
@@ -100,6 +106,15 @@ void PIN::update(Angle angle, double speed){
 
 	//Output parameters
 	vec out = ar.at(PI)->rate();
+
+	//*** Update vector representation ***//
+	/// home vector TODO
+	Angle hv_angle = vector_avg(out);
+	Angle hv_angle_new = pva_angle(out);
+	double hv_len = pva_len(out);
+	//local_vector.to(lv_len*lv_angle.C(), lv_len*lv_angle.S());
+
+
 	//printf("%g\n", accu(out));
 	update_piavg(out);
 	update_pilen(out);

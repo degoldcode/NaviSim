@@ -36,18 +36,17 @@ set palette rgb 21,22,23 ## hot
 #set palette negative
 
 PI = 3.14159
-g(x)=225./20.
+g(x)=123.7/20.
 f(x)=180./20.
 
 FACTOR = (1.*columns/(1.*STATS_max))
 
 ##### Reservoir activations
-set output "../../figs/lv_activity_0.eps"
-plot "../mat/lv_activity_0.mat" matrix with image, g(x) w l lt -1 lc rgb "red" t "correct", "../localvector.dat" u ($2*FACTOR):(rows*$11/360) w l lt -1 lc rgb "cyan" t "vec avg"
-#, "../localvector.dat" u ($2*columns/(rowss/10)):(rows*$11/360) w l lt -1 lc rgb "green" t "avg",
-#, "../homevector.dat" u ($2*columns/(rowss/10)):(rows*$7/360) w l lt -1 lc rgb "green" t "avg", "../homevector.dat" u ($2*columns/(rowss/10)):(rows*$8/360) w l lt 1 lc rgb "blue" t "max", "../agent.dat" u ($8*columns/(rowss/10)):(rows*$7/360) w l lt -1 lc rgb "violet"  t "real"
-set output
-set output "../../figs/lv_activity_1.eps"
-plot "../mat/lv_activity_1.mat" matrix with image, f(x) w l lt -1 lc rgb "red" t "correct", "../localvector.dat" u ($2*FACTOR):(rows*$12/360) w l lt -1 lc rgb "cyan" t "vec avg"
-#, "../localvector.dat" u ($2*columns/(rowss/10)):(rows*$5/360) w l lt -1 lc rgb "green" t "avg"
-set output
+if (!exists("num_lv")) num_lv=3
+do for [i=0:num_lv-1] {
+    infile = sprintf('../mat/lv_activity_%u.mat',i)
+    outfile = sprintf('../../figs/lv_activity_%u.eps',i)
+    set output outfile
+    lv_index=11+i
+    plot infile matrix with image, g(x) w l lt -1 lc rgb "red" t "correct", "../localvector.dat" u ($2*FACTOR):(rows*($11)/360) w l lt -1 lc rgb "cyan" t "vec avg"
+}

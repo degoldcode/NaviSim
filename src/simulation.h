@@ -158,12 +158,14 @@ public:
 	 * Initialize controller with parameters
 	 *
 	 * @param (int) num_neurons: number of neurons per layer (default: 18)
+	 * @param (int) num_gv_units: number of global vector units (default: 1)
+	 * @param (int) num_lv_units: number of local vector units (default: 1)
 	 * @param (double) sensory_noise: sensory noise level (default: 0.0)
 	 * @param (double) uncor_noise: uncorrelated noise level (default: 0.0)
 	 * @param (double) leakage: leakage term for systematic errors (default: 0.0)
 	 * @return (void)
 	 */
-	void init_controller(int num_neurons=18, double sensory_noise=0.0, double uncor_noise = 0.0, double leakage=0.0, double syn_noise=0.0);
+	void init_controller(int num_neurons=18, int num_gv_units=1, int num_lv_units=1, double sensory_noise=0.0, double uncor_noise = 0.0, double leakage=0.0, double syn_noise=0.0);
 
 	/**
 	 * Reset simulation
@@ -250,15 +252,19 @@ private:
 	ofstream lmr_signals;
 	ofstream lmr_angles;
 	ofstream adaptive_expl;
+	ofstream trialtimes;
+	ofstream performance_gvl;
+	ofstream LV_elig_traces;
 
 	//************ Controller options *************//
 	bool pin_on;			// true, if agent does PI
 	bool homing_on;         // true, if agent does homing after certain time
 	bool gvlearn_on;        // true, if agent learns global vectors
 	bool gvnavi_on;         // true, if agent navigates global vectors
-	bool lvlearn_on;		// true, if agent learns local vectors
-	bool beta_on;		// true, if agent learns beta
-
+	bool lvlearn_on;        // true, if agent learns local vectors
+	bool beta_on;           // true, if agent learns beta
+	int num_GV_units;       // number of GV units (goal types)
+	int num_LV_units;       // number of LV units (detected landmarks)
 
 	//************ Timing parameters ************//
 
@@ -268,6 +274,8 @@ private:
 	double dt;              // integration time
 	int timestep;           // discrete time steps
 	int sample_time;		// how often data is written into file
+	double start_time;		// trial start time
+	double foodward_time;	// time needed for foraging
 
 public:
 	//************ Evaluation parameters ************//
@@ -277,14 +285,21 @@ public:
 
 	/// Path integration
 	running_stat<double> is_home;					// homing success
+	vector<double> home_rate;
 	running_stat<double> is_goal;					// goal success
+	vector<double> goal_rate;
+	vector<double> expl_rate;
 	running_stat<double> avg_reward;				// goal success
 	int count_home;
 	int count_goal;
-	running_stat<double> pi_error;              // distance between estimated and actual position of agent per timestep (reset each trial)
-	running_stat<double> pi_error_max;              // distance between estimated and actual position of agent per timestep (reset each trial)
-	running_stat<double> total_pi_error;		// distance between estimated and actual position of agent per timestep per trial
+	double prev_expl;                               /// Exploration rate of previous trial
+	int trial_converge;                             /// Number of trials for goal-directed behavior (expl_rate < 0.5)
+	running_stat<double> pi_error;                  /// distance between estimated and actual position of agent per timestep (reset each trial)
+	running_stat<double> pi_error_max;              /// distance between estimated and actual position of agent per timestep (reset each trial)
+	running_stat<double> total_pi_error;		    /// distance between estimated and actual position of agent per timestep per trial
 	//running_stat<double> avg_foraging_dis;
+
+	//vector< running_stat<double> >
 
 	//************ debugging ************//
 	bool VERBOSE;
