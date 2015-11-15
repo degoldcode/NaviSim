@@ -168,7 +168,6 @@ void Simulation::init_controller(int num_neurons, int num_gv_units, int num_lv_u
 		Controller* control = new Controller(num_neurons, num_gv_units, num_lv_units, sensory_noise, leakage, uncor_noise, syn_noise, opt_switches);
 		int size = N*pow( 10, int(log10( double( num_neurons ) ) ) );
 		control->set_sample_int(size/10);      // sample activity data every 10 time steps
-
 		control->beta_on = beta_on;
 		a(i)->init(control);
 		controllers.push_back(control);
@@ -276,6 +275,8 @@ void Simulation::set_inward(int _time){
 void Simulation::update(){
 //	if(accu(c()->GV_module()->dW()) < 0.0 && (a(0)->pos - c()->HV()).len() > 0.3)
 //		printf("GV learn at (%g,%g) -> (%g, %g), R = %g\n", a(0)->pos.x, a(0)->pos.y, c()->HV().x, c()->HV().y, c()->GV_module()->R());
+	if(timestep%1000==0 && N == 1 && pin_on && !SILENT)
+		printf("Time = %g\te = %g\te_max = %g\n", trial_t, pi_error.mean(), pi_error_max.mean());
 	timestep++;
 	trial_t += dt;
 	global_t += dt;

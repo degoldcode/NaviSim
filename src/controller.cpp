@@ -17,7 +17,6 @@ Controller::Controller(int num_neurons, int _num_gv_units, int _num_lv_units, do
 	pin = new PIN(numneurons, leakage, sensory_noise, uncorr_noise, SILENT);
 	pin->VERBOSE=true;
 
-
 	num_colors = _num_gv_units;
 	if(gvlearn_on)
 		gvl = new GoalLearning(numneurons, syn_noise, &inward, false, SILENT);
