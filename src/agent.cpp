@@ -59,6 +59,10 @@ Angle Agent::dphi(){
 	return diff_heading;
 }
 
+double Agent::get_lmcontrol(){
+	return innate_lm_control;
+}
+
 Vec Agent::GV(int i){
 	return control->GV(i);
 }
@@ -131,7 +135,7 @@ void Agent::update(double _reward, vec _lmr){
 	if(!in_pipe && lm_catch){
 		if(VERBOSE && t_step%100==0)
 			printf("LM control: %f \n", innate_lm_control);
-		diff_heading.to(dt * k_phi * control_output + 0.5 * dt * k_phi * innate_lm_control);
+		diff_heading.to(dt * k_phi * control_output + 1. * dt * k_phi * innate_lm_control);
 		heading = heading + diff_heading; //+ dt *  0.5 * control_output;
 	}
 	if(in_pipe){

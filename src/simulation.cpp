@@ -64,6 +64,9 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	agent_str.width(10);
 	agent_str << "#Trial\t#Trial_t\t#X\t#Y\t#Dis\t#Phi\t#Theta\t#Global_t\t#EligibLM\n";
 	agent_str.open("data/agent.dat");
+	lmr_attract.width(10);
+	lmr_attract << "#Trial\t#Trial_t\t#X\t#Y\t#LMcatch\t#LMattract\t#LMcatchm\t#LMseen\n";
+	lmr_attract.open("data/lmattract.dat");
 	endpts_str.open("data/endpoints.dat");
 	//error_dist.open(str_names.at(pos).c_str());
 	homevector_str.open("data/homevector.dat");
@@ -94,6 +97,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 Simulation::~Simulation(){
 	total_pi_error.reset();
 	agent_str.close();
+	lmr_attract.close();
 	endpts_str.close();
 	error_dist.close();
 	homevector_str.close();
@@ -322,6 +326,22 @@ void Simulation::writeTrialData(){
 			agent_str  << "\t" << c()->el_lm(lm_i);	// TODO: different streams for different agents
 	}
 	agent_str << endl;
+
+	lmr_attract << fixed;
+	lmr_attract << setprecision(0) << trial                         << "\t";
+	lmr_attract << setprecision(1) << global_t                      << "\t";
+	lmr_attract << setprecision(6) << a(0)->x()                     << "\t";
+	lmr_attract << setprecision(6) << a(0)->y()                     << "\t";
+	lmr_attract << setprecision(6) << a(0)->lm_catch                << "\t";
+	lmr_attract << setprecision(6) << a(0)->get_lmcontrol()         << "\t";
+	lmr_attract << setprecision(6) << e()->lm_stats.catchment(0, 0) << "\t"; // 7
+	lmr_attract << setprecision(6) << e()->lm_stats.catchment(1, 0) << "\t"; // 8
+	lmr_attract << setprecision(6) << e()->lm_stats.catchment(2, 0) << "\t"; // 9
+	lmr_attract << setprecision(6) << e()->lm_stats.seen(0, 0)      << "\t"; // 10
+	lmr_attract << setprecision(6) << e()->lm_stats.seen(1, 0)      << "\t"; // 11
+	lmr_attract << setprecision(6) << e()->lm_stats.seen(2, 0)      << "\t"; // 12
+	lmr_attract << endl;
+
 	error_dist  << (a(0)->x() - a(0)->HV().x) << "\t" << (a(0)->y() - a(0)->HV().y) << endl;
 	if(pin_on){
 		homevector_str << trial_t << "\t" << global_t; 													//1,2
@@ -360,10 +380,10 @@ void Simulation::writeTrialData(){
 	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;
 	length_scaling << a(0)->v().len() << "\t" << sum(a(0)->pi()->get_output()) << "\t" << a(0)->c()->N() << endl;
 	out_signals << trial_t << "\t" << global_t << "\t";
-	out_signals << c()->rand_w << "\t" << c()->rand_m << "\t";
-	out_signals << c()->pi_w << "\t" << c()->pi_m << "\t";
-	out_signals << c()->gl_w << "\t" << c()->gl_m << "\t";
-	out_signals << c()->rl_w << "\t" << c()->rl_m << endl;
+	out_signals << c()->output_hv << "\t";
+	out_signals << c()->output_gv << "\t";
+	out_signals << c()->output_lv << "\t";
+	out_signals << c()->output_rand << endl;
 
 	if(lvlearn_on){
 		lmr_signals << trial_t << "\t" << global_t << "\t";

@@ -29,6 +29,7 @@ gnuplot lv.plot -e "num_lv=3"
 gnuplot track_lv.plot
 gnuplot track_eligtrac.plot
 gnuplot signals.plot
+gnuplot gv_performance.plot
 fi
 
 cd ..

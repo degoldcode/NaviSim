@@ -47,6 +47,7 @@ struct ObjStats{
 	mat visible;
 	mat seen;
 	mat catchment;
+	vec last_seen;
 };
 
 
@@ -372,6 +373,8 @@ public:
 	double y(int i=0);
 
 
+	ObjStats lm_stats;
+
 private:
 
 	//************ Environment parameters **********//
@@ -399,7 +402,6 @@ private:
 	vector<Pipe*> pipe_list;
 	vector<Angle*> pipe_angle;
 	ObjStats g_stats;
-	ObjStats lm_stats;
 	mat in_pipe;
 
 	//************ output file streams ************//

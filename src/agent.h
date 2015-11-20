@@ -80,6 +80,13 @@ public:
 	Controller* c();
 
 	/**
+	 * Return the landmark attraction difference in heading direction of the agent
+	 *
+	 * @return (double)
+	 */
+	double get_lmcontrol();
+
+	/**
 	 * Returns ith global vector of the agent using average
 	 *
 	 * @param (int) index: index of global vector (default: 0)

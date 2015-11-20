@@ -251,6 +251,7 @@ private:
 	ofstream out_signals;
 	ofstream lmr_signals;
 	ofstream lmr_angles;
+	ofstream lmr_attract;
 	ofstream adaptive_expl;
 	ofstream trialtimes;
 	ofstream performance_gvl;

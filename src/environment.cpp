@@ -48,6 +48,10 @@ Environment::Environment(int num_agents){
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
 	lm_stats.visible = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.seen = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.catchment = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.last_seen = ones<vec>(agent_list.size());
+	lm_stats.last_seen *= -1;
 	in_pipe = zeros<mat>(agent_list.size(), pipe_list.size());
 	open_streams();
 }
@@ -341,6 +345,11 @@ void Environment::reset(){
 	stop_trial = false;
 	g_stats.collisions = zeros<mat>(agent_list.size(), goal_list.size());
 	g_stats.hits = zeros<mat>(agent_list.size(), goal_list.size());
+	lm_stats.last_seen = ones<vec>(agent_list.size());
+	lm_stats.last_seen *= -1;
+	lm_stats.seen = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.catchment = zeros<mat>(landmark_list.size(), agent_list.size());
+	lm_stats.visible = zeros<mat>(landmark_list.size(), agent_list.size());
 	std::fill(trial_reward.begin(), trial_reward.end(), 0.);
 	for(unsigned int i = 0; i < agent_list.size(); i++)
 		agent_list.at(i)->reset();
@@ -371,22 +380,25 @@ void Environment::update(){
 
 void Environment::update_agents(){
 	for(unsigned int i = 0; i < agent_list.size(); i++){
+		count_lm=0;
+		if(VERBOSE && t_step%100==0)
+			printf("Last seen = %1.0f\n", lm_stats.last_seen(i));
 		for(unsigned int j = 0; j < landmark_list.size(); j++){
-			count_lm=0;
-			if(/*j!= 0 &&*/ lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0){
+			if(lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0 && lm_stats.last_seen(i) != j){
 				agent_list.at(i)->lm_catch = true;
+				lm_stats.last_seen(i) = j;
 				Angle lm_phi = phi(landmark_list.at(i), agent_list.at(i));
 				double landmark_attract = 0.5*sin(get_visible_LM_th(0) - agent_list.at(i)->phi().rad());
 				if(VERBOSE && t_step%100==0)
 					printf("LM attract %g at (%g,%g) -> %u\n", landmark_attract, a(0)->x(), a(0)->y(), agent_list.at(i)->lm_catch);
 				agent_list.at(i)->set_lmcontrol(landmark_attract);
 			}
-			else{
-				//agent_list.at(i)->set_dphi(new Angle(0.0));
+			if(lm_stats.seen(j,i) == 1 || lm_stats.catchment(j,i) == 0)
 				count_lm++;
-			}
-			if(count_lm==3)
-				agent_list.at(i)->lm_catch = false;
+		}
+		if(count_lm==3){
+			agent_list.at(i)->set_lmcontrol(0.0);
+			agent_list.at(i)->lm_catch = false;
 		}
 		if(i < lm_stats.visible.n_rows)
 			agent_list.at(i)->update(reward.at(i), lm_stats.visible.col(i));
