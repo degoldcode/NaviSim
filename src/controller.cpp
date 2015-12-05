@@ -24,7 +24,7 @@ Controller::Controller(int num_neurons, int _num_gv_units, int _num_lv_units, do
 
 	num_lv_units = _num_lv_units;
 	if(lvlearn_on)
-		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false, SILENT);
+		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, true, SILENT);
 
 	rand_m = 0.0;
 	pi_m = 0.0;
@@ -163,6 +163,14 @@ RouteLearning* Controller::LV_module(){
 	return lvl;
 }
 
+double Controller::LV_reward(){
+	return lvl->R();
+}
+
+double Controller::LV_reward(int index){
+	return lvl->R(index);
+}
+
 Angle Controller::LV_vecavg(int index){
 	return lvl->vec_avg(index);
 }
@@ -210,8 +218,9 @@ double Controller::randn(double mean, double stdev) {
 
 void Controller::reset() {
 	pin->reset();
-	if(lvlearn_on)
+	if(lvlearn_on){
 		lvl->reset_el_lm();
+	}
 	accum_reward = zeros(num_colors);
 	t = 0;
 	inward = 0.;
@@ -375,7 +384,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 	}
 
 	/*** Random foraging ***/
-	rand_w = (1. - inward)*0.6*expl_factor(0);//*(1.-accu(lv_value));
+	rand_w = (1. - inward)*0.6*expl_factor(0)*(1.-accu(lv_value));
 	rand_m = randn(0.0, 1.);
 	if(inward == 1)
 		rand_m = 0.;

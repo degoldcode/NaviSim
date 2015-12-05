@@ -7,7 +7,7 @@ set ylabel "y"
 set cblabel "Trials" offset 1
 
 stat "../agent.dat" u 5 nooutput
-print STATS_max
+#print STATS_max
 
 set size square
 SCALE = 50 ##(STATS_max+STATS_max/20.)*2.

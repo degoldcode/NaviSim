@@ -12,11 +12,11 @@ set size square
 SCALE = 19.5
 OFFSETX = 0.0
 OFFSETY = 0.0
-set xtics 5.
-set ytics 5.
+set xtics 5. out
+set ytics 5. out
 set xrange [-SCALE/2+OFFSETX:SCALE/2+OFFSETX]
 set yrange [-SCALE/2+OFFSETY:SCALE/2+OFFSETY]
-set cbrange [0:0.005]
+#set cbrange [0:0.005]
 
 #set key opaque
 set key left outside

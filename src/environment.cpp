@@ -387,10 +387,12 @@ void Environment::update_agents(){
 			if(lm_stats.catchment(j,i) == 1 && lm_stats.seen(j,i) == 0 && lm_stats.last_seen(i) != j){
 				agent_list.at(i)->lm_catch = true;
 				lm_stats.last_seen(i) = j;
+			}
+			if(agent_list.at(i)->lm_catch){
 				Angle lm_phi = phi(landmark_list.at(i), agent_list.at(i));
 				double landmark_attract = 0.5*sin(get_visible_LM_th(0) - agent_list.at(i)->phi().rad());
 				if(VERBOSE && t_step%100==0)
-					printf("LM attract %g at (%g,%g) -> %u\n", landmark_attract, a(0)->x(), a(0)->y(), agent_list.at(i)->lm_catch);
+					printf("LM attract %g at (%g,%g) -> %u || Theta = %g\n", landmark_attract, a(0)->x(), a(0)->y(), agent_list.at(i)->lm_catch, get_visible_LM_th(0));
 				agent_list.at(i)->set_lmcontrol(landmark_attract);
 			}
 			if(lm_stats.seen(j,i) == 1 || lm_stats.catchment(j,i) == 0)

@@ -176,6 +176,21 @@ public:
 	RouteLearning* LV_module();
 
 	/**
+	 * Return local vector total reward of given index
+	 *
+	 *  @return (double)
+	 */
+	double LV_reward();
+
+	/**
+	 * Return local vector value reward of given index
+	 *
+	 *  @param (int) index: local vector index
+	 *  @return (double)
+	 */
+	double LV_reward(int index);
+
+	/**
 	 * Return product of eligibility trace and local vector value of given index
 	 *
 	 *  @param (int) index: local vector index (default: 0)

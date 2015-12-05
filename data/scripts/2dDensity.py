@@ -8,7 +8,7 @@ data_file = '../agent.dat'
 expl_file = '../performgvl.dat'
 before_file = '../before_histogram.dat'
 after_file = '../after_histogram.dat'
-#data_file = '../data_histogram.dat'
+out_file = '../agent_histogram.dat'
 
 num_per_meter = 5.0 
 offset = (1/num_per_meter)*0.5 
@@ -48,19 +48,27 @@ x_interval_length = (x_max - x_min) / x_resolution
 y_interval_length = (y_max - y_min) / y_resolution
 interval_surface = x_interval_length * y_interval_length
 increment = 1. / count
+#print "increment="
+#print increment
 M = loadtxt(expl_file, skiprows=1)
 
 for i in points:
     x = int((i[0] - x_min) / x_interval_length)
     y = int((i[1] - y_min) / y_interval_length)
-    if M[i[2]-1,1]>0.5:	
-    	histogram[x,y] += (1-option)*increment
-    if M[i[2]-1,1]<0.5:	
-    	histogram[x,y] += (option)*increment
+    if option !=-1:
+        if M[i[2]-1,1]>0.5:	
+    	    histogram[x,y] += (1-option)*increment
+        if M[i[2]-1,1]<0.5:	
+    	   histogram[x,y] += (option)*increment
+
+    if option == -1:
+	histogram[x,y] += increment
 
 x_intervals = arange(x_min, x_max, (x_max - x_min) / x_resolution)
 y_intervals = arange(y_min, y_max, (y_max - y_min) / y_resolution)
 
+if option==-1:
+    o = open(out_file, 'w')
 if option==0:
     o = open(before_file, 'w')
 if option==1:
@@ -69,4 +77,4 @@ for i, x in enumerate(x_intervals):
     for j, y in enumerate(y_intervals):
         o.write('%f %f %f \n' % (x, y, histogram[i,j]))
     o.write('\n')
-print histogram.max()
+#print histogram.max()

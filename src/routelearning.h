@@ -91,6 +91,14 @@ public:
 	double R();
 
 	/**
+	 * Returns received reward
+	 *
+	 *	@param (int) index: index of local vector (i.e., detected landmark)
+	 *  @return (double)
+	 */
+	double R(int index);
+
+	/**
 	 * Return reference PI activity
 	 *
 	 * @return (vec)
@@ -198,8 +206,10 @@ private:
 	vec clip_lmr;
 	vec raw_lmr;
 	vec eligibility_lmr;
+	vec eligibility_long;
 	vec value;
-	double value_decay;
+	const double value_decay = 0.00001;
+	const double global_decay = 0.000001;
 
 	mat white_weights;
 	mat weight_change;

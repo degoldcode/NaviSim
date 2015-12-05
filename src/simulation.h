@@ -256,6 +256,7 @@ private:
 	ofstream trialtimes;
 	ofstream performance_gvl;
 	ofstream LV_elig_traces;
+	ofstream LV_learning;
 
 	//************ Controller options *************//
 	bool pin_on;			// true, if agent does PI

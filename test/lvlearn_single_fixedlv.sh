@@ -25,11 +25,15 @@ cd data/scripts
 ### plot data using gnuplot gui
 if [ "$1" = "all" ] || [ "$1" = "plot" ] ; then
 echo "Plot data."
+python 2dDensity.py -1
+gnuplot 2dDensity.plot
 gnuplot lv.plot -e "num_lv=3"
+gnuplot ref.plot
 gnuplot track_lv.plot
 gnuplot track_eligtrac.plot
 gnuplot signals.plot
 gnuplot gv_performance.plot
+gnuplot lv_learning.plot
 fi
 
 cd ..

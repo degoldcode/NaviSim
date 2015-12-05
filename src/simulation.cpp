@@ -91,7 +91,11 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	LV_elig_traces.open("data/lv_eligtraces.dat");
 	LV_elig_traces.width(10);
 	LV_elig_traces << fixed;
-	LV_elig_traces << "#Trial\t#Global_t\t#X\t#Y\t";
+	LV_elig_traces << "#Trial\t#Global_t\t#X\t#Y\tR\t";
+	LV_learning.open("data/lv_learning.dat");
+	LV_learning.width(10);
+	LV_learning << fixed;
+	LV_learning << "#Trial\t#Global_t\t#X\t#Y\tR\t";
 }
 
 Simulation::~Simulation(){
@@ -114,6 +118,7 @@ Simulation::~Simulation(){
 	trialtimes.close();
 	performance_gvl.close();
 	LV_elig_traces.close();
+	LV_learning.close();
 	delete environment;
 }
 
@@ -162,10 +167,13 @@ void Simulation::init_controller(int num_neurons, int num_gv_units, int num_lv_u
 	num_GV_units = num_gv_units;
 	num_LV_units = num_lv_units;
 	LV_elig_traces.width(10);
+	LV_learning.width(10);
 	for(unsigned int index = 0; index < num_LV_units; index++){
 		LV_elig_traces << "#Elig_tr[" << index << "]\t";
+		LV_learning << "Value[" << index << "]\t";
 	}
 	LV_elig_traces << endl;
+	LV_learning << endl;
 
 	vector<bool> opt_switches = {homing_on, gvlearn_on, lvlearn_on, SILENT};
 	for(unsigned int i= 0; i< agents; i++){
@@ -284,8 +292,8 @@ void Simulation::update(){
 	timestep++;
 	trial_t += dt;
 	global_t += dt;
-	if(N==1 && timestep%100 == 0)
-		printf("%u\tTheta=%f\n", timestep, environment->a(0)->th().deg());
+	//if(N==1 && timestep%100 == 0)
+		//printf("%u\tTheta=%f\n", timestep, environment->a(0)->th().deg());
 	avg_reward(c()->R(0));
 	environment->update();
 	is_goal(environment->get_hits(0) > 0);
@@ -370,11 +378,23 @@ void Simulation::writeTrialData(){
 		LV_elig_traces << setprecision(0) << trial << "\t";
 		LV_elig_traces << setprecision(1) << global_t << "\t\t";
 		LV_elig_traces << setprecision(3) << a(0)->x() << "\t";
-		LV_elig_traces << setprecision(3) << a(0)->y() << "\t\t";
+		LV_elig_traces << setprecision(3) << a(0)->y() << "\t";
+		LV_elig_traces << setprecision(6) << c(0)->LV_reward() << "\t";
 		for(unsigned int index = 0; index < num_LV_units; index++){
 			LV_elig_traces 	<< setprecision(6) << c()->el_lm(index) << "\t";
 		}
 		LV_elig_traces << endl;
+
+		LV_learning << fixed;
+		LV_learning << setprecision(0) << trial << "\t";
+		LV_learning << setprecision(1) << global_t << "\t\t";
+		LV_learning << setprecision(3) << a(0)->x() << "\t";
+		LV_learning << setprecision(3) << a(0)->y() << "\t";
+		LV_learning << setprecision(6) << c(0)->LV_reward() << "\t";
+		for(unsigned int index = 0; index < num_LV_units; index++){
+			LV_learning 	<< setprecision(6) << c()->LV_reward(index) << "\t";
+		}
+		LV_learning << endl;
 	}
 	reward_str << trial_t << "\t" << global_t;
 	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;
