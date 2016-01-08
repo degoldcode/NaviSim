@@ -35,6 +35,7 @@ gnuplot adaptive_expl.plot
 gnuplot 2dDensitySplit.plot
 gnuplot activations.plot
 gnuplot gv.plot
+gnuplot signals.plot
 #gnuplot reward.plot
 #python circle.py
 #python circle_gv.py

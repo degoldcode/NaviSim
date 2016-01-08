@@ -285,11 +285,12 @@ public:
 	Angle phi(Object* o1, Object* o2);
 
 	/**
-	 * Returns reward signal
+	 * Returns food reward signal of ith agent
 	 *
+	 *  @param (int) index: agent index
 	 * 	@return (double)
 	 */
-	//double r();
+	double r(int index);
 
 	/**
 	 * Resets the environment -> reset of agent and trial-based statistics

@@ -114,8 +114,6 @@ void PIN::update(Angle angle, double speed){
 	double hv_len = pva_len(out);
 	//local_vector.to(lv_len*lv_angle.C(), lv_len*lv_angle.S());
 
-
-	//printf("%g\n", accu(out));
 	update_piavg(out);
 	update_pilen(out);
 	set_max(update_max(out), 0);

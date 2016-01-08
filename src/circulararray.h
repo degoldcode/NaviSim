@@ -503,11 +503,11 @@ protected:
 
 private:
 
-	vector<Angle> max_angle;                                // Angle of the maximum-firing neuron
+	vector<Angle> max_angle;                        // Angle of the maximum-firing neuron
 	double max_rate;                                // Maximum rate of neuron array
-	vector<Angle> avg_angle;                                // Average position of the maximum firing rate
+	vector<Angle> avg_angle;                        // Average position of the maximum firing rate
 	Angle avgw_angle;                               // Average position of the maximum weight
-	vector<double> length;    					// Length of vector = (some scaling factor)*(sum of activities)/N
+	vector<double> length;    					    // Length of vector = (some scaling factor)*(sum of activities)/N
 	const double scale_factor = 2.41456;			// Scaling factor (1.25597(fit_mult); 2.41456(fit_add); 2.41474212(manual_add))
 
 	vec input_rate;                                 // Input activity rate to the array

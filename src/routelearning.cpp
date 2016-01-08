@@ -15,7 +15,7 @@ RouteLearning::RouteLearning(int num_neurons, int num_lmr_units, double nnoise, 
 	stored_local_vector.resize(num_lmr_units);
 	new_vector_avg.resize(num_lmr_units);
 	foraging_state = forage;
-	learn_rate = 0.2;
+	learn_rate = 1.;
 	reward = 0.0;
 	neural_noise = nnoise;
 	load_weights = opt_load;
@@ -152,7 +152,7 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 		if(VERBOSE)
 			printf("t = %u\n", t_step);
 	}
-	value += (5.*in_reward - value_decay)*eligibility_long - global_decay*value;
+	value += (in_reward - value_decay)*eligibility_long - global_decay*value;
 	value.elem( find(value < 0.0) ).zeros();
 	vec value_new = 1. - exp(-value);
 
@@ -162,10 +162,12 @@ void RouteLearning::update(Angle angle, double speed, double in_reward, vec inpu
 
 	//Reference PI
 	double unoise = boost_unoise();
+	if(VERBOSE && t_step%10==0)
+		printf("angle, speed = %g, %g\n", angle.deg(), speed);
 	reference_pin->update(angle, speed);
-	if(VERBOSE && t_step%100==0)
-		printf("RV =(%g,%g)\n", reference_pin->HV().x, reference_pin->HV().y);
-	update_rate(input_conns*eligibility_lmr);
+	if(VERBOSE && t_step%10==0)
+		printf("t = %u, RV = (%g,%g)\t(%f, %f)\n", t_step, reference_pin->HV().x, reference_pin->HV().y, reference_pin->HV().ang().deg(), reference_pin->HV().len());
+	update_rate(input_conns*sign(eligibility_lmr));
 	double deltaW = -accu(input_conns);
 	update_weights();
 	deltaW += accu(input_conns);

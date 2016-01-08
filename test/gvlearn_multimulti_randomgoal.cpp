@@ -15,11 +15,11 @@ using namespace std;
 
 Simulation* sim;
 const int numagents= 1;
-const int numtrials= 100; //50;
+const int numtrials= 1000; //50;
 const double T= 300.; //300,600,900,1200,1500
 const double Thome= 200.; //200,400,600,800,1000
 const double dt= 0.1;
-const int numcycles = 200;//100;
+const int numcycles = 1;
 
 ///
 vector< running_stat<double> > expl_rate;
@@ -49,12 +49,13 @@ int main(){
 		sim->homing(true);
 		sim->gvlearn(true);
 		sim->beta(true);
-		sim->init_controller(18, 0.05, 0.0, 0.00, 0.0);
+		sim->lvlearn(false);
+		sim->init_controller(18, 1, 1, 0.05, 0.0, 0.00, 0.0);
 		sim->set_inward(int(Thome/dt));							// inward after 1000 seconds
 		sim->run(numtrials, T, dt);
 		printf("Start cycle #%u\n", cycle);
 		for(unsigned int trial = 0; trial < numtrials; trial++){
-			if(trial%10==0)
+			if(trial%200==0)
 				printf("Trial = %u\tExpl = %1.4f\tHome = %1.4f\tGoal = %1.4f\n", trial, sim->expl_rate.at(trial), sim->home_rate.at(trial), sim->goal_rate.at(trial));
 			expl_rate.at(trial)(sim->expl_rate.at(trial));
 			home_rate.at(trial)(sim->home_rate.at(trial));

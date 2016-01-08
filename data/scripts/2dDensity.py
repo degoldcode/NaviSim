@@ -56,9 +56,10 @@ for i in points:
     x = int((i[0] - x_min) / x_interval_length)
     y = int((i[1] - y_min) / y_interval_length)
     if option !=-1:
-        if M[i[2]-1,1]>0.5:	
+        threshold_conv = 0.01
+        if M[i[2]-1,1]>threshold_conv:	
     	    histogram[x,y] += (1-option)*increment
-        if M[i[2]-1,1]<0.5:	
+        if M[i[2]-1,1]<=threshold_conv:	
     	   histogram[x,y] += (option)*increment
 
     if option == -1:

@@ -10,8 +10,8 @@ plot "../signals.dat" u 2:6 w l lt 1 lw 1 lc rgb "#f39c12" t "Random", \
 
 set output
 
-#set output "../../figs/weights.eps"
-
+set output "../../figs/turning.eps"
+plot "../agent.dat" u 8:9 w l lt 1 lw 2 lc rgb "red" t ""
 #set yrange [-5:5]
 #plot "../signals.dat" u 2:3 w l lt 0 lw 0 lc rgb "red" t "Random", \
 #"../signals.dat" u 2:5 w l lt -1 lw 1 lc rgb "green" t "PI", \

@@ -1,4 +1,3 @@
-
 reset
 set term postscript enhanced color eps "Helvetica,12" size 3.5,2.5
 

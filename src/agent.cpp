@@ -126,13 +126,13 @@ void Agent::update(double _reward, vec _lmr){
 	//control->set_inward(inward);
 	if(VERBOSE && t_step%100==0)
 		printf("%u\n", lm_catch);
-	if(!in_pipe && !lm_catch){
+	if(!in_pipe && (!lm_catch || !control->lvlearn_on)){
 		if(VERBOSE && t_step%100==0)
 			printf("Normal control: %f \n", control_output);
 		diff_heading.to(dt * k_phi * control_output);
 		heading = heading + diff_heading;
 	}
-	if(!in_pipe && lm_catch){
+	if(!in_pipe && lm_catch && control->lvlearn_on){
 		if(VERBOSE && t_step%100==0)
 			printf("LM control: %f \n", innate_lm_control);
 		diff_heading.to(dt * k_phi * control_output + 1. * dt * k_phi * innate_lm_control);

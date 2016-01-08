@@ -78,12 +78,12 @@ set isosample 400
 set multiplot layout 2,2
 set origin 0.0,0.45
 set size 0.45,0.6
-set title "Before"
+set title "{/Symbol e} {/Symbol \76} 0.01"
 splot '../before_histogram.dat' t '', \
 	"../goals.dat" u 1:2:(0.0) w p pt 6 ps (29./SCALE) lc rgb "white" t "", "../home.dat" u 1:2:(0.0) w p pt 6 ps (29./SCALE) lc rgb "#666666" t "", "../goals.dat" u 1:(($3 > 0)?$2:1/0):(0.0) w p pt 6 ps (29./SCALE) lc rgb "green" t ""
 set origin 0.35,0.45
 set size 0.45,0.6
-set title "After"	
+set title "{/Symbol e} {/Symbol \243} 0.01"	
 splot '../after_histogram.dat' t '', \
 	"../goals.dat" u 1:2:(0.0) w p pt 6 ps (29./SCALE) lc rgb "white" t "", "../home.dat" u 1:2:(0.0) w p pt 6 ps (29./SCALE) lc rgb "#666666" t "", "../goals.dat" u 1:(($3 > 0)?$2:1/0):(0.0) w p pt 6 ps (29./SCALE) lc rgb "green" t ""	
 reset
@@ -91,7 +91,7 @@ set origin 0.0,0.0
 set size 0.9,0.4
 set key at screen 0.86,0.4 horizontal spacing 0.2 
 set yrange [-0.05:1.05]
-set xtics (1,10,20,30,40,50)
+set xtics 100
 set ytics 0.5
 
 set xlabel "Trials"

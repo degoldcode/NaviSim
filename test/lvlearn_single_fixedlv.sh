@@ -30,6 +30,7 @@ gnuplot 2dDensity.plot
 gnuplot lv.plot -e "num_lv=3"
 gnuplot ref.plot
 gnuplot track_lv.plot
+gnuplot track_multi_lvdynamics.plot
 gnuplot track_eligtrac.plot
 gnuplot signals.plot
 gnuplot gv_performance.plot

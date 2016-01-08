@@ -87,7 +87,7 @@ Simulation::Simulation(int in_numtrials, int in_agents, bool random_env){
 	trialtimes.open("data/trialtimes.dat");
 	performance_gvl.open("data/performgvl.dat");
 	performance_gvl.width(10);
-	performance_gvl << "#Trial\t#ExplRate\t#HomeRate\t#GoalRate\n";
+	performance_gvl << "#Trial\t#ExplRate\t#HomeRate\t#GoalRate\t#CurrHome\t#CurrGoal\t#HomeLen\t#GoalLen\n";
 	LV_elig_traces.open("data/lv_eligtraces.dat");
 	LV_elig_traces.width(10);
 	LV_elig_traces << fixed;
@@ -215,18 +215,27 @@ void Simulation::run(int in_numtrials, double in_duration, double in_interval){
 	}
 
 	for(; trial < N+1; trial++){
+		if(SILENT && trial%(N/10)==0)
+			printf("%u\n", trial);
 		start_time = global_t;
 		prev_expl = c()->expl(0);
 
 		reset();
 		while(trial_t < T){
-			if(int(trial_t/dt)%sample_time == 0)
+			if(int(trial_t/dt)%sample_time == 0 && !SILENT)
 				writeTrialData();
 			update();
 			pi_error( (a(0)->HV()-a(0)->v()).len() );
 		}
-		if(trial_t <= T + 0.5)
-			is_home(0);
+		if(trial_t <= T + 0.5){
+			curr_is_home = 0;
+			is_home(curr_is_home);
+		}
+		if(environment->get_hits(0) > 0)
+			curr_is_goal = 1;
+		else
+			curr_is_goal = 0;
+		is_goal(curr_is_goal);
 
 		if(prev_expl >= 0.5 && c()->expl(0) < 0.5)
 			trial_converge = trial;
@@ -296,14 +305,14 @@ void Simulation::update(){
 		//printf("%u\tTheta=%f\n", timestep, environment->a(0)->th().deg());
 	avg_reward(c()->R(0));
 	environment->update();
-	is_goal(environment->get_hits(0) > 0);
 	count_goal += environment->get_hits(0);
 	if(environment->stop_trial){
 		if(N < 10 && !SILENT)
 			printf("Homing success at %g s\n", trial_t);
 		trial_t = T+1.;
 		count_home++;
-		is_home(1);
+		curr_is_home = 1;
+		is_home(curr_is_home);
 	}
 }
 
@@ -314,7 +323,11 @@ void Simulation::writeSimData(){
 		performance_gvl << setprecision(0) << trial << "\t" ;
 		performance_gvl	<< setprecision(6) << c()->expl(0) << "\t";
 		performance_gvl	<< setprecision(6) << is_home.mean() << "\t";
-		performance_gvl	<< setprecision(6) << is_goal.mean() << endl;
+		performance_gvl	<< setprecision(6) << is_goal.mean() << "\t";
+		performance_gvl	<< setprecision(0) << curr_is_home << "\t\t";
+		performance_gvl	<< setprecision(0) << curr_is_goal << "\t\t";
+		performance_gvl	<< setprecision(0) << is_home.count() << "\t\t";
+		performance_gvl	<< setprecision(0) << is_goal.count() << endl;
 	}
 
 	endpts_str << trial;
@@ -333,6 +346,7 @@ void Simulation::writeTrialData(){
 		for(int lm_i=0; lm_i < c()->K(); lm_i++)
 			agent_str  << "\t" << c()->el_lm(lm_i);	// TODO: different streams for different agents
 	}
+	agent_str << "\t" << a(0)->dphi();
 	agent_str << endl;
 
 	lmr_attract << fixed;
@@ -397,7 +411,7 @@ void Simulation::writeTrialData(){
 		LV_learning << endl;
 	}
 	reward_str << trial_t << "\t" << global_t;
-	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << endl;
+	reward_str << "\t" << c()->R(0) << "\t" << c()->v(0) << "\t" << e()->r(0) <<  endl;
 	length_scaling << a(0)->v().len() << "\t" << sum(a(0)->pi()->get_output()) << "\t" << a(0)->c()->N() << endl;
 	out_signals << trial_t << "\t" << global_t << "\t";
 	out_signals << c()->output_hv << "\t";

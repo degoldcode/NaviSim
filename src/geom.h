@@ -196,9 +196,9 @@ private:
 
 class Vec {
 public:
-	Vec(){ x=y=z=0.; array[0]=array[1]=array[2]=0.;}
-	Vec(double _x, double _y){	x=_x; y=_y; z=0.; array[0]=array[1]=array[2]=0.;}
-	Vec(double _x, double _y, double _z){	x=_x; y=_y; z=_z; array[0]=array[1]=array[2]=0.;}
+	Vec(){ x=y=z=0.; array[0]=array[1]=array[2]=0.; const_vec=false;}
+	Vec(double _x, double _y){	x=_x; y=_y; z=0.; array[0]=array[1]=array[2]=0.; const_vec=false;}
+	Vec(double _x, double _y, double _z){	x=_x; y=_y; z=_z; array[0]=array[1]=array[2]=0.; const_vec=false;}
 	~Vec(){}
 
 	Angle ang(){ return azimuth();}

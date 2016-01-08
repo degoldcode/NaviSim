@@ -287,8 +287,10 @@ public:
 
 	/// Path integration
 	running_stat<double> is_home;					// homing success
+	int curr_is_home;
 	vector<double> home_rate;
 	running_stat<double> is_goal;					// goal success
+	int curr_is_goal;
 	vector<double> goal_rate;
 	vector<double> expl_rate;
 	running_stat<double> avg_reward;				// goal success

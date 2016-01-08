@@ -24,7 +24,7 @@ Controller::Controller(int num_neurons, int _num_gv_units, int _num_lv_units, do
 
 	num_lv_units = _num_lv_units;
 	if(lvlearn_on)
-		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, true, SILENT);
+		lvl = new RouteLearning(numneurons, num_lv_units, 0.0, &inward, false, SILENT);
 
 	rand_m = 0.0;
 	pi_m = 0.0;
@@ -37,7 +37,7 @@ Controller::Controller(int num_neurons, int _num_gv_units, int _num_lv_units, do
 	output = 0.0;
 	inward = 0.0;
 	goal_factor = 0.0;
-	expl_beta = 0.1;//0.01;//0.1;	//0.5
+	expl_beta = 0.01;//0.01;//0.1;	//0.5
 	seed = 12345678;
 
 	cGV.resize(num_colors);
@@ -362,7 +362,7 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		gl_w = (1. - inward)*GV(0).len() * (1.-expl_factor(0));
 		gl_m = (GV(0).ang() - angle).S();			//NEW GV COMMAND
 	}
-	stream << cGV.at(0).ang().deg() << endl;
+	//stream << cGV.at(0).ang().deg() << endl;
 	output_gv = gl_w * gl_m;
 
 	/*** Local Vector Learning Circuits TODO ***/
@@ -374,24 +374,34 @@ double Controller::update(Angle angle, double speed, double inReward, vec inLmr,
 		rl_w = (1. - inward);
 		for(int i = 0; i < num_lv_units; i++){
 			//cLV.at(i) = (LV(i) - HV());
-			if(inward == 0. && lvl->el_lm(i) > 0.1){
+			if(inward == 0.){
 				gl_w = 0.0;
 				pi_w = 0.0;
 				rl_m += lv_value(i) * (LV().len()*(LV().ang() - angle).S() + RV().len()*(RV().ang().i() - angle).S());
 			}
 		}
+		//if(VERBOSE && t%100==0)
+			//printf("t = %u\tHV = (%f, %f)\tLV = (%f, %f)\tRV = (%f, %f)\n", t, HV().ang().deg(), HV().len(), LV().ang().deg(), LV().len(), RV().ang().deg(), RV().len());
 		output_lv = rl_w * rl_m;
 	}
+	else
+		output_lv = 0.;
 
 	/*** Random foraging ***/
-	rand_w = (1. - inward)*0.6*expl_factor(0)*(1.-accu(lv_value));
+	if(lvlearn_on){
+		rand_w = (1. - inward)*0.6*expl_factor(0)*(1.-accu(lv_value));
+	}
+	else
+		rand_w = (1. - inward)*0.6*expl_factor(0);
 	rand_m = randn(0.0, 1.);
 	if(inward == 1)
 		rand_m = 0.;
+
 	output_rand = rand_w * rand_m;
 
 	/*** Navigation Control Output ***/
-	output = output_rand + output_hv + 0.0 + output_lv;
+	output = output_rand + output_hv + output_gv + output_lv;
+	//output = output_rand + output_hv + 0.0 + output_lv; // Route formation
 
 	return output;
 }

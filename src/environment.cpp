@@ -337,9 +337,9 @@ void Environment::open_streams(){
 	stream_food.open("./data/food.dat");
 }
 
-/*double Environment::r(){
-	return reward;
-}*/
+double Environment::r(int index){
+	return reward.at(index);
+}
 
 void Environment::reset(){
 	stop_trial = false;
